@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT name="AudioLatencyDemo" companyName="JUCE" version="1.0.0" userNotes="Tests the audio latency of a device."
+              companyWebsite="http://juce.com" displaySplashScreen="1" defines="PIP_JUCE_EXAMPLES_DIRECTORY=QzpcVXNlcnNcemhhb3liXERlc2t0b3BcY3MxMjAgcHJvamVjdFxKVUNFXGV4YW1wbGVz"
+              projectType="guiapp" useAppConfig="0" addUsingNamespaceToJuceHeader="1"
+              id="stlAp5" jucerFormatVersion="1">
+  <MAINGROUP id="vArOgS" name="AudioLatencyDemo">
+    <GROUP id="{589D289E-6707-09F5-551D-B0758E4F0015}" name="Source">
+      <FILE id="j69YuP" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+      <FILE id="bjKpwI" name="AudioLatencyDemo.h" compile="0" resource="0"
+            file="Source/AudioLatencyDemo.h"/>
+    </GROUP>
+    <GROUP id="eJBgho" name="Assets">
+      <FILE id="zLhu7D" name="DemoUtilities.h" compile="0" resource="0" file="Source/DemoUtilities.h"/>
+      <FILE id="onWTGb" name="AudioLiveScrollingDisplay.h" compile="0" resource="0"
+            file="Source/AudioLiveScrollingDisplay.h"/>
+    </GROUP>
+  </MAINGROUP>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <EXPORTFORMATS>
+    <XCODE_MAC targetFolder="Builds/MacOSX">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="AudioLatencyDemo"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="AudioLatencyDemo"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path=""/>
+        <MODULEPATH id="juce_audio_devices" path=""/>
+        <MODULEPATH id="juce_audio_formats" path=""/>
+        <MODULEPATH id="juce_audio_processors" path=""/>
+        <MODULEPATH id="juce_audio_utils" path=""/>
+        <MODULEPATH id="juce_core" path=""/>
+        <MODULEPATH id="juce_data_structures" path=""/>
+        <MODULEPATH id="juce_events" path=""/>
+        <MODULEPATH id="juce_graphics" path=""/>
+        <MODULEPATH id="juce_gui_basics" path=""/>
+        <MODULEPATH id="juce_gui_extra" path=""/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+    <VS2019 targetFolder="Builds/VisualStudio2019">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="AudioLatencyDemo"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="AudioLatencyDemo"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path=""/>
+        <MODULEPATH id="juce_audio_devices" path=""/>
+        <MODULEPATH id="juce_audio_formats" path=""/>
+        <MODULEPATH id="juce_audio_processors" path=""/>
+        <MODULEPATH id="juce_audio_utils" path=""/>
+        <MODULEPATH id="juce_core" path=""/>
+        <MODULEPATH id="juce_data_structures" path=""/>
+        <MODULEPATH id="juce_events" path=""/>
+        <MODULEPATH id="juce_graphics" path=""/>
+        <MODULEPATH id="juce_gui_basics" path=""/>
+        <MODULEPATH id="juce_gui_extra" path=""/>
+      </MODULEPATHS>
+    </VS2019>
+    <LINUX_MAKE targetFolder="Builds/LinuxMakefile">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="AudioLatencyDemo"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="AudioLatencyDemo"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path=""/>
+        <MODULEPATH id="juce_audio_devices" path=""/>
+        <MODULEPATH id="juce_audio_formats" path=""/>
+        <MODULEPATH id="juce_audio_processors" path=""/>
+        <MODULEPATH id="juce_audio_utils" path=""/>
+        <MODULEPATH id="juce_core" path=""/>
+        <MODULEPATH id="juce_data_structures" path=""/>
+        <MODULEPATH id="juce_events" path=""/>
+        <MODULEPATH id="juce_graphics" path=""/>
+        <MODULEPATH id="juce_gui_basics" path=""/>
+        <MODULEPATH id="juce_gui_extra" path=""/>
+      </MODULEPATHS>
+    </LINUX_MAKE>
+    <ANDROIDSTUDIO targetFolder="Builds/Android" androidExtraAssetsFolder="C:\Users\zhaoyb\Desktop\cs120 project\JUCE\examples\Assets">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="AudioLatencyDemo"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="AudioLatencyDemo"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path=""/>
+        <MODULEPATH id="juce_audio_devices" path=""/>
+        <MODULEPATH id="juce_audio_formats" path=""/>
+        <MODULEPATH id="juce_audio_processors" path=""/>
+        <MODULEPATH id="juce_audio_utils" path=""/>
+        <MODULEPATH id="juce_core" path=""/>
+        <MODULEPATH id="juce_data_structures" path=""/>
+        <MODULEPATH id="juce_events" path=""/>
+        <MODULEPATH id="juce_graphics" path=""/>
+        <MODULEPATH id="juce_gui_basics" path=""/>
+        <MODULEPATH id="juce_gui_extra" path=""/>
+      </MODULEPATHS>
+    </ANDROIDSTUDIO>
+    <XCODE_IPHONE targetFolder="Builds/iOS" customXcodeResourceFolders="C:\Users\zhaoyb\Desktop\cs120 project\JUCE\examples\Assets">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="AudioLatencyDemo"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="AudioLatencyDemo"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path=""/>
+        <MODULEPATH id="juce_audio_devices" path=""/>
+        <MODULEPATH id="juce_audio_formats" path=""/>
+        <MODULEPATH id="juce_audio_processors" path=""/>
+        <MODULEPATH id="juce_audio_utils" path=""/>
+        <MODULEPATH id="juce_core" path=""/>
+        <MODULEPATH id="juce_data_structures" path=""/>
+        <MODULEPATH id="juce_events" path=""/>
+        <MODULEPATH id="juce_graphics" path=""/>
+        <MODULEPATH id="juce_gui_basics" path=""/>
+        <MODULEPATH id="juce_gui_extra" path=""/>
+      </MODULEPATHS>
+    </XCODE_IPHONE>
+  </EXPORTFORMATS>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_ASIO="1" JUCE_WASAPI="0"
+               JUCE_DIRECTSOUND="0" JUCE_ALSA="0" JUCE_USE_ANDROID_OBOE="0"/>
+</JUCERPROJECT>

@@ -106,26 +106,30 @@ public:
             nextSampleNum += numSamples;
         }
 
-        // Generate Sine Wave Data
+        
+        // We need to clear the output buffers, in case they're full of junk..
         for (int i = 0; i < numOutputChannels; ++i)
             if (outputChannelData[i] != nullptr)
                 juce::FloatVectorOperations::clear(outputChannelData[i], numSamples);
 
-        int freq = 9000; // Hz
-        float amp = 0.7;
+        // Generate Sine Wave Data
+        int freq1 = 1000; // Hz
+        int freq2 = 10000;
+        float amp = 1;
         int sampleRate = 48000;
         int channelNum = 1;
-        float dPhasePerSample = 2 * PI * ((float)freq / (float)sampleRate);
+        float dPhasePerSample1 = 2 * PI * ((float)freq1 / (float)sampleRate);
+        float dPhasePerSample2 = 2 * PI * ((float)freq2 / (float)sampleRate);
         float initPhase = 0;
         float data;
 
         for (int i = 0; i < numSamples; i++) {
-            data = amp * sin(dPhasePerSample * i + initPhase);
+            data = amp * sin(dPhasePerSample1 * i + initPhase) + amp * sin(dPhasePerSample2 * i + initPhase);
             // Write the sample into the output channel 
             outputChannelData[0][i] = data;
         }
         
-        // We need to clear the output buffers, in case they're full of junk..
+        
         
         
     }
