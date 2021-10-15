@@ -9,6 +9,7 @@
 #include <JuceHeader.h>
 #include<fstream>
 
+#define PI acos(-1)
 using namespace juce;
 class Receiver : public AudioIODeviceCallback
 {
@@ -19,6 +20,44 @@ public :
         isRecording = false;
     }
 
+    void GenerateCarrierWave()
+    {
+        int carrierAmp = 1;
+        int carrierFreq = 10000;
+
+        for (int j = 0; j < bitLen; j++)
+        {
+            carrierWave.add(carrierAmp * cos(2 * PI * carrierFreq * j / sampleRate));
+        }
+
+    }
+
+    void GenerateHeader() {
+        int start_freq = 2000;
+        int end_freq = 10000;
+        float freq_step = (end_freq - start_freq) / (headerLength / 2);
+        float time_gap = (float)1 / (float)sampleRate;
+        std::vector<float> fp;
+        std::vector<float> omega;
+        for (int i = 0; i < headerLength; i++)
+        {
+            fp.push_back(0);
+            omega.push_back(0);
+        }
+        float* header_stack = new float[headerLength];
+        fp[0] = start_freq;
+        fp[headerLength/ 2] = end_freq;
+        for (int i = 1; i < headerLength / 2; i++)
+            fp[i] = fp[i - 1] + freq_step;
+        for (int i = headerLength / 2 + 1; i < headerLength; i++)
+            fp[i] = fp[i - 1] - freq_step;
+        for (int i = 1; i < headerLength; i++)
+            omega[i] = omega[i - 1] + (fp[i] + fp[i - 1]) / 2.0 * time_gap;
+        for (int i = 0; i < headerLength; i++)
+            header_stack[i] = sin(2 * PI * omega[i]);
+        syncHeader = Array<float>(header_stack,headerLength);
+    }
+
     void audioDeviceAboutToStart(AudioIODevice* device) override
     {
         isRecording = false;
@@ -27,6 +66,9 @@ public :
         sampleRate = 48000;
         
         recordedSound.clear();
+
+        GenerateCarrierWave();
+        GenerateHeader();
     }
 
     void audioDeviceStopped() override {}
@@ -119,6 +161,7 @@ public :
                         tempBuffer.add(s[i]);
                         if (i > headerPos + 200)
                         {
+                            std::cout << "header found at " << headerPos << std::endl;
                             syncPower_localMax = 0;
                             processingHeader.clear();
                             state = 1;
@@ -139,7 +182,7 @@ public :
                             {
                                 sum += processingData[j] * carrierWave[j];
                             }
-                            decodeData.add(sum > 0);
+                            decodeData.add((int8_t)sum > 0);
                         }
                         processingData.clear();
                         state = 0;
@@ -152,7 +195,7 @@ public :
 
     void WritetoFile()
     {
-        std::ofstream fout("record.txt");
+        std::ofstream fout("record.out");
         if (!fout)
         {
             std::cout << "File open Error!" << std::endl;
@@ -160,7 +203,10 @@ public :
         else
         {
             for (int i = 0; i < decodeData.size(); i++)
-                fout << decodeData[i];
+            {
+                if (i < 10000)
+                    fout << decodeData[i];
+            }
         }
         fout.close();
     }
@@ -173,7 +219,7 @@ private :
     Array<float> processingData;
     Array<float> syncHeader;
     Array<float> carrierWave;
-    Array<bool> decodeData;
+    Array<int8_t> decodeData;
 
     CriticalSection lock;
 
