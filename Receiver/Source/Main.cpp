@@ -11,6 +11,201 @@
 
 #define PI acos(-1)
 using namespace juce;
+class Sender : public AudioIODeviceCallback, private HighResolutionTimer {
+public:
+    Sender();
+    void setHeaderLen(int len);
+    void setCarrierFreq(int freq);
+    int** getBitStream();
+    float* generateHeader();
+    void Modulation(int* frame_bit);
+    void audioDeviceIOCallback(const float** inputChannelData, int numInputChannels,
+        float** outputChannelData, int numOutputChannels, int numSamples);
+    void audioDeviceAboutToStart(juce::AudioIODevice* device) override {}
+    void audioDeviceStopped() {}
+    void GenerateCarrierWave();
+    void send();
+    void BeginSend();
+    void hiResTimerCallback() override
+    {
+        if (isPlaying && playingSampleNum >= output_buffer.getNumSamples())
+        {
+            isPlaying = false;
+            stopTimer();
+
+        }
+    }
+    bool isPlaying;
+    AudioBuffer<float> output_buffer;
+
+private:
+    int header_len;
+    int sample_rate;
+    int carrier_freq;
+    int carrier_amp;
+    int carrier_phase;
+    int num_bits_per_frame;
+    int num_samples_per_bit;
+    int playingSampleNum;
+    int num_frame;
+    int len_zeros;
+    int len_warm_up;
+    CriticalSection lock;
+    std::vector<float> frame_wave;
+    Array<float> carrier_wave;
+    //    AudioDeviceManager audioDeviceManager;
+    //    unique_ptr<audioDevice> device;
+};
+
+
+Sender::Sender() {
+    len_warm_up = 480;
+    header_len = 960;
+    sample_rate = 48000;
+    carrier_freq = 5000;
+    carrier_phase = 0;
+    carrier_amp = 1;
+    num_bits_per_frame = 100;
+    num_samples_per_bit = 48;
+    len_zeros = 0;
+    num_frame = 10;
+    for (size_t i = 0; i < num_bits_per_frame * num_samples_per_bit; i++)
+        frame_wave.push_back(0);
+    GenerateCarrierWave();
+    isPlaying = false;
+}
+
+void Sender::setHeaderLen(int len) {
+    header_len = len;
+}
+
+void Sender::setCarrierFreq(int freq) {
+    carrier_freq = freq;
+}
+
+int** Sender::getBitStream() {
+    int** frame_bit = new int* [num_frame];
+    std::ifstream f;
+    char tmp;
+    f.open("C:\\CS120\\CS120-Shanghaitech-Fall2021\\input.in");
+    for (int i = 0; i < num_frame; i++) {
+        frame_bit[i] = new int[num_bits_per_frame];
+        for (int j = 0; j < num_bits_per_frame; j++) {
+            f >> tmp;
+            frame_bit[i][j] = (int)tmp - 48;
+            //frame_bit[i][j] = 1;
+        }
+    }
+    f.close();
+    return frame_bit;
+}
+
+
+void Sender::GenerateCarrierWave() {
+
+    for (int j = 0; j < num_samples_per_bit; j++)
+    {
+        carrier_wave.add(carrier_amp * cos(j * 2 * PI * ((float)carrier_freq / (float)sample_rate) + carrier_phase));
+    }
+}
+
+float* Sender::generateHeader() {
+    int start_freq = 2000;
+    int end_freq = 10000;
+    float freq_step = (end_freq - start_freq) / (header_len / 2);
+    float time_gap = (float)1 / (float)sample_rate;
+    std::vector<float> fp;
+    std::vector<float> omega;
+    for (int i = 0; i < header_len; i++)
+    {
+        fp.push_back(0);
+        omega.push_back(0);
+    }
+    float* header_stack = new float[header_len];
+    fp[0] = start_freq;
+    fp[header_len / 2] = end_freq;
+    for (int i = 1; i < header_len / 2; i++)
+        fp[i] = fp[i - 1] + freq_step;
+    for (int i = header_len / 2 + 1; i < header_len; i++)
+        fp[i] = fp[i - 1] - freq_step;
+    for (int i = 1; i < header_len; i++)
+        omega[i] = omega[i - 1] + (fp[i] + fp[i - 1]) / 2.0 * time_gap;
+    for (int i = 0; i < header_len; i++)
+        header_stack[i] = sin(2 * PI * omega[i]);
+    return header_stack;
+}
+
+
+void Sender::Modulation(int* frame_bit) {
+    for (int i = 0; i < num_bits_per_frame * num_samples_per_bit; i++)
+        frame_wave[i] = 0;
+    for (int i = 0; i < num_bits_per_frame; i++) {
+        for (int j = 0; j < num_samples_per_bit; j++)
+            frame_wave[i * num_samples_per_bit + j] = (frame_bit[i] * 2 - 1) * carrier_wave[j];
+    }
+}
+
+
+void Sender::send() {
+    float* header = generateHeader();
+    int** frame_bit = getBitStream();
+    int len_frame = header_len + num_samples_per_bit * num_bits_per_frame + len_zeros;
+    int len_buffer = num_frame * len_frame;
+    output_buffer.setSize(1, len_buffer + 480 + len_warm_up);
+    output_buffer.clear();
+    for (int j = 0; j < 480; j++)
+        output_buffer.setSample(0, j, carrier_wave[j % num_samples_per_bit]);
+    for (int i = 0; i < num_frame; i++) {
+        Modulation(frame_bit[i]);
+        for (int j = 0; j < header_len; j++)
+            output_buffer.setSample(0, len_warm_up + i * len_frame + j, header[j]);
+        for (int j = 0; j < num_samples_per_bit * num_bits_per_frame; j++)
+            output_buffer.setSample(0, len_warm_up + i * len_frame + header_len + j, frame_wave[j]);
+        /*for (int j = 0; j < len_zeros; j++)
+            output_buffer.setSample(0, len_warm_up + i * len_frame + header_len + num_samples_per_bit * num_bits_per_frame + j, 0);*/
+    }
+}
+
+void Sender::BeginSend()
+{
+
+    const ScopedLock sl(lock);
+    playingSampleNum = 0;
+    isPlaying = true;
+    send();
+    startTimer(50);
+}
+
+
+void Sender::audioDeviceIOCallback(const float** inputChannelData, int numInputChannels, float** outputChannelData, int numOutputChannels, int numSamples) {
+    const ScopedLock sl(lock);
+
+    auto* playBuffer = output_buffer.getReadPointer(0);
+    /*
+    // We need to clear the output buffers, in case they're full of junk..
+    for (int i = 0; i < numOutputChannels; ++i)
+        if (outputChannelData[i] != nullptr)
+            FloatVectorOperations::clear(outputChannelData[i], numSamples);
+     */
+     // Generate Sine Wave Data
+
+    for (int i = 0; i < numSamples; i++)
+    {
+        for (auto j = numOutputChannels; --j >= 0;)
+        {
+
+            if (outputChannelData[j] != nullptr)
+            {
+                // Write the sample into the output channel
+                outputChannelData[j][i] = (playingSampleNum < output_buffer.getNumSamples()) ? playBuffer[playingSampleNum] : 0.0f;
+                ++playingSampleNum;
+            }
+        }
+    }
+}
+
+
+
 class Receiver : public AudioIODeviceCallback
 {
 public :
@@ -134,7 +329,8 @@ public :
         std::ofstream debugf("synpower.txt");
         std::ofstream recordeddebug("record.txt");
         std::ofstream datadebug("data.txt");
-        for (int i = 0; i < recordedSampleNum; i++)
+        //for (int i = 0; i < recordedSampleNum; i++)
+        for (int i = 0; i < buffer.getNumSamples(); i++)
         {
             recordeddebug << s[i] << "\n";
             power = power * (1 - 1 / 64) + s[i] * s[i] / 64;
@@ -172,7 +368,6 @@ public :
                         {
                             std::cout << "header found at " << headerPos << std::endl;
                             syncPower_localMax = 0;
-                            processingHeader.clear();
                             state = 1;
                             processingData = tempBuffer;
                         }
@@ -206,6 +401,7 @@ public :
                                 datadebug << processingData[i] << "\n";
                         }
                         processingData.clear();
+                        processingHeader.clear();
                         state = 0;
                         headerPos = 0;
                     }            
@@ -269,11 +465,16 @@ int main (int argc, char* argv[])
     
 
     std::unique_ptr<Receiver> receiver;
+    std::unique_ptr<Sender> sender;
     if (receiver.get() == nullptr)
     {
         receiver.reset(new Receiver());
     }
-
+    if (sender.get() == nullptr)
+    {
+        sender.reset(new Sender());
+    }
+    
     std::cout << "Press any ENTER to start recording.\n";
     getchar();
     getchar();
@@ -285,8 +486,23 @@ int main (int argc, char* argv[])
 
     std::cout << "Press any ENTER to stop recording.\n";
     getchar();
-
+    
     (*receiver).stopRecording();
+    
+    
+    //sender->send();
+    /*
+    std::ifstream temp("C:\\CS120\\CS120-Shanghaitech-Fall2021-main\\out.out");
+    AudioBuffer<float> tempBuffer;
+    tempBuffer.setSize(1, 100000);
+    auto* s = tempBuffer.getWritePointer(0);
+    char tmp;
+    for (int i = 0; i < 58560; i++)
+    {
+        temp >> s[i];
+    }
+    */
+    //receiver->Demodulate(sender->output_buffer);
     (*receiver).WritetoFile();
     dev_manager.removeAudioCallback(receiver.get());
     DeletedAtShutdown::deleteAll();
