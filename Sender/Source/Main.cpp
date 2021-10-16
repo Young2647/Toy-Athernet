@@ -14,7 +14,7 @@
 using namespace std;
 using namespace juce;
 
-class Sender : public AudioIODeviceCallback, private Timer {
+class Sender : public AudioIODeviceCallback, private HighResolutionTimer {
 public:
     Sender();
     void setHeaderLen(int len);
@@ -29,7 +29,7 @@ public:
     void GenerateCarrierWave();
     void send();
     void BeginSend();
-    void timerCallback() override
+    void hiResTimerCallback() override
     {
         if (isPlaying && playingSampleNum >= output_buffer.getNumSamples())
         {
@@ -50,6 +50,8 @@ private:
     int num_samples_per_bit;
     int playingSampleNum;
     int num_frame;
+    int len_zeros;
+    int len_warm_up;
     CriticalSection lock;
     vector<float> frame_wave;
     AudioBuffer<float> output_buffer;
@@ -60,13 +62,15 @@ private:
 
 
 Sender::Sender() {
-    header_len = 480;
+    len_warm_up = 480;
+    header_len = 960;
     sample_rate = 48000;
-    carrier_freq = 10000;
+    carrier_freq = 5000;
     carrier_phase = 0;
     carrier_amp = 1;
     num_bits_per_frame = 100;
-    num_samples_per_bit = 48;
+    num_samples_per_bit = 500;
+    len_zeros = 960;
     num_frame = 10;
     for (size_t i = 0; i < num_bits_per_frame * num_samples_per_bit; i++)
         frame_wave.push_back(0);
@@ -84,23 +88,27 @@ void Sender::setCarrierFreq(int freq) {
 
 int** Sender::getBitStream() {
     int** frame_bit = new int* [num_frame];
-    ifstream f("input.in");
+    ifstream f;
+    char tmp;
+    f.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021-main\\input.in");
     for (int i = 0; i < num_frame; i++) {
         frame_bit[i] = new int[num_bits_per_frame];
         for (int j = 0; j < num_bits_per_frame; j++) {
-            f >> frame_bit[i][j];
+            f >> tmp;
+            frame_bit[i][j] = (int)tmp - 48;
+            //frame_bit[i][j] = 1;
         }
     }
+    f.close();
     return frame_bit;
 }
 
 
-void Sender::GenerateCarrierWave()
-{
+void Sender::GenerateCarrierWave() {
 
     for (int j = 0; j < num_samples_per_bit; j++)
     {
-        carrier_wave.add(carrier_amp * cos(2 * PI * carrier_freq * j / sample_rate));
+        carrier_wave.add(carrier_amp * cos(j * 2 * PI * ((float)carrier_freq / (float)sample_rate) + carrier_phase));
     }
 }
 
@@ -133,14 +141,10 @@ float* Sender::generateHeader() {
 
 void Sender::Modulation(int* frame_bit) {
     for (int i = 0; i < num_bits_per_frame * num_samples_per_bit; i++)
-    {
         frame_wave[i] = 0;
-    }
-    double dPhasePerSample = 2 * PI * ((float)carrier_freq / (float)sample_rate);
     for (int i = 0; i < num_bits_per_frame; i++) {
-        for (int j = 0; j < num_samples_per_bit; j++) {
-            frame_wave[i * num_samples_per_bit + j] = (frame_bit[j] * 2 - 1) * carrier_wave[j];
-        }
+        for (int j = 0; j < num_samples_per_bit; j++)
+            frame_wave[i * num_samples_per_bit + j] = (frame_bit[i] * 2 - 1) * carrier_wave[j];
     }
 }
 
@@ -148,29 +152,39 @@ void Sender::Modulation(int* frame_bit) {
 void Sender::send() {
     float* header = generateHeader();
     int** frame_bit = getBitStream();
-    int len_buffer = num_frame * (header_len + num_samples_per_bit * num_bits_per_frame);
-    output_buffer.setSize(1, len_buffer);
+    int len_frame = header_len + num_samples_per_bit * num_bits_per_frame + len_zeros;
+    int len_buffer = num_frame*len_frame;
+    output_buffer.setSize(1, len_buffer + 480 + len_warm_up);
     output_buffer.clear();
-    for (int i = 0; i < 10; i++) {
-        output_buffer.clear();
+    for (int j = 0; j < 480; j++)
+        output_buffer.setSample(0, j, carrier_wave[j % num_samples_per_bit]);
+    for (int i = 0; i < num_frame; i++) {
         Modulation(frame_bit[i]);
         for (int j = 0; j < header_len; j++)
-            output_buffer.setSample(0, j, header[j]);
+            output_buffer.setSample(0, len_warm_up + i * len_frame + j, header[j]);
         for (int j = 0; j < num_samples_per_bit * num_bits_per_frame; j++)
-            output_buffer.setSample(0, header_len + j, frame_wave[j]);
+            output_buffer.setSample(0, len_warm_up + i * len_frame + header_len + j, frame_wave[j]);
+        /*for (int j = 0; j < len_zeros; j++)
+            output_buffer.setSample(0, len_warm_up + i * len_frame + header_len + num_samples_per_bit * num_bits_per_frame + j, 0);*/
     }
-
+    ofstream of;
+    of.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021-main\\Sender\\Builds\\VisualStudio2019\\out.out", ios::trunc);
+    for (int i = 0; i < 20000; i++) {
+        if (of.is_open()) {
+            of << output_buffer.getSample(0, i) << endl;
+        }
+    }
+    of.close();
 }
 
 void Sender::BeginSend()
 {
 
-    startTimer(50);
-
     const ScopedLock sl(lock);
     playingSampleNum = 0;
     isPlaying = true;
     send();
+    startTimer(50);
 }
 
 
@@ -185,10 +199,12 @@ void Sender::audioDeviceIOCallback(const float** inputChannelData, int numInputC
             FloatVectorOperations::clear(outputChannelData[i], numSamples);
      */
     // Generate Sine Wave Data
+   
     for (int i = 0; i < numSamples; i++)
     {
         for (auto j = numOutputChannels; --j >= 0;)
         {
+
             if (outputChannelData[j] != nullptr)
             {
                 // Write the sample into the output channel
