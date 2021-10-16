@@ -19,4 +19,4 @@ def file_diff(a, b):
     input_file.close()
     output_file.close()
 
-file_diff("input.in", "output.out")
+file_diff("input.in", "record.out")

@@ -89,10 +89,11 @@ public :
                         if (inputChannelData[j] != nullptr)
                             inputSamp += inputChannelData[j][i];
                     recordingBuffer[recordedSampleNum] = inputSamp;
+                    recordedSampleNum++;
                 }
             }
-            recordedSampleNum++;
         }
+
         for (int i = 0; i < numOutputChannels; ++i)
             if (outputChannelData[i] != nullptr)
                 zeromem(outputChannelData[i], (size_t)numSamples * sizeof(float));
@@ -129,9 +130,15 @@ public :
         auto* s = buffer.getReadPointer(0);
 
         Array<float> tempBuffer;
-        for (int i = 0; i < buffer.getNumSamples(); i++)
+        float power = 0;
+        std::ofstream debugf("synpower.txt");
+        std::ofstream recordeddebug("record.txt");
+        std::ofstream datadebug("data.txt");
+        for (int i = 0; i < recordedSampleNum; i++)
         {
-            if (i < headerLength)
+            recordeddebug << s[i] << "\n";
+            power = power * (1 - 1 / 64) + s[i] * s[i] / 64;
+            if (processingHeader.size() < headerLength)
             {
                 processingHeader.add(s[i]);
                 continue;
@@ -140,17 +147,18 @@ public :
             {
                 if (state == 0) // sync process
                 {
+                    processingHeader.add(s[i]);
                     if (processingHeader.size() > headerLength)
                     {
                         processingHeader.removeRange(0, 1);
                     }
-                    processingHeader.add(s[i]);
                     float syncPower = 0;
-                    for (int i = 0; i < headerLength; i++)
+                    for (int j = 0; j < headerLength; j++)
                     {
-                        syncPower += syncHeader[i] * processingHeader[i];
+                        syncPower += syncHeader[j] * processingHeader[j];
                     }
-                    if (syncPower > syncPower_localMax && syncPower > 0.05)
+                    debugf << syncPower << "\n";
+                    if (syncPower > (power * power) && syncPower > syncPower_localMax && syncPower > 0.5)
                     {
                         syncPower_localMax = syncPower;
                         headerPos = i;
@@ -159,7 +167,8 @@ public :
                     else if (headerPos != 0)
                     {
                         tempBuffer.add(s[i]);
-                        if (i > headerPos + 200)
+                        //recordeddebug << s[i] << "\n";
+                        if (i > headerPos + 500)
                         {
                             std::cout << "header found at " << headerPos << std::endl;
                             syncPower_localMax = 0;
@@ -175,14 +184,26 @@ public :
                     processingData.add(s[i]);
                     if (processingData.size() == bitLen * packLen)
                     {
-                        for (int i = 0; i < packLen; i++)
+                        for (int j = 0; j < packLen; j++)
                         {
                             float sum = 0;
-                            for (int j = 0; j < bitLen; j++)
+                            for (int k = 0; k < bitLen; k++)
                             {
-                                sum += processingData[j] * carrierWave[j];
+                                int temp = processingData[j * bitLen + k] * carrierWave[k];
+                                sum += processingData[j * bitLen + k] * carrierWave[k];
+                               //sum +=  carrierWave[j];
                             }
-                            decodeData.add((int8_t)sum > 0);
+                            if (sum > 0)
+                                decodeData.add(1);
+                            else if (sum < 0)
+                                decodeData.add(0);
+                        }
+                        for (int i = 0; i < processingData.size() + 100; i++)
+                        {
+                            if (i >= processingData.size())
+                                datadebug << 0 << "\n";
+                            else
+                                datadebug << processingData[i] << "\n";
                         }
                         processingData.clear();
                         state = 0;
@@ -205,7 +226,10 @@ public :
             for (int i = 0; i < decodeData.size(); i++)
             {
                 if (i < 10000)
+                {
                     fout << decodeData[i];
+
+                }
             }
         }
         fout.close();
@@ -219,14 +243,14 @@ private :
     Array<float> processingData;
     Array<float> syncHeader;
     Array<float> carrierWave;
-    Array<int8_t> decodeData;
+    Array<int> decodeData;
 
     CriticalSection lock;
 
     int recordedSampleNum = -1;
     int bitLen = 48; //the length of one bit
     int packLen = 100; // how many bits per frame
-    int headerLength = 480;
+    int headerLength = 960;
     int sampleRate;
     float syncPower_localMax;
 };

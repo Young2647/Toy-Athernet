@@ -96,6 +96,7 @@ public:
     {
         const juce::ScopedLock sl(writerLock);
 
+
         if (activeWriter.load() != nullptr && numInputChannels >= thumbnail.getNumChannels())
         {
             activeWriter.load()->write(inputChannelData, numSamples);
@@ -106,11 +107,7 @@ public:
             nextSampleNum += numSamples;
         }
 
-        
-        // We need to clear the output buffers, in case they're full of junk..
-        for (int i = 0; i < numOutputChannels; ++i)
-            if (outputChannelData[i] != nullptr)
-                juce::FloatVectorOperations::clear(outputChannelData[i], numSamples);
+
 
         // Generate Sine Wave Data
         int freq1 = 1000; // Hz
@@ -128,10 +125,10 @@ public:
             // Write the sample into the output channel 
             outputChannelData[0][i] = data;
         }
-        
-        
-        
-        
+
+
+
+
     }
 
 private:
@@ -146,7 +143,7 @@ private:
 };
 
 //==============================================================================
-int main (int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     juce::MessageManager::getInstance();
     /* Initialize Player */
