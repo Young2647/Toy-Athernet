@@ -63,15 +63,15 @@ private:
 
 Sender::Sender() {
     len_warm_up = 480;
-    header_len = 960;
+    header_len = 480;
     sample_rate = 48000;
     carrier_freq = 5000;
     carrier_phase = 0;
     carrier_amp = 1;
     num_bits_per_frame = 100;
-    num_samples_per_bit = 500;
-    len_zeros = 960;
-    num_frame = 10;
+    num_samples_per_bit = 48;
+    len_zeros = 20;
+    num_frame = 100;
     for (size_t i = 0; i < num_bits_per_frame * num_samples_per_bit; i++)
         frame_wave.push_back(0);
     GenerateCarrierWave();
@@ -164,17 +164,17 @@ void Sender::send() {
             output_buffer.setSample(0, len_warm_up + i * len_frame + j, header[j]);
         for (int j = 0; j < num_samples_per_bit * num_bits_per_frame; j++)
             output_buffer.setSample(0, len_warm_up + i * len_frame + header_len + j, frame_wave[j]);
-        /*for (int j = 0; j < len_zeros; j++)
-            output_buffer.setSample(0, len_warm_up + i * len_frame + header_len + num_samples_per_bit * num_bits_per_frame + j, 0);*/
+        for (int j = 0; j < len_zeros; j++)
+            output_buffer.setSample(0, len_warm_up + i * len_frame + header_len + num_samples_per_bit * num_bits_per_frame + j, 0);
     }
-    ofstream of;
-    of.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021-main\\Sender\\Builds\\VisualStudio2019\\out.out", ios::trunc);
-    for (int i = 0; i < 20000; i++) {
-        if (of.is_open()) {
-            of << output_buffer.getSample(0, i) << endl;
-        }
-    }
-    of.close();
+    //ofstream of;
+    //of.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021-main\\Sender\\Builds\\VisualStudio2019\\out.out", ios::trunc);
+    //for (int i = 0; i < output_buffer.getNumSamples(); i++) {
+    //    if (of.is_open()) {
+    //        of << output_buffer.getSample(0, i) << endl;
+    //    }
+    //}
+    //of.close();
 }
 
 void Sender::BeginSend()

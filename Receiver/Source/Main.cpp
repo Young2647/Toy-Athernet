@@ -162,7 +162,7 @@ public :
                         syncPower += syncHeader[j] * processingHeader[j];
                     }
                     //debugf << syncPower << "\n";
-                    if (syncPower > (power * power) && syncPower > syncPower_localMax && syncPower > 0.5)
+                    if (syncPower > syncPower_localMax && syncPower > 0.5)
                     {
                         syncPower_localMax = syncPower;
                         headerPos = i;
@@ -218,6 +218,7 @@ public :
                 }
             } 
         }
+        fout.close();
     }
 
     void WritetoFile()
@@ -256,7 +257,7 @@ private :
     int recordedSampleNum = -1;
     int bitLen = 48; //the length of one bit
     int packLen = 100; // how many bits per frame
-    int headerLength = 960;
+    int headerLength = 480;
     int sampleRate;
     float syncPower_localMax;
 };

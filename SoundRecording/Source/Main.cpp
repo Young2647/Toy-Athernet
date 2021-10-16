@@ -113,7 +113,7 @@ public:
         int freq1 = 1000; // Hz
         int freq2 = 10000;
         float amp = 1;
-        int sampleRate = 48000;
+        int sampleRate = 44100;
         int channelNum = 1;
         float dPhasePerSample1 = 2 * PI * ((float)freq1 / (float)sampleRate);
         float dPhasePerSample2 = 2 * PI * ((float)freq2 / (float)sampleRate);
