@@ -23,7 +23,7 @@ public :
     void GenerateCarrierWave()
     {
         int carrierAmp = 1;
-        int carrierFreq = 10000;
+        int carrierFreq = 5000;
 
         for (int j = 0; j < bitLen; j++)
         {
