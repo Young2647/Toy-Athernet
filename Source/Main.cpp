@@ -107,7 +107,7 @@ public:
         }
 
         // Generate Sine Wave Data
-        /*
+        
         int freq = 9000; // Hz
         float amp = 0.7;
         int sampleRate = 48000;
@@ -121,13 +121,13 @@ public:
             // Write the sample into the output channel 
             outputChannelData[0][i] = data;
         }
-        */
-        // We need to clear the output buffers, in case they're full of junk..
         
+        // We need to clear the output buffers, in case they're full of junk..
+        /*
         for (int i = 0; i < numOutputChannels; ++i)
             if (outputChannelData[i] != nullptr)
                 juce::FloatVectorOperations::clear(outputChannelData[i], numSamples);
-        
+        */
     }
 
 private:
@@ -145,6 +145,7 @@ private:
 int main (int argc, char* argv[])
 {
     CoInitialize(nullptr);
+    juce::MessageManager::getInstance();
     /* Initialize Player */
     juce::AudioDeviceManager dev_manager;
     dev_manager.initialiseWithDefaultDevices(1, 1);
