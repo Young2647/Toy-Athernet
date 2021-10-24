@@ -107,41 +107,35 @@ public:
             nextSampleNum += numSamples;
         }
 
-       
 
-        
+        /*
         // Generate Sine Wave Data
-        freq1 = 1000; // Hz
-        freq2 = 10000;
+        int freq1 = 1000; // Hz
+        int freq2 = 10000;
         float amp = 1;
-        sampleRate = 44100;
+        int sampleRate = 44100;
         int channelNum = 1;
-        dPhasePerSample1 = 2 * PI * ((float)freq1 / (float)sampleRate);
-        dPhasePerSample2 = 2 * PI * ((float)freq2 / (float)sampleRate);
+        float dPhasePerSample1 = 2 * PI * ((float)freq1 / (float)sampleRate);
+        float dPhasePerSample2 = 2 * PI * ((float)freq2 / (float)sampleRate);
+        float initPhase = 0;
+        float data;
 
         for (int i = 0; i < numSamples; i++) {
-            Phase1 += dPhasePerSample1;
-            Phase2 += dPhasePerSample2;
-            data = 0.6 * sin(Phase1) + 0.1 * sin(Phase2);
-            // Write the sample into the output channel 
+            data = amp * sin(dPhasePerSample1 * i + initPhase) + amp * sin(dPhasePerSample2 * i + initPhase);
+            // Write the sample into the output channel
             outputChannelData[0][i] = data;
         }
+        */
+
+
 
     }
-
-    float dPhasePerSample1 = 0;
-    float dPhasePerSample2 = 0;
-    int freq1 = 1000;
-    int freq2 = 10000;
-    float Phase1 = 0;
-    float Phase2 = 0;
-    float data;
 
 private:
     juce::AudioThumbnail& thumbnail;
     juce::TimeSliceThread backgroundThread{ "Audio Recorder Thread" }; // the thread that will write our audio data to disk
     std::unique_ptr<juce::AudioFormatWriter::ThreadedWriter> threadedWriter; // the FIFO used to buffer the incoming data
-    double sampleRate = 44100;
+    double sampleRate = 0.0;
     juce::int64 nextSampleNum = 0;
 
     juce::CriticalSection writerLock;
