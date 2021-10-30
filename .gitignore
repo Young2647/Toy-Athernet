@@ -11,3 +11,5 @@ Debug/
 Release/
 obj/
 .vs/
+.vscode/
+%{default}/
