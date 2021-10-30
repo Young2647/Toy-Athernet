@@ -4,6 +4,10 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="MRdOra" name="MAClayer">
     <GROUP id="{EFC64E43-D6E4-CE7C-7AB2-5FAC53B3FE72}" name="Source">
+      <FILE id="MgWMBn" name="receiver.cpp" compile="1" resource="0" file="Source/receiver.cpp"/>
+      <FILE id="skYSQG" name="receiver.h" compile="0" resource="0" file="Source/receiver.h"/>
+      <FILE id="P30tfL" name="sender.h" compile="0" resource="0" file="Source/sender.h"/>
+      <FILE id="HZGvAo" name="sender.cpp" compile="1" resource="0" file="Source/sender.cpp"/>
       <FILE id="W38Z6I" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
     </GROUP>
   </MAINGROUP>

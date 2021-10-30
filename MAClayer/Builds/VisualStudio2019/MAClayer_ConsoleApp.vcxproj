@@ -139,6 +139,8 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\receiver.cpp"/>
+    <ClCompile Include="..\..\Source\sender.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\..\..\juce-6.1.2-windows\JUCE\modules\juce_audio_basics\buffers\juce_AudioChannelSet.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -2084,6 +2086,8 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\receiver.h"/>
+    <ClInclude Include="..\..\Source\sender.h"/>
     <ClInclude Include="..\..\..\..\juce-6.1.2-windows\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>
     <ClInclude Include="..\..\..\..\juce-6.1.2-windows\JUCE\modules\juce_audio_basics\buffers\juce_AudioChannelSet.h"/>
     <ClInclude Include="..\..\..\..\juce-6.1.2-windows\JUCE\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h"/>

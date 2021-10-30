@@ -1,4 +1,3 @@
-
 #ifndef _SENDER_H_
 #define _SENDER_H_
 
@@ -7,7 +6,10 @@
 #include <vector>
 #include <fstream>
 #include <JuceHeader.h>
+
+#ifndef PI
 #define PI acos(-1)
+#endif // !PI
 
 using namespace std;
 using namespace juce;
