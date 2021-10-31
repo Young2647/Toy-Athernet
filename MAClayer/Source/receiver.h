@@ -4,11 +4,9 @@
 #include <JuceHeader.h>
 #include <vector>
 #include<fstream>
+#include "defines.h"
 using namespace juce;
 
-#ifndef PI
-#define PI acos(-1)
-#endif // !PI
 
 
 class Receiver : public AudioIODeviceCallback

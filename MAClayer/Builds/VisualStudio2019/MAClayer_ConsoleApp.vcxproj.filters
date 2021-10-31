@@ -439,6 +439,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\MACframe.cpp">
+      <Filter>MAClayer\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MAClayer.cpp">
+      <Filter>MAClayer\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\receiver.cpp">
       <Filter>MAClayer\Source</Filter>
     </ClCompile>
@@ -2535,6 +2541,15 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\defines.h">
+      <Filter>MAClayer\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\MACframe.h">
+      <Filter>MAClayer\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\MAClayer.h">
+      <Filter>MAClayer\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\receiver.h">
       <Filter>MAClayer\Source</Filter>
     </ClInclude>

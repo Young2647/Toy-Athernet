@@ -139,6 +139,8 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\MACframe.cpp"/>
+    <ClCompile Include="..\..\Source\MAClayer.cpp"/>
     <ClCompile Include="..\..\Source\receiver.cpp"/>
     <ClCompile Include="..\..\Source\sender.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
@@ -2086,6 +2088,9 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\defines.h"/>
+    <ClInclude Include="..\..\Source\MACframe.h"/>
+    <ClInclude Include="..\..\Source\MAClayer.h"/>
     <ClInclude Include="..\..\Source\receiver.h"/>
     <ClInclude Include="..\..\Source\sender.h"/>
     <ClInclude Include="..\..\..\..\juce-6.1.2-windows\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>

@@ -10,94 +10,11 @@
 #include<fstream>
 #include "sender.h"
 #include "receiver.h"
-#define PI acos(-1)
+#include "defines.h"
+#include "MACframe.h"
+#include "MAClayer.h"
 using namespace juce;
 using namespace std;
-
-
-
-#define TYPE_ACK 0
-#define TYPE_DATA 1
-
-class MAClayer : public AudioIODeviceCallback  
-{
-public :
-    MAClayer() {
-
-    };
-
-    void Write2File(Array<int8_t> & byte_data) {
-        ///wait to be implemented.
-    }
-
-    void receive() {
-        AudioBuffer<float> tempbuffer;
-        Array<int8_t> data = Mac_receiver.Demodulate(tempbuffer);
-        MACframe receive_frame(data);
-        if (receive_frame.getType() == TYPE_DATA)
-        {
-            int8_t receive_id = receive_frame.getFrame_id();
-            cout << "Frame " << receive_id << "received.\n";
-            sendACK(receive_id);
-            if (last_receive_id == receive_id - 1)
-            {
-                Write2File(receive_frame.getData());
-                last_receive_id = receive_id;
-            }
-            else
-            {
-                ///wait to be implemented.
-            }
-        }
-        else if (receive_frame.getType() == TYPE_ACK)
-        {
-
-        }
-
-    }
-
-    void sendACK(int8_t frame_id) {
-
-    }
-
-private :
-    Receiver Mac_receiver;
-    Sender Mac_sender;
-
-    unsigned int frame_size;
-    int last_receive_id = -1;
-};
-
-
-
-/// <summary>
-/// A frame contains a header, a type, a frame_id, data
-/// </summary>
-class MACframe {
-public :
-    MACframe(Array<int8_t> all_data) {
-        type = all_data[0];
-        frame_id = all_data[1];
-        for (int i = 2; i < all_data.size(); i++)
-        {
-            data.add(all_data[i]);
-        }
-    }
-
-    MACframe(int8_t frame_id) {
-
-    }
-
-    int8_t getType() { return type; }
-    int8_t getFrame_id() { return frame_id; }
-    Array<int8_t> getData() { return data; }
-private :
-    Array<float> header;
-    int8_t type;
-    int8_t frame_id;
-    Array<int8_t> data;
-};
-
 
 
 

@@ -6,10 +6,7 @@
 #include <vector>
 #include <fstream>
 #include <JuceHeader.h>
-
-#ifndef PI
-#define PI acos(-1)
-#endif // !PI
+#include "defines.h"
 
 using namespace std;
 using namespace juce;
