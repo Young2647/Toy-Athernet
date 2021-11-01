@@ -31,17 +31,18 @@ public:
 
     Array<int8_t> Int2Byte(Array<int>& int_data);
 
-    Array<int8_t> Demodulate(AudioBuffer<float>& buffer);
+    int Demodulate(float sample);
+
+    Array<int8_t> getData();
 
     bool isRecording;
 private:
-    AudioBuffer<float> recordedSound;
 
     Array<float> processingHeader;
     Array<float> processingData;
     Array<float> syncHeader;
     Array<float> carrierWave;
-    Array<int> decodeData;
+    Array<int8_t> frame_data;
 
     CriticalSection lock;
 
@@ -51,6 +52,9 @@ private:
     int headerLength = 480;
     int sampleRate;
     float syncPower_localMax;
+    float power_;
+    int state;
+    int data_state;
 };
 
 #endif

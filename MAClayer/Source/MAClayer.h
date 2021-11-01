@@ -5,6 +5,7 @@
 #include "receiver.h"
 #include "sender.h"
 #include "MACframe.h"
+#include <thread>
 
 class MAClayer : public AudioIODeviceCallback
 {
@@ -17,9 +18,13 @@ public:
 
     void sendACK(int8_t frame_id); //wait to be implemented.
 
+    void StartReceiving();
 private:
     Receiver Mac_receiver;
     Sender Mac_sender;
+    
+    thread receive_thread;
+    thread sending_thread;
 
     unsigned int frame_size;
     int last_receive_id = -1;

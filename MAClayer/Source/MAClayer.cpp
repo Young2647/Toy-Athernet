@@ -10,10 +10,15 @@
 
 #include "MAClayer.h"
 
+MAClayer::MAClayer()
+{
+
+}
+
+
 void 
 MAClayer::receive() {
-    AudioBuffer<float> tempbuffer;
-    Array<int8_t> data = Mac_receiver.Demodulate(tempbuffer);
+    Array<int8_t> data = Mac_receiver.getData();
     MACframe receive_frame(data);
     if (receive_frame.getType() == TYPE_DATA)
     {
@@ -35,4 +40,10 @@ MAClayer::receive() {
 
     }
 
+}
+
+void 
+MAClayer::StartReceiving()
+{
+    
 }

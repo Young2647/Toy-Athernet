@@ -3,6 +3,7 @@
 Receiver::Receiver() {
     syncPower_localMax = 0;
     isRecording = false;
+    data_state = -1;
 }
 
 void 
@@ -53,8 +54,6 @@ Receiver::audioDeviceAboutToStart(AudioIODevice* device)
 
     sampleRate = 48000;
 
-    recordedSound.clear();
-
     GenerateCarrierWave();
     GenerateHeader();
 }
@@ -66,19 +65,13 @@ Receiver::audioDeviceIOCallback(const float** inputChannelData, int numInputChan
     const ScopedLock sl(lock);
     if (isRecording)
     {
-        auto* recordingBuffer = recordedSound.getWritePointer(0);
         for (int i = 0; i < numSamples; i++)
         {
-            if (recordedSampleNum < recordedSound.getNumSamples())
-            {
-                auto inputSamp = 0.0f;
-                for (auto j = numInputChannels; --j >= 0;)
-                    if (inputChannelData[j] != nullptr)
-                        inputSamp += inputChannelData[j][i];
-                recordingBuffer[recordedSampleNum] = inputSamp;
-                recordedSampleNum++;
-
-            }
+            auto inputSamp = 0.0f;
+            for (auto j = numInputChannels; --j >= 0;)
+                if (inputChannelData[j] != nullptr)
+                    inputSamp += inputChannelData[j][i];
+            data_state = Demodulate(inputSamp);
         }
 
     }
@@ -93,10 +86,7 @@ Receiver::startRecording()
 {
 
     const ScopedLock sl(lock);
-    recordedSound.clear();
     recordedSampleNum = 0;
-
-    recordedSound.setSize(1, 15 * sampleRate);
     isRecording = true;
 }
 
@@ -106,8 +96,6 @@ Receiver::stopRecording()
     if (isRecording)
     {
         isRecording = false;
-
-        Demodulate(recordedSound);
     }
 }
 
@@ -134,100 +122,94 @@ Receiver::Int2Byte(Array<int>& int_data)
     return byte_data;
 }
 
-Array<int8_t> 
-Receiver::Demodulate(AudioBuffer<float>& buffer)
+int
+Receiver::Demodulate(float sample)
 {
-    int headerPos = 0;
-    int state = 0; // 0 = sync, 1 = decode
-    auto* s = buffer.getReadPointer(0);
-
+    bool _ifheadercheck = false;
     Array<float> tempBuffer;
-    float power = 0;
-    //std::ofstream debugf("synpower.txt");
-    //std::ofstream recordeddebug("record.txt");
-    //std::ofstream datadebug("data.txt");
-    //std::ofstream fout("record.out");
     Array<int> int_data;
-    for (int i = 0; i < recordedSampleNum; i++)
-        //for (int i = 0; i < buffer.getNumSamples(); i++)
+    power_ = power_ * (1 - 1.0 / 64.0) + sample * sample / 64.0;
+    if (state == SYNC)// sync process
     {
-        //recordeddebug << s[i] << "\n";
-        power = power * (1 - 1 / 64) + s[i] * s[i] / 64;
         if (processingHeader.size() < headerLength)
         {
-            processingHeader.add(s[i]);
-            continue;
+            processingHeader.add(sample);
+            return NO_HEADER;
         }
         else
         {
-            if (state == 0) // sync process
+            processingHeader.add(sample);
+            if (processingHeader.size() > headerLength)
             {
-                processingHeader.add(s[i]);
-                if (processingHeader.size() > headerLength)
-                {
-                    processingHeader.removeRange(0, 1);
-                }
-                float syncPower = 0;
-                for (int j = 0; j < headerLength; j++)
-                {
-                    syncPower += syncHeader[j] * processingHeader[j];
-                }
-                //debugf << syncPower << "\n";
-                if (syncPower > syncPower_localMax && syncPower > 0.5)
-                {
-                    syncPower_localMax = syncPower;
-                    headerPos = i;
-                    tempBuffer.clear();
-                }
-                else if (headerPos != 0)
-                {
-                    tempBuffer.add(s[i]);
-                    //recordeddebug << s[i] << "\n";
-                    if (i > headerPos + 500)
-                    {
-                        std::cout << "header found at " << headerPos << std::endl;
-                        syncPower_localMax = 0;
-                        state = 1;
-                        processingData = tempBuffer;
-                    }
-
-                }
+                processingHeader.removeRange(0, 1);
             }
-            else if (state == 1) //data process
+            float syncPower = 0;
+            for (int j = 0; j < headerLength; j++)
             {
-                processingData.add(s[i]);
-                if (processingData.size() == bitLen * packLen)
+                syncPower += syncHeader[j] * processingHeader[j];
+            }
+            //debugf << syncPower << "\n";
+            if (syncPower > syncPower_localMax && syncPower > 0.5)
+            {
+                syncPower_localMax = syncPower;
+                tempBuffer.clear();
+                _ifheadercheck = true;
+            }
+            else if (_ifheadercheck)
+            {
+                tempBuffer.add(sample);
+
+                //recordeddebug << s[i] << "\n";
+                if (tempBuffer.size() >= 500)
                 {
-                    for (int j = 0; j < packLen; j++)
-                    {
-                        float sum = 0;
-                        for (int k = 0; k < bitLen; k++)
-                        {
-                            int temp = processingData[j * bitLen + k] * carrierWave[k];
-                            sum += processingData[j * bitLen + k] * carrierWave[k];
-                            //sum +=  carrierWave[j];
-                        }
-                        if (sum > 0)
-                            int_data.add(1);
-                        else if (sum < 0)
-                            int_data.add(0);
-                    }
-                    /*
-                    for (int i = 0; i < processingData.size() + 100; i++)
-                    {
-                        if (i >= processingData.size())
-                            datadebug << 0 << "\n";
-                        else
-                            datadebug << processingData[i] << "\n";
-                    }
-                    */
-                    processingData.clear();
-                    processingHeader.clear();
-                    state = 0;
-                    headerPos = 0;
+                    std::cout << "header found.\n";
+                    syncPower_localMax = 0;
+                    state = DATA_PROCESS;
+                    processingData = tempBuffer;
                 }
+
             }
         }
     }
-    return Int2Byte(int_data);
+    else if (state == DATA_PROCESS) //data process
+    {
+        processingData.add(sample);
+        if (processingData.size() == bitLen * packLen)
+        {
+            for (int j = 0; j < packLen; j++)
+            {
+                float sum = 0;
+                for (int k = 0; k < bitLen; k++)
+                {
+                    int temp = processingData[j * bitLen + k] * carrierWave[k];
+                    sum += processingData[j * bitLen + k] * carrierWave[k];
+                    //sum +=  carrierWave[j];
+                }
+                if (sum > 0)
+                    int_data.add(1);
+                else if (sum < 0)
+                    int_data.add(0);
+            }
+            processingData.clear();
+            processingHeader.clear();
+            state = SYNC;
+            _ifheadercheck = false;
+            frame_data = Int2Byte(int_data);
+            return DATA_RECEIVED;
+        }
+        else
+        {
+            return DATA_PROCESS;
+        }
+    }
+}
+
+Array<int8_t>
+Receiver::getData()
+{
+    while (data_state != DATA_RECEIVED)
+    {
+
+    }
+    return frame_data;
 }
