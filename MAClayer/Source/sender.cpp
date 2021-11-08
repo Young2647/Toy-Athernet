@@ -8,13 +8,14 @@ Sender::Sender() {
     carrier_freq = 5000;
     carrier_phase = 0;
     carrier_amp = 1;
-    num_bits_per_frame = 100;
-    num_samples_per_bit = 48;
     len_zeros = 20;
     num_frame = 100;
-    for (size_t i = 0; i < num_bits_per_frame * num_samples_per_bit; i++)
-        frame_wave.push_back(0);
+    output_buffer_idx = 0;
+    len_frame = header_len + num_samples_per_bit * num_bits_per_frame + len_zeros;
+    frame_wave.resize(num_bits_per_frame * num_samples_per_bit);
     GenerateCarrierWave();
+    header_wave.resize(header_len);
+    generateHeader();
     isPlaying = false;
 }
 
@@ -52,19 +53,15 @@ void Sender::GenerateCarrierWave() {
     }
 }
 
-float* Sender::generateHeader() {
+void Sender::generateHeader() {
     int start_freq = 2000;
     int end_freq = 10000;
     float freq_step = (end_freq - start_freq) / (header_len / 2);
     float time_gap = (float)1 / (float)sample_rate;
-    vector<float> fp;
-    vector<float> omega;
-    for (int i = 0; i < header_len; i++)
-    {
-        fp.push_back(0);
-        omega.push_back(0);
-    }
-    float* header_stack = new float[header_len];
+    Array<float> fp;
+    Array<float> omega;
+    fp.resize(header_len);
+    omega.resize(header_len);
     fp[0] = start_freq;
     fp[header_len / 2] = end_freq;
     for (int i = 1; i < header_len / 2; i++)
@@ -74,39 +71,29 @@ float* Sender::generateHeader() {
     for (int i = 1; i < header_len; i++)
         omega[i] = omega[i - 1] + (fp[i] + fp[i - 1]) / 2.0 * time_gap;
     for (int i = 0; i < header_len; i++)
-        header_stack[i] = sin(2 * PI * omega[i]);
-    return header_stack;
+        header_wave[i] = sin(2 * PI * omega[i]);
 }
 
 
-void Sender::Modulation(int* frame_bit) {
-    for (int i = 0; i < num_bits_per_frame * num_samples_per_bit; i++)
-        frame_wave[i] = 0;
-    for (int i = 0; i < num_bits_per_frame; i++) {
+void Sender::Modulation(Array<int8_t> cur_frame_data, int frame_len) {
+    frame_wave.fill(0);
+    for (int i = 0; i < frame_len; i++) {
         for (int j = 0; j < num_samples_per_bit; j++)
-            frame_wave[i * num_samples_per_bit + j] = (frame_bit[i] * 2 - 1) * carrier_wave[j];
+            frame_wave[i * num_samples_per_bit + j] = ((int)cur_frame_data[i] * 2 - 1) * carrier_wave[j];
     }
 }
 
+void Sender::sendOnePacket(int frame_len, Array<int8_t> cur_frame_data) {
+    Modulation(cur_frame_data, frame_len);
+    for (int j = 0; j < header_len; j++, output_buffer_idx++)
+        output_buffer.setSample(0, output_buffer_idx, header_wave[j]);
+    for (int j = 0; j < frame_len * num_sample_per_bit; j++, output_buffer_idx++)
+        output_buffer.setSample(0, output_buffer_idx, frame_wave[j]);
+    for (int j = 0; j < len_zeros; j++, header_wave[j])
+        output_buffer.setSample(0, output_buffer_idx, 0);
+}
 
-void Sender::send() {
-    float* header = generateHeader();
-    int** frame_bit = getBitStream();
-    int len_frame = header_len + num_samples_per_bit * num_bits_per_frame + len_zeros;
-    int len_buffer = num_frame * len_frame;
-    output_buffer.setSize(1, len_buffer + 480 + len_warm_up);
-    output_buffer.clear();
-    for (int j = 0; j < 480; j++)
-        output_buffer.setSample(0, j, carrier_wave[j % num_samples_per_bit]);
-    for (int i = 0; i < num_frame; i++) {
-        Modulation(frame_bit[i]);
-        for (int j = 0; j < header_len; j++)
-            output_buffer.setSample(0, len_warm_up + i * len_frame + j, header[j]);
-        for (int j = 0; j < num_samples_per_bit * num_bits_per_frame; j++)
-            output_buffer.setSample(0, len_warm_up + i * len_frame + header_len + j, frame_wave[j]);
-        for (int j = 0; j < len_zeros; j++)
-            output_buffer.setSample(0, len_warm_up + i * len_frame + header_len + num_samples_per_bit * num_bits_per_frame + j, 0);
-    }
+
     //ofstream of;
     //of.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021-main\\Sender\\Builds\\VisualStudio2019\\out.out", ios::trunc);
     //for (int i = 0; i < output_buffer.getNumSamples(); i++) {
@@ -115,16 +102,18 @@ void Sender::send() {
     //    }
     //}
     //of.close();
-}
 
-void Sender::BeginSend()
+int Sender::beginSend()
 {
-
     const ScopedLock sl(lock);
     playingSampleNum = 0;
     isPlaying = true;
-    send();
-    startTimer(50);
+    int len_buffer = num_frame * len_frame;
+    output_buffer.setSize(1, len_buffer + 480 + len_warm_up);
+    output_buffer.clear();
+    for (int j = 0; j < 480; j++)
+        output_buffer.setSample(0, j, carrier_wave[j % num_samples_per_bit]);
+    
 }
 
 

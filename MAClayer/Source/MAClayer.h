@@ -7,6 +7,7 @@
 #include "MACframe.h"
 #include <thread>
 
+
 class MAClayer : public AudioIODeviceCallback
 {
 public:
@@ -16,9 +17,14 @@ public:
 
     void receive(); //receiving datas
 
-    void sendACK(int8_t frame_id); //wait to be implemented.
-
     void StartReceiving();
+
+    void readFromFile();
+
+    unique_ptr<MACframe> sendACK(int8_t frame_id); 
+
+    unique_ptr<MACframe> sendData(int8_t frame_id);
+
 private:
     Receiver Mac_receiver;
     Sender Mac_sender;
@@ -26,8 +32,20 @@ private:
     thread receive_thread;
     thread sending_thread;
 
+    int max_rescend;
+    std::chrono::milliseconds trans_timeout;
+
     unsigned int frame_size;
     int last_receive_id = -1;
+
+    Array<Array<int8_t>> data_frames;
+    int max_frame_gen_idx;
+
+    // variables maintained for sender's sliding window
+    int sender_LFS;
+    int sender_LAR;
+    int sender_SWS;
+    Array<unique_ptr<MACframe>> sender_window;
 };
 
 #endif // !_MACLAYER_H_

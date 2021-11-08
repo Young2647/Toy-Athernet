@@ -11,5 +11,13 @@
 #define DATA_PROCESS 1
 #define DATA_RECEIVED 2
 
+#define Tx_DONE 1
+
+#define num_bits_per_frame 100
+#define num_samples_per_bit 48
+enum STATE {
+	FrameDetection = 1, Tx, Rx, TxACK
+};
+
 
 #endif // !_DEFINES_H_
