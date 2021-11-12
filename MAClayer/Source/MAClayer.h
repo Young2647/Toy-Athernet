@@ -19,11 +19,13 @@ public:
 
     void StartReceiving();
 
-    void readFromFile();
+    void readFromFile(int num_frame);
 
     unique_ptr<MACframe> sendACK(int8_t frame_id); 
 
     unique_ptr<MACframe> sendData(int8_t frame_id);
+
+    void requestSend(int8_t ack_id);
 
 private:
     Receiver Mac_receiver;
@@ -47,5 +49,6 @@ private:
     int sender_SWS;
     Array<unique_ptr<MACframe>> sender_window;
 };
+
 
 #endif // !_MACLAYER_H_

@@ -3,6 +3,7 @@
 
 #include <JuceHeader.h>
 #include <chrono>
+#include "defines.h"
 using namespace juce;
 /// <summary>
 /// A frame contains a header, a type, a frame_id, data

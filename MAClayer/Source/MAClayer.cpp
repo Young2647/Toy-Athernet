@@ -11,8 +11,10 @@
 #include "MAClayer.h"
 
 MAClayer::MAClayer() {
-    send_LFS = 0;
-    send_window.resize(SWS);
+    sender_LFS = 0;
+    sending_thread = thread(sendData(1));
+    receive_thread = thread(&receive, this);
+    sender_window.resize(SWS);
     max_frame_gen_idx = -1;
 }
 
@@ -38,7 +40,9 @@ MAClayer::receive() {
     }
     else if (receive_frame.getType() == TYPE_ACK)
     {
+        int8_t ack_id = receive_frame.getFrame_id();
 
+        requestSend();
     }
 
 }
@@ -51,7 +55,7 @@ MAClayer::StartReceiving()
 
 
 void
-Maclayer::readFromFile(int num_frame) {
+MAClayer::readFromFile(int num_frame) {
     data_frames.resize(num_frame);
     ifstream f;
     char tmp;
@@ -68,7 +72,7 @@ Maclayer::readFromFile(int num_frame) {
 }
 
 unique_ptr<MACframe>
-Macframe::sendACK(int8_t frame_id) {
+MACframe::sendACK(int8_t frame_id) {
     unique_ptr<MACframe> ack_frame;
     ack_frame.reset(new MACframe(frame_id));
     Mac_sender.sendOnePacket(2, ack_frame->getData());
@@ -77,7 +81,7 @@ Macframe::sendACK(int8_t frame_id) {
 }
 
 unique_ptr<MACframe>
-Macframe::sendData(int8_t frame_id) {
+MACframe::sendData(int8_t frame_id) {
     
     Mac_sender.sendOnePacket(num_bits_per_frame, data_frame->getData());
     STATE = FrameDetection;
@@ -85,14 +89,14 @@ Macframe::sendData(int8_t frame_id) {
 }
 
 unique_ptr<Macframe>
-Macframe::generateNextFrame() {
+MACframe::generateNextFrame() {
     unique_ptr<MACframe> data_frame;
     data_frame.reset(new MACframe(++max_frame_gen_idx, data_frames[max_frame_gen_idx]));
     data_frame->setSendTime();
 }
 
 void
-Macframe::requestSend(int8_t ack_id) {
+MACframe::requestSend(int8_t ack_id) {
     // No action if ack_id is not in sender's sliding window
     if (ack_id <= sender_LAR || ack_id > sender_LFS)
         return;
