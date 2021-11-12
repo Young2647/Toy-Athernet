@@ -5,6 +5,7 @@
 #include "receiver.h"
 #include "sender.h"
 #include "MACframe.h"
+#include <fstream>
 #include <thread>
 
 
@@ -17,7 +18,9 @@ public:
 
     void receive(); //receiving datas
 
-    void StartReceiving();
+    void StartMAClayer();
+
+    void StopMAClayer();
 
     void readFromFile(int num_frame);
 
@@ -47,6 +50,14 @@ private:
     int sender_LFS;
     int sender_LAR;
     int sender_SWS;
+
+    // receiver's sliding window
+    int receiver_LFR;
+    int receiver_LAF;
+    int receiver_RWS;
+    
+    bool Mac_stop;
+    std::ofstream fout;
     Array<unique_ptr<MACframe>> sender_window;
 };
 

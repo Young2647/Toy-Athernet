@@ -12,46 +12,85 @@
 
 MAClayer::MAClayer() {
     sender_LFS = 0;
-    sending_thread = thread(sendData(1));
-    receive_thread = thread(&receive, this);
-    sender_window.resize(SWS);
+    sender_window.resize(sender_SWS);
+
+    // init receiver window
+    receiver_LFR = 0;
+    receiver_LFR = DEFAULT_RWS;
+    receiver_LAF = receiver_LFR + receiver_RWS;
     max_frame_gen_idx = -1;
+    
+    last_receive_id = 0;
+}
+
+
+
+void 
+MAClayer::receive() 
+{
+    while (!Mac_stop)
+    {
+        Array<int8_t> data = Mac_receiver.getData();
+        MACframe receive_frame(data);
+        if (receive_frame.getType() == TYPE_DATA)
+        {
+            int8_t receive_id = receive_frame.getFrame_id();
+            cout << "Frame " << (int)receive_id << "received.\n";
+            if (last_receive_id == receive_id - 1)
+            {
+                Write2File(receive_frame.getData());
+                last_receive_id = receive_id;
+                sendACK(receive_id);
+            }
+            else
+            {
+                ///wait to be implemented.
+            }
+        }
+        else if (receive_frame.getType() == TYPE_ACK)
+        {
+            int ack_id = (int)receive_frame.getFrame_id();
+            if (ack_id == sender_LAR + 1)
+            {
+                sender_LAR = ack_id;
+                cout << "ACK" << ack_id << "received.\n";
+            }
+        }
+    }
+}
+
+void
+MAClayer::StartMAClayer()
+{
+    receive_thread = thread(&receive, this);
+    cout << "receiving thread start.\n";
+    Mac_receiver.startRecording();
+    cout << "receiver start recording.\n";
+    sending_thread = thread(sendData(1));
+    cout << "sending thread start.\n";
+    Mac_stop = false;
+    fout.open("OUTPUT.bin", ios::out || ios::binary);
+}
+
+void
+MAClayer::StopMAClayer()
+{
+    Mac_stop = true;
+    receive_thread.join();
+    cout << "receiving thread stop.\n";
+    Mac_receiver.stopRecording();
+    cout << "receiver stop recording.\n";
+    sending_thread.join();
+    cout << "sending thread stop.\n";
 }
 
 
 void 
-MAClayer::receive() {
-    Array<int8_t> data = Mac_receiver.getData();
-    MACframe receive_frame(data);
-    if (receive_frame.getType() == TYPE_DATA)
-    {
-        int8_t receive_id = receive_frame.getFrame_id();
-        cout << "Frame " << receive_id << "received.\n";
-        sendACK(receive_id);
-        if (last_receive_id == receive_id - 1)
-        {
-            Write2File(receive_frame.getData());
-            last_receive_id = receive_id;
-        }
-        else
-        {
-            ///wait to be implemented.
-        }
-    }
-    else if (receive_frame.getType() == TYPE_ACK)
-    {
-        int8_t ack_id = receive_frame.getFrame_id();
-
-        requestSend();
-    }
-
-}
-
-void
-MAClayer::StartReceiving()
+MAClayer::Write2File(Array<int8_t>& byte_data)
 {
-
+    fout << (char*)byte_data.getRawDataPointer();
 }
+
 
 
 void
