@@ -58,10 +58,13 @@ void Sender::generateHeader() {
     int end_freq = 10000;
     float freq_step = (end_freq - start_freq) / (header_len / 2);
     float time_gap = (float)1 / (float)sample_rate;
-    Array<float> fp;
-    Array<float> omega;
-    fp.resize(header_len);
-    omega.resize(header_len);
+    std::vector<float> fp;
+    std::vector<float> omega;
+    for (int i = 0; i < header_len; i++) {
+        fp.push_back(0);
+        omega.push_back(0);
+    }
+    float* header_stack = new float[header_len];
     fp[0] = start_freq;
     fp[header_len / 2] = end_freq;
     for (int i = 1; i < header_len / 2; i++)
@@ -71,7 +74,8 @@ void Sender::generateHeader() {
     for (int i = 1; i < header_len; i++)
         omega[i] = omega[i - 1] + (fp[i] + fp[i - 1]) / 2.0 * time_gap;
     for (int i = 0; i < header_len; i++)
-        header_wave[i] = sin(2 * PI * omega[i]);
+        header_stack[i] = sin(2 * PI * omega[i]);
+    header_wave = Array<float>(header_stack, header_len);
 }
 
 
@@ -79,7 +83,7 @@ void Sender::Modulation(Array<int8_t> cur_frame_data, int frame_len) {
     frame_wave.fill(0);
     for (int i = 0; i < frame_len; i++) {
         for (int j = 0; j < num_samples_per_bit; j++)
-            frame_wave[i * num_samples_per_bit + j] = ((int)cur_frame_data[i] * 2 - 1) * carrier_wave[j];
+            frame_wave.set(i * num_samples_per_bit + j, ((int)cur_frame_data[i] * 2 - 1) * carrier_wave[j]);
     }
 }
 
@@ -87,7 +91,7 @@ void Sender::sendOnePacket(int frame_len, Array<int8_t> cur_frame_data) {
     Modulation(cur_frame_data, frame_len);
     for (int j = 0; j < header_len; j++, output_buffer_idx++)
         output_buffer.setSample(0, output_buffer_idx, header_wave[j]);
-    for (int j = 0; j < frame_len * num_sample_per_bit; j++, output_buffer_idx++)
+    for (int j = 0; j < frame_len * num_samples_per_bit; j++, output_buffer_idx++)
         output_buffer.setSample(0, output_buffer_idx, frame_wave[j]);
     for (int j = 0; j < len_zeros; j++, header_wave[j])
         output_buffer.setSample(0, output_buffer_idx, 0);
@@ -103,7 +107,7 @@ void Sender::sendOnePacket(int frame_len, Array<int8_t> cur_frame_data) {
     //}
     //of.close();
 
-int Sender::beginSend()
+int Sender::startSend()
 {
     const ScopedLock sl(lock);
     playingSampleNum = 0;

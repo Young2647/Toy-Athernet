@@ -59,6 +59,7 @@ private:
     bool Mac_stop;
     std::ofstream fout;
     Array<unique_ptr<MACframe>> sender_window;
+    STATE state;
 };
 
 
