@@ -12,8 +12,7 @@
 
 MAClayer::MAClayer() {
     sender_LFS = 0;
-    sender_window.resize(sender_SWS);
-
+    //sender_window.resize(sender_SWS);
     
     // init receiver window
     receiver_LFR = 0;
@@ -82,8 +81,9 @@ MAClayer::send() {
             {
                 if (frame_array[id].get()->getType() == TYPE_DATA)
                 {
-                    frame_array[id].get()->
+                    frame_array[id].get()->setStatus(Status_Sent);
                 }
+
             }
         }
         send_time = std::chrono::system_clock::now();

@@ -439,6 +439,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\ArrayBlockingQueue.cpp">
+      <Filter>MAClayer\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\MACframe.cpp">
       <Filter>MAClayer\Source</Filter>
     </ClCompile>
@@ -2541,6 +2544,21 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\ArrayBlockingQueue.h">
+      <Filter>MAClayer\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ArrayBlockingQueueExceptions.h">
+      <Filter>MAClayer\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ArrayBlockingQueueImpl.h">
+      <Filter>MAClayer\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Iterator.h">
+      <Filter>MAClayer\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\TimeUtils.h">
+      <Filter>MAClayer\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\defines.h">
       <Filter>MAClayer\Source</Filter>
     </ClInclude>
