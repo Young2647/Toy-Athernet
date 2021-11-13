@@ -10,7 +10,8 @@
 
 #include "MAClayer.h"
 
-MAClayer::MAClayer() {
+MAClayer::MAClayer() 
+{
     sender_LFS = 0;
     //sender_window.resize(sender_SWS);
     
@@ -19,8 +20,6 @@ MAClayer::MAClayer() {
     receiver_LFR = DEFAULT_RWS;
     receiver_LAF = receiver_LFR + receiver_RWS;
     max_frame_gen_idx = -1;
-    
-    last_receive_id = 0;
     for (int i = 0; i < 256; i++)
         id_controller_array.add(i);
 }
@@ -44,25 +43,15 @@ MAClayer::receive()
         {
             int8_t receive_id = receive_frame.getFrame_id();
             cout << "Frame " << (int)receive_id << "received.\n";
-            if (last_receive_id == receive_id - 1)
-            {
-                Write2File(receive_frame.getData());
-                last_receive_id = receive_id;
-                requestSend(receive_id);
-            }
-            else
-            {
-                ///wait to be implemented.
-            }
+            Write2File(receive_frame.getData());
+            requestSend(receive_id);
         }
         else if (receive_frame.getType() == TYPE_ACK)
         {
-            int ack_id = (int)receive_frame.getFrame_id();
-            if (ack_id == sender_LAR + 1)
-            {
-                sender_LAR = ack_id;
-                cout << "ACK" << ack_id << "received.\n";
-            }
+            int ack_id = (int)receive_frame.getData()[0];
+            frame_array[ack_id].get()->setStatus(Status_Acked);// let the frame in frame array to be marked as acked.
+            cout << "ACK" << ack_id << "received.\n";
+            requestSend();//wait to be implemented
         }
     }
 }
@@ -108,7 +97,7 @@ void
 MAClayer::checkIdarray()
 {
     bool frame_send_complete = true;
-    while (frame_send_complete)
+    while (frame_send_complete && send_id_array.size() != 0)
     {
         int head = send_id_array[0];
         if (frame_array[head].get()->getStatus() == Status_Sent)
@@ -123,6 +112,8 @@ MAClayer::checkIdarray()
         else if (frame_array[head].get()->getStatus() == Status_Acked)
         {
             send_id_array.remove(0);
+            id_controller_array.put(frame_array[head].get()->getFrame_id());
+            frame_send_complete = true;
         }
     }
 }

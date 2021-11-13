@@ -19,6 +19,8 @@
 #define DEFAULT_RWS 4
 #define MAX_WAITING_TIME 500
 #define MAX_RESEND_TIME 5
+
+constexpr size_t QUEUE_SIZE = 256;
 enum STATE {
 	FrameDetection = 1, Tx, Rx, TxACK
 };
