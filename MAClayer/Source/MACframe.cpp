@@ -38,3 +38,11 @@ MACframe::getTimeDuration() {
     std::chrono::duration<double, std::milli> diff = std::chrono::system_clock::now() - send_time;
     return diff.count();
 }
+
+Array<int8_t>
+MACframe::toBitStream() {
+    Array<int8_t> ret_array = Array<int8_t>(data);
+    ret_array.insert(0, type);
+    ret_array.insert(1, frame_id);
+    return ret_array;
+}

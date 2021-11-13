@@ -80,7 +80,7 @@ MAClayer::send() {
             id = i;
             if (frame_array[id].get()->getStatus() == Status_Waiting)
             {
-                Mac_sender.sendOnePacket();
+                Mac_sender.sendOnePacket(frame_array[id].get()->getFrame_size() + 2, frame_array[id].get()->toBitStream());
                 cout << "frame " << id << "sent.\n";
                 frame_array[id].get()->setSendTime();
                 if (frame_array[id].get()->getType() == TYPE_DATA)
@@ -115,7 +115,7 @@ MAClayer::checkIdarray()
         {
             if (frame_array[head].get()->ResendToomuch())
             {
-                cout << "Resend too many times. Link error.\n";
+                cerr << "Resend too many times. Link error.\n";
                 StopMAClayer();//link error, mac layer stops
             }
             frame_send_complete = false;

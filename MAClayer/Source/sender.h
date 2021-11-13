@@ -23,8 +23,6 @@ public:
 
     void generateHeader();
 
-    void Modulation(int* frame_bit);
-
     void Modulation(Array<int8_t> cur_frame_data, int frame_len);
     
     void audioDeviceIOCallback(const float** inputChannelData, int numInputChannels,
@@ -36,7 +34,7 @@ public:
 
     void GenerateCarrierWave();
 
-    void send();
+    //void send();
 
     void sendOnePacket(int frame_len, Array<int8_t> cur_frame_data);
 
