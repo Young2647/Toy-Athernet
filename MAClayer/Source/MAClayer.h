@@ -21,6 +21,8 @@ public:
 
     void send(); //sending data
 
+    void checkIdarray();
+
     void StartMAClayer();
 
     void StopMAClayer();

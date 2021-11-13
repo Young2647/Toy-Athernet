@@ -2,6 +2,9 @@
 
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="MAClayer\include">
+      <UniqueIdentifier>{0521CAD7-2E7F-AFB7-E394-B9D0B5F14B8F}</UniqueIdentifier>
+    </Filter>
     <Filter Include="MAClayer\Source">
       <UniqueIdentifier>{3AD62808-3B47-B009-E869-D868EF90901C}</UniqueIdentifier>
     </Filter>
@@ -440,7 +443,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\ArrayBlockingQueue.cpp">
-      <Filter>MAClayer\Source</Filter>
+      <Filter>MAClayer\include</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\MACframe.cpp">
       <Filter>MAClayer\Source</Filter>
@@ -2544,20 +2547,20 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\ArrayBlockingQueue.h">
-      <Filter>MAClayer\Source</Filter>
+    <ClInclude Include="..\..\Source\ArrayBlockingQueueImpl.h">
+      <Filter>MAClayer\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ArrayBlockingQueueExceptions.h">
-      <Filter>MAClayer\Source</Filter>
+      <Filter>MAClayer\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ArrayBlockingQueueImpl.h">
-      <Filter>MAClayer\Source</Filter>
+    <ClInclude Include="..\..\Source\ArrayBlockingQueue.h">
+      <Filter>MAClayer\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Iterator.h">
-      <Filter>MAClayer\Source</Filter>
+      <Filter>MAClayer\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\TimeUtils.h">
-      <Filter>MAClayer\Source</Filter>
+      <Filter>MAClayer\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\defines.h">
       <Filter>MAClayer\Source</Filter>

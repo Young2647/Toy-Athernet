@@ -17,6 +17,8 @@
 #define num_samples_per_bit 48
 
 #define DEFAULT_RWS 4
+#define MAX_WAITING_TIME 500
+#define MAX_RESEND_TIME 5
 enum STATE {
 	FrameDetection = 1, Tx, Rx, TxACK
 };

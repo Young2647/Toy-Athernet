@@ -69,7 +69,6 @@ void
 MAClayer::send() {
     //init parameters
     int id = 0;
-    std::chrono::system_clock::time_point send_time;
 
     readFromFile(Mac_num_frame);
     while (!Mac_stop)
@@ -79,16 +78,50 @@ MAClayer::send() {
             id = i;
             if (frame_array[id].get()->getStatus() == Status_Waiting)
             {
+                Mac_sender.sendOnePacket();
+                cout << "frame " << id << "sent.\n";
+                frame_array[id].get()->setSendTime();
                 if (frame_array[id].get()->getType() == TYPE_DATA)
                 {
                     frame_array[id].get()->setStatus(Status_Sent);
                 }
-
+                else // ACK is defualt set as acked
+                {
+                    frame_array[id].get()->setStatus(Status_Acked);
+                }
+            }
+            else if (frame_array[id].get()->getStatus() == Status_Sent && frame_array[id].get()->getTimeDuration() >= MAX_WAITING_TIME)
+            {
+                cout << "frame " << id << "ack not received. Try to resend package.\n";
+                frame_array[id].get()->setStatus(Status_Waiting);
+                frame_array[id].get()->addResendtimes();
             }
         }
-        send_time = std::chrono::system_clock::now();
-        sendData(id);
-        
+        checkIdarray();
+        this_thread::sleep_for(20ms);
+    }
+}
+
+void
+MAClayer::checkIdarray()
+{
+    bool frame_send_complete = true;
+    while (frame_send_complete)
+    {
+        int head = send_id_array[0];
+        if (frame_array[head].get()->getStatus() == Status_Sent)
+        {
+            if (frame_array[head].get()->ResendToomuch())
+            {
+                cout << "Resend too many times. Link error.\n";
+                StopMAClayer();//link error, mac layer stops
+            }
+            frame_send_complete = false;
+        }
+        else if (frame_array[head].get()->getStatus() == Status_Acked)
+        {
+            send_id_array.remove(0);
+        }
     }
 }
 

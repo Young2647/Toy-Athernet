@@ -22,7 +22,8 @@ public:
     void setStatus(Status status) { frame_status = status; }
     void setSendTime();
     double getTimeDuration();
-
+    void addResendtimes() { resend_times++; }
+    bool ResendToomuch() { return resend_times > MAX_RESEND_TIME; }
 private:
     Array<float> header;
     int8_t type;
@@ -30,6 +31,7 @@ private:
     Array<int8_t> data;
     std::chrono::system_clock::time_point send_time;
     Status frame_status;
+    int resend_times;
 };
 #pragma once
 

@@ -2089,9 +2089,9 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\ArrayBlockingQueue.h"/>
-    <ClInclude Include="..\..\Source\ArrayBlockingQueueExceptions.h"/>
     <ClInclude Include="..\..\Source\ArrayBlockingQueueImpl.h"/>
+    <ClInclude Include="..\..\Source\ArrayBlockingQueueExceptions.h"/>
+    <ClInclude Include="..\..\Source\ArrayBlockingQueue.h"/>
     <ClInclude Include="..\..\Source\Iterator.h"/>
     <ClInclude Include="..\..\Source\TimeUtils.h"/>
     <ClInclude Include="..\..\Source\defines.h"/>

@@ -3,17 +3,19 @@
 <JUCERPROJECT id="YFpztO" name="MAClayer" projectType="consoleapp" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="MRdOra" name="MAClayer">
-    <GROUP id="{EFC64E43-D6E4-CE7C-7AB2-5FAC53B3FE72}" name="Source">
+    <GROUP id="{9A88842B-D802-80B6-7D2B-4E489510BB5B}" name="include">
       <FILE id="Tmb9yT" name="ArrayBlockingQueue.cpp" compile="1" resource="0"
             file="Source/ArrayBlockingQueue.cpp"/>
-      <FILE id="EdxZZI" name="ArrayBlockingQueue.h" compile="0" resource="0"
-            file="Source/ArrayBlockingQueue.h"/>
-      <FILE id="z21HEf" name="ArrayBlockingQueueExceptions.h" compile="0"
-            resource="0" file="Source/ArrayBlockingQueueExceptions.h"/>
       <FILE id="TVEZvE" name="ArrayBlockingQueueImpl.h" compile="0" resource="0"
             file="Source/ArrayBlockingQueueImpl.h"/>
+      <FILE id="z21HEf" name="ArrayBlockingQueueExceptions.h" compile="0"
+            resource="0" file="Source/ArrayBlockingQueueExceptions.h"/>
+      <FILE id="EdxZZI" name="ArrayBlockingQueue.h" compile="0" resource="0"
+            file="Source/ArrayBlockingQueue.h"/>
       <FILE id="CoAUgJ" name="Iterator.h" compile="0" resource="0" file="Source/Iterator.h"/>
       <FILE id="w7jcBh" name="TimeUtils.h" compile="0" resource="0" file="Source/TimeUtils.h"/>
+    </GROUP>
+    <GROUP id="{EFC64E43-D6E4-CE7C-7AB2-5FAC53B3FE72}" name="Source">
       <FILE id="uwjrYr" name="defines.h" compile="0" resource="0" file="Source/defines.h"/>
       <FILE id="SJoVl1" name="MACframe.h" compile="0" resource="0" file="Source/MACframe.h"/>
       <FILE id="k8aLZL" name="MACframe.cpp" compile="1" resource="0" file="Source/MACframe.cpp"/>
