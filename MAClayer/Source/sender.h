@@ -14,6 +14,7 @@ using namespace juce;
 class Sender : public AudioIODeviceCallback, private HighResolutionTimer {
 public:
     Sender();
+
     void setHeaderLen(int len);
 
     void setCarrierFreq(int freq);

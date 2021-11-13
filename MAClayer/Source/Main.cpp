@@ -33,46 +33,25 @@ int main(int argc, char* argv[])
     dev_manager.setAudioDeviceSetup(dev_info, false);
 
 
-    std::unique_ptr<Receiver> receiver;
-    if (receiver.get() == nullptr)
+    std::unique_ptr<MAClayer> mac_layer;
+    if (mac_layer.get() == nullptr)
     {
-        receiver.reset(new Receiver());
+        mac_layer.reset(new MAClayer());
     }
 
-    std::cout << "Press any ENTER to start recording.\n";
+    std::cout << "Press any ENTER to start MAClayer.\n";
     getchar();
     getchar();
-    if (!(*receiver).isRecording)
-    {
-        dev_manager.addAudioCallback(receiver.get());
-        (*receiver).startRecording();
-    }
+    dev_manager.addAudioCallback(mac_layer.get());
+    mac_layer.get()->StartMAClayer();
 
-    std::cout << "Press any ENTER to stop recording.\n";
+    std::cout << "Press any ENTER to stop MAClayer.\n";
     getchar();
+    mac_layer.get()->StopMAClayer();
 
-    (*receiver).stopRecording();
-
-
-    //sender->send();
-    /*
-    std::ifstream temp("C:\\CS120\\CS120-Shanghaitech-Fall2021-main\\out.out");
-    AudioBuffer<float> tempBuffer;
-    tempBuffer.setSize(1, 100000);
-    auto* s = tempBuffer.getWritePointer(0);
-    char tmp;
-    for (int i = 0; i < 58560; i++)
-    {
-        temp >> s[i];
-    }
-    */
-    //receiver->Demodulate(sender->output_buffer);
-    //(*receiver).WritetoFile();
-    dev_manager.removeAudioCallback(receiver.get());
+    dev_manager.removeAudioCallback(mac_layer.get());
     DeletedAtShutdown::deleteAll();
     juce::MessageManager::deleteInstance();
-    // ..your code goes here!
-
 
     return 0;
 }

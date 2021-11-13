@@ -14,7 +14,7 @@ class MAClayer : public AudioIODeviceCallback
 public:
     MAClayer();
 
-    void Write2File(Array<int8_t>& byte_data);//wait to be implemented.
+    void Write2File(Array<int8_t>& byte_data);
 
     void receive(); //receiving datas
 
@@ -24,11 +24,19 @@ public:
 
     void readFromFile(int num_frame);
 
+    void audioDeviceIOCallback(const float** inputChannelData, int numInputChannels,
+        float** outputChannelData, int numOutputChannels, int numSamples);
+
+    void audioDeviceAboutToStart(juce::AudioIODevice* device) override {}
+
+    void audioDeviceStopped() {}
+
     unique_ptr<MACframe> sendACK(int8_t frame_id); 
 
     unique_ptr<MACframe> sendData(int8_t frame_id);
 
     void requestSend(int8_t ack_id);
+
 
 private:
     Receiver Mac_receiver;
@@ -41,7 +49,7 @@ private:
     std::chrono::milliseconds trans_timeout;
 
     unsigned int frame_size;
-    int last_receive_id = -1;
+    int last_receive_id;
 
     Array<Array<int8_t>> data_frames;
     int max_frame_gen_idx;

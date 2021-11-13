@@ -14,6 +14,7 @@ MAClayer::MAClayer() {
     sender_LFS = 0;
     sender_window.resize(sender_SWS);
 
+    
     // init receiver window
     receiver_LFR = 0;
     receiver_LFR = DEFAULT_RWS;
@@ -23,7 +24,13 @@ MAClayer::MAClayer() {
     last_receive_id = 0;
 }
 
-
+void
+MAClayer::audioDeviceIOCallback(const float** inputChannelData, int numInputChannels,
+    float** outputChannelData, int numOutputChannels, int numSamples)
+{
+    Mac_receiver.audioDeviceIOCallback(inputChannelData, numInputChannels, outputChannelData, numOutputChannels, numSamples);
+    Mac_sender.audioDeviceIOCallback(inputChannelData, numInputChannels, outputChannelData, numOutputChannels, numSamples);
+}
 
 void 
 MAClayer::receive() 
