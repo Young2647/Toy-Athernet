@@ -51,7 +51,6 @@ private:
     std::chrono::milliseconds trans_timeout;
 
     unsigned int frame_size;
-    int last_receive_id;
 
     Array<Array<int8_t>> data_frames;
     int max_frame_gen_idx;
@@ -71,7 +70,7 @@ private:
     std::ofstream fout;
     Array<unique_ptr<MACframe>> frame_array;
     Array<int> send_id_array;
-    ArrayBlockingQueue<int> id_controller_array;
+    ArrayBlockingQueue<int> id_controller_array = ArrayBlockingQueue<int>(QUEUE_SIZE);
     STATE state;
     CriticalSection lock;
 };
