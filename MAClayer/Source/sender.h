@@ -40,7 +40,7 @@ public:
 
     void sendOnePacket(int frame_len, Array<int8_t> cur_frame_data);
 
-    int beginSend();
+    int startSend();
 
     void hiResTimerCallback() override
     {
