@@ -18,6 +18,8 @@ public:
 
     void receive(); //receiving datas
 
+    void send(); //sending data
+
     void StartMAClayer();
 
     void StopMAClayer();
@@ -66,9 +68,11 @@ private:
     int receiver_LAF;
     int receiver_RWS;
     
+    int Mac_num_frame;
     bool Mac_stop;
     std::ofstream fout;
-    Array<unique_ptr<MACframe>> sender_window;
+    Array<unique_ptr<MACframe>> frame_array;
+    Array<int> send_id_array;
     STATE state;
 };
 

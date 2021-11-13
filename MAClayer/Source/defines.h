@@ -13,12 +13,18 @@
 
 #define Tx_DONE 1
 
-#define num_bits_per_frame 100
+#define num_bits_per_frame 128
 #define num_samples_per_bit 48
 
 #define DEFAULT_RWS 4
 enum STATE {
 	FrameDetection = 1, Tx, Rx, TxACK
+};
+
+enum Status {
+	Status_Waiting,
+	Status_Sent,
+	Status_Acked
 };
 
 

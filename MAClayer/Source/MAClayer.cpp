@@ -47,7 +47,7 @@ MAClayer::receive()
             {
                 Write2File(receive_frame.getData());
                 last_receive_id = receive_id;
-                sendACK(receive_id);
+                requestSend(receive_id);
             }
             else
             {
@@ -67,13 +67,39 @@ MAClayer::receive()
 }
 
 void
+MAClayer::send() {
+    //init parameters
+    int id = 0;
+    std::chrono::system_clock::time_point send_time;
+
+    readFromFile(Mac_num_frame);
+    while (!Mac_stop)
+    {
+        for (auto i : send_id_array)
+        {
+            id = i;
+            if (frame_array[id].get()->getStatus() == Status_Waiting)
+            {
+                if (frame_array[id].get()->getType() == TYPE_DATA)
+                {
+                    frame_array[id].get()->
+                }
+            }
+        }
+        send_time = std::chrono::system_clock::now();
+        sendData(id);
+        
+    }
+}
+
+void
 MAClayer::StartMAClayer()
 {
     receive_thread = thread(&receive, this);
     cout << "receiving thread start.\n";
     Mac_receiver.startRecording();
     cout << "receiver start recording.\n";
-    sending_thread = thread(sendData(1));
+    sending_thread = thread(&send, this);
     cout << "sending thread start.\n";
     Mac_stop = false;
     fout.open("OUTPUT.bin", ios::out || ios::binary);

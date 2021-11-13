@@ -18,6 +18,7 @@ public:
     int8_t getType() { return type; }
     int8_t getFrame_id() { return frame_id; }
     Array<int8_t> getData() { return data; }
+    Status getStatus() { return frame_status; }
     void setSendTime();
     double getTimeDuration();
 
@@ -27,6 +28,7 @@ private:
     int8_t frame_id;
     Array<int8_t> data;
     std::chrono::system_clock::time_point send_time;
+    Status frame_status;
 };
 #pragma once
 
