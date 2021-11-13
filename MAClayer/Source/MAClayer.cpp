@@ -21,6 +21,8 @@ MAClayer::MAClayer() {
     max_frame_gen_idx = -1;
     
     last_receive_id = 0;
+    for (int i = 0; i < 256; i++)
+        id_controller_array.add(i);
 }
 
 void
@@ -144,41 +146,41 @@ MAClayer::readFromFile(int num_frame) {
     f.close();
 }
 
-unique_ptr<MACframe>
-MAClayer::sendACK(int8_t frame_id) {
+
+
+// requestSend for ack packet
+int
+MAClayer::requestSend(int8_t data_frame_id) {
+    //// No action if ack_id is not in sender's sliding window
+    //if (ack_id <= sender_LAR || ack_id > sender_LFS)
+    //    return;
+
+    //sender_LAR = ack_id;
+    //// slide window to sender_LAR + 1
+    //while (sender_window.begin()->getFrame_id() <= sender_LAR) {
+    //    sender_window.remove(sender_window.begin());
+    //    sender_window.add()
+    //}
+    const ScopedLock sl(lock);
+    int id = id_controller_array.take();
     unique_ptr<MACframe> ack_frame;
-    ack_frame.reset(new MACframe(frame_id));
-    Mac_sender.sendOnePacket(2, ack_frame->getData());
-    state = FrameDetection;
-    return ack_frame;
+    ack_frame.reset(new MACframe(data_frame_id));
+    ack_frame->setFrameId(id);
+    send_id_array.insert(0, id);
+    frame_array.set(id, ack_frame);
+    return id;
 }
 
-unique_ptr<MACframe>
-MAClayer::sendData(int8_t frame_id) {
-    
-    Mac_sender.sendOnePacket(num_bits_per_frame, data_frame->getData());
-    state = FrameDetection;
-    return data_frame;
-}
-
-unique_ptr<MACframe>
-MAClayer::generateNextFrame() {
+// requestSend for data packet
+int
+MAClayer::requestSend(Array<int8_t> frame_data) {
+    const ScopedLock s1(lock);
+    int id = id_controller_array.take();
     unique_ptr<MACframe> data_frame;
-    data_frame.reset(new MACframe(++max_frame_gen_idx, data_frames[max_frame_gen_idx]));
-    data_frame->setSendTime();
-}
-
-void
-MAClayer::requestSend(int8_t ack_id) {
-    // No action if ack_id is not in sender's sliding window
-    if (ack_id <= sender_LAR || ack_id > sender_LFS)
-        return;
-
-    sender_LAR = ack_id;
-    // slide window to sender_LAR + 1
-    while (sender_window.begin()->getFrame_id() <= sender_LAR) {
-        sender_window.remove(sender_window.begin());
-        sender_window.add()
-    }
+    data_frame.reset(new MACframe(0, frame_data));
+    data_frame->setFrameId(id);
+    send_id_array.insert(0, id);
+    frame_array.set(id, data_frame);
+    return id;
 }
 
