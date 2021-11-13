@@ -139,6 +139,7 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\ArrayBlockingQueue.cpp"/>
     <ClCompile Include="..\..\Source\MACframe.cpp"/>
     <ClCompile Include="..\..\Source\MAClayer.cpp"/>
     <ClCompile Include="..\..\Source\receiver.cpp"/>
@@ -2088,6 +2089,11 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\ArrayBlockingQueue.h"/>
+    <ClInclude Include="..\..\Source\ArrayBlockingQueueExceptions.h"/>
+    <ClInclude Include="..\..\Source\ArrayBlockingQueueImpl.h"/>
+    <ClInclude Include="..\..\Source\Iterator.h"/>
+    <ClInclude Include="..\..\Source\TimeUtils.h"/>
     <ClInclude Include="..\..\Source\defines.h"/>
     <ClInclude Include="..\..\Source\MACframe.h"/>
     <ClInclude Include="..\..\Source\MAClayer.h"/>

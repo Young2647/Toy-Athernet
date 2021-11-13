@@ -19,6 +19,7 @@ public:
     int8_t getFrame_id() { return frame_id; }
     Array<int8_t> getData() { return data; }
     Status getStatus() { return frame_status; }
+    void setStatus(Status status) { frame_status = status; }
     void setSendTime();
     double getTimeDuration();
 
