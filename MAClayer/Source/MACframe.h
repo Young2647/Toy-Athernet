@@ -20,12 +20,13 @@ public:
     Array<int8_t> getData() { return data; }
     void setSendTime();
     double getTimeDuration();
+
 private:
     Array<float> header;
     int8_t type;
     int8_t frame_id;
     Array<int8_t> data;
-    auto send_time;
+    std::chrono::system_clock::time_point send_time;
 };
 #pragma once
 

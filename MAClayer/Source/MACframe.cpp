@@ -29,11 +29,13 @@ MACframe::MACframe(int8_t frame_id, Array<int8_t> frame_data) {
 }
 
 
-void setSendTime() { 
+void 
+MACframe::setSendTime() { 
     send_time = std::chrono::system_clock::now();
 }
 
-double getTimeDuration() { 
+double 
+MACframe::getTimeDuration() { 
     std::chrono::duration<double, std::milli> diff = std::chrono::system_clock::now() - send_time;
     return diff.count();
 }

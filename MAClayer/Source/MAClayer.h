@@ -35,6 +35,8 @@ public:
 
     unique_ptr<MACframe> sendData(int8_t frame_id);
 
+    unique_ptr<MACframe> generateNextFrame();
+
     void requestSend(int8_t ack_id);
 
 
