@@ -36,13 +36,8 @@ public:
 
     void audioDeviceStopped() {}
 
-    unique_ptr<MACframe> sendACK(int8_t frame_id); 
-
-    unique_ptr<MACframe> sendData(int8_t frame_id);
-
-    unique_ptr<MACframe> generateNextFrame();
-
-    void requestSend(int8_t ack_id);
+    int requestSend(int8_t ack_id);
+    int requestSend(Array<int8_t> frame_data);
 
 
 private:
@@ -76,7 +71,9 @@ private:
     std::ofstream fout;
     Array<unique_ptr<MACframe>> frame_array;
     Array<int> send_id_array;
+    ArrayBlockingQueue<int> id_controller_array;
     STATE state;
+    CriticalSection lock;
 };
 
 

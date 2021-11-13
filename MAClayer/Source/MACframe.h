@@ -12,11 +12,12 @@ class MACframe {
 public:
     MACframe(Array<int8_t> all_data);
 
-    MACframe(int8_t frame_id); // constructor of ack frame
-    MACframe(int8_t frame_id, Array<int8_t> frame_data); // constructor of data frame
+    MACframe(int8_t ack_id); // constructor of ack frame
+    MACframe(bool identifier, Array<int8_t> frame_data); // constructor of data frame
 
     int8_t getType() { return type; }
     int8_t getFrame_id() { return frame_id; }
+    void setFrameId(int8_t id) { frame_id = id; }
     Array<int8_t> getData() { return data; }
     Status getStatus() { return frame_status; }
     void setStatus(Status status) { frame_status = status; }

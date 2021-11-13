@@ -17,14 +17,13 @@ MACframe::MACframe(Array<int8_t> all_data) {
         data.add(all_data[i]);
 }
 
-MACframe::MACframe(int8_t frame_id) {
-    data.add((int8_t)TYPE_ACK);
-    data.add(frame_id);
+MACframe::MACframe(int8_t ack_id) {
+    type = (int8_t)TYPE_ACK;
+    data.add(ack_id);
 }
 
-MACframe::MACframe(int8_t frame_id, Array<int8_t> frame_data) {
-    data.add((int8_t)TYPE_DATA);
-    data.add(frame_id);
+MACframe::MACframe(bool identifier, Array<int8_t> frame_data) {
+    type = (int8_t)TYPE_DATA;
     data.addArray(frame_data);
 }
 
