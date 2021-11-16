@@ -37,6 +37,7 @@ MAClayer::receive()
 {
     while (!Mac_stop)
     {
+        //cv.notify_one();
         Array<int8_t> data = Mac_receiver.getData();
         MACframe receive_frame(data);
         if (receive_frame.getType() == TYPE_DATA)
@@ -208,22 +209,21 @@ MAClayer::requestSend(Array<int8_t> frame_data) {
     return id;
 }
 
-//void
-//MAClayer::startTimer(int8_t data_frame_id) {
-//    thread timer()
-//    timers
-// 
-//}
+void
+MAClayer::startTimer(int8_t data_frame_id) {
+    thread timer(&wait, data_frame_id);
+    timers.add(timer);
+}
 
-//void 
-//MAClayer::wait(int8_t data_frame_id) {
-//    unique_lock<mutex> lk(cv_m);
-//    auto now = std::chrono::system_clock::now();
-//    if (cv.wait_until(lk, now + trans_timeout, [&]() {return frame_array[data_frame_id].get()->getStatus() == Status_Sent;})) {
-//        cerr<<"frame " << data_frame_id << "timeout. Try to resend package.\n";
-//        frame_array[data_frame_id].get()->setStatus(Status_Waiting);
-//        frame_array[data_frame_id].get()->addResendtimes();
-//    }
-//}
+void 
+MAClayer::wait(int8_t data_frame_id) {
+    unique_lock<mutex> lk(cv_m);
+    auto now = std::chrono::system_clock::now();
+    if (cv.wait_until(lk, now + trans_timeout, [&]() {return frame_array[data_frame_id].get()->getStatus() == Status_Sent;})) {
+        cerr<<"frame " << data_frame_id << "timeout. Try to resend package.\n";
+        frame_array[data_frame_id].get()->setStatus(Status_Waiting);
+        frame_array[data_frame_id].get()->addResendtimes();
+    }
+}
 
 
