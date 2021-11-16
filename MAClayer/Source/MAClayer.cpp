@@ -9,9 +9,7 @@
 */
 
 #include "MAClayer.h"
-
-MAClayer::MAClayer() : id_controller_array(0), timers(0)
-{
+MAClayer::MAClayer() {
     sender_LFS = 0;
     //sender_window.resize(sender_SWS);
     
@@ -113,7 +111,7 @@ MAClayer::checkIdarray()
         else if (frame_array[head].get()->getStatus() == Status_Acked)
         {
             send_id_array.remove(0);
-            id_controller_array.put(frame_array[head].get()->getFrame_id());
+            id_controller_array.add(frame_array[head].get()->getFrame_id());
             frame_send_complete = true;
         }
     }
@@ -187,7 +185,8 @@ MAClayer::requestSend(int8_t data_frame_id) {
     //    sender_window.add()
     //}
     const ScopedLock sl(lock);
-    int id = id_controller_array.take();
+    int id = id_controller_array.getFirst();
+    id_controller_array.remove(0);
     unique_ptr<MACframe> ack_frame;
     ack_frame.reset(new MACframe(data_frame_id));
     ack_frame->setFrameId(id);
@@ -200,7 +199,8 @@ MAClayer::requestSend(int8_t data_frame_id) {
 int
 MAClayer::requestSend(Array<int8_t> frame_data) {
     const ScopedLock s1(lock);
-    int id = id_controller_array.take();
+    int id = id_controller_array.getFirst();
+    id_controller_array.remove(0);
     unique_ptr<MACframe> data_frame;
     data_frame.reset(new MACframe(0, frame_data));
     data_frame->setFrameId(id);
@@ -212,7 +212,7 @@ MAClayer::requestSend(Array<int8_t> frame_data) {
 void
 MAClayer::startTimer(int8_t data_frame_id) {
     thread timer(&MAClayer::wait, this, data_frame_id);
-    timers.add(timer);
+    //timers.add(timer);
 }
 
 void 

@@ -72,8 +72,8 @@ private:
     std::condition_variable cv;
     std::vector<unique_ptr<MACframe>> frame_array;
     Array<int> send_id_array;
-    ArrayBlockingQueue<int> id_controller_array;
-    ArrayBlockingQueue<thread> timers;
+    Array<int> id_controller_array;
+    Array<thread> timers;
     STATE state;
     CriticalSection lock;
     mutex cv_m;
