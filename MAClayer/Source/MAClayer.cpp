@@ -9,10 +9,10 @@
 */
 
 #include "MAClayer.h"
-MAClayer::MAClayer() : Mac_receiver(num_samples_per_bit, num_bits_per_frame) {
-    Mac_num_frame = 125;
-    num_bits_per_frame = 50;
-    num_samples_per_bit = 48;
+MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame) : Mac_receiver(num_samples_per_bit, num_bits_per_frame), Mac_sender(num_bits_per_frame, num_samples_per_bit) {
+    this->Mac_num_frame = num_frame;
+    this->num_bits_per_frame = num_bits_per_frame;
+    this->num_samples_per_bit = num_samples_per_bit;
 
     sender_LFS = 0;
     //sender_window.resize(sender_SWS);

@@ -12,7 +12,7 @@
 class MAClayer : public AudioIODeviceCallback
 {
 public:
-    MAClayer();
+    MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame);
 
     void Write2File(Array<int8_t>& byte_data);
 
