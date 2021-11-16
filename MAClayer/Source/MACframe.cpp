@@ -20,11 +20,14 @@ MACframe::MACframe(Array<int8_t> all_data) {
 MACframe::MACframe(int8_t ack_id) {
     type = (int8_t)TYPE_ACK;
     data.add(ack_id);
+    frame_status = Status_Waiting;
 }
 
 MACframe::MACframe(bool identifier, std::vector<int8_t> frame_data) {
     type = (int8_t)TYPE_DATA;
-    data = Array<int8_t>(frame_data.begin(), frame_data.size());
+    for (auto i : frame_data)
+        data.add(i);
+    frame_status = Status_Waiting;
 }
 
 

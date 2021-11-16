@@ -24,7 +24,7 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     max_frame_gen_idx = -1;
     for (int i = 0; i < 256; i++)
         id_controller_array.add(i);
-
+    frame_array.resize(256);
     //init sender and receiver
     
 }
@@ -78,7 +78,7 @@ MAClayer::send() {
             if (frame_array[id].get()->getStatus() == Status_Waiting)
             {
                 Mac_sender.sendOnePacket(frame_array[id].get()->getFrame_size() + 2, frame_array[id].get()->toBitStream());
-                cout << "frame " << id << "sent.\n";
+                cout << "frame " << id << " sent.\n";
                 frame_array[id].get()->setSendTime();
                 if (frame_array[id].get()->getType() == TYPE_DATA)
                 {
