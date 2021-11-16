@@ -1,7 +1,9 @@
 #include "sender.h"
 
 
-Sender::Sender() {
+Sender::Sender(int nbpf, int nspb) {
+    num_bits_per_frame = nbpf;
+    num_samples_per_bit = nspb;
     len_warm_up = 480;
     header_len = 480;
     sample_rate = 48000;
