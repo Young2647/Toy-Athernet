@@ -10,7 +10,7 @@
 
 #include "MAClayer.h"
 
-MAClayer::MAClayer() 
+MAClayer::MAClayer() : id_controller_array(0), timers(0)
 {
     sender_LFS = 0;
     //sender_window.resize(sender_SWS);
@@ -51,7 +51,7 @@ MAClayer::receive()
             int ack_id = (int)receive_frame.getData()[0];
             frame_array[ack_id].get()->setStatus(Status_Acked);// let the frame in frame array to be marked as acked.
             cout << "ACK" << ack_id << "received.\n";
-            requestSend();//wait to be implemented
+            requestSend(data_frames[ack_id + 1]);//wait to be implemented
         }
     }
 }
@@ -121,14 +121,14 @@ MAClayer::checkIdarray()
 void
 MAClayer::StartMAClayer()
 {
-    receive_thread = thread(&receive, this);
+    receive_thread = thread(&MAClayer::receive, this);
     cout << "receiving thread start.\n";
     Mac_receiver.startRecording();
     cout << "receiver start recording.\n";
-    sending_thread = thread(&send, this);
+    sending_thread = thread(&MAClayer::send, this);
     cout << "sending thread start.\n";
     Mac_stop = false;
-    fout.open("OUTPUT.bin", ios::out || ios::binary);
+    fout.open("OUTPUT.bin", ios::out | ios::binary);
 }
 
 void
@@ -207,4 +207,23 @@ MAClayer::requestSend(Array<int8_t> frame_data) {
     frame_array.set(id, data_frame);
     return id;
 }
+
+//void
+//MAClayer::startTimer(int8_t data_frame_id) {
+//    thread timer()
+//    timers
+// 
+//}
+
+//void 
+//MAClayer::wait(int8_t data_frame_id) {
+//    unique_lock<mutex> lk(cv_m);
+//    auto now = std::chrono::system_clock::now();
+//    if (cv.wait_until(lk, now + trans_timeout, [&]() {return frame_array[data_frame_id].get()->getStatus() == Status_Sent;})) {
+//        cerr<<"frame " << data_frame_id << "timeout. Try to resend package.\n";
+//        frame_array[data_frame_id].get()->setStatus(Status_Waiting);
+//        frame_array[data_frame_id].get()->addResendtimes();
+//    }
+//}
+
 

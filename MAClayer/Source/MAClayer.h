@@ -39,6 +39,8 @@ public:
     int requestSend(int8_t ack_id);
     int requestSend(Array<int8_t> frame_data);
 
+    void startTimer(int8_t frame_data_id);
+    void wait(int8_t data_frame_id);
 
 private:
     Receiver Mac_receiver;
@@ -68,11 +70,14 @@ private:
     int Mac_num_frame;
     bool Mac_stop;
     std::ofstream fout;
+    std::condition_variable cv;
     Array<unique_ptr<MACframe>> frame_array;
     Array<int> send_id_array;
-    ArrayBlockingQueue<int> id_controller_array = ArrayBlockingQueue<int>(QUEUE_SIZE);
+    ArrayBlockingQueue<int> id_controller_array;
+    ArrayBlockingQueue<thread> timers;
     STATE state;
     CriticalSection lock;
+    mutex cv_m;
 };
 
 
