@@ -8,7 +8,7 @@
 #include "ArrayBlockingQueueImpl.h"
 #include <fstream>
 #include <thread>
-
+#include <vector>
 
 class MAClayer : public AudioIODeviceCallback
 {
@@ -71,7 +71,7 @@ private:
     bool Mac_stop;
     std::ofstream fout;
     std::condition_variable cv;
-    Array<unique_ptr<MACframe>> frame_array;
+    std::vector<unique_ptr<MACframe>> frame_array;
     Array<int> send_id_array;
     ArrayBlockingQueue<int> id_controller_array;
     ArrayBlockingQueue<thread> timers;

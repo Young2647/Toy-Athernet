@@ -14,7 +14,7 @@ public:
 
     MACframe(int8_t ack_id); // constructor of ack frame
     MACframe(bool identifier, Array<int8_t> frame_data); // constructor of data frame
-
+    
     int8_t getType() { return type; }
     int8_t getFrame_id() { return frame_id; }
     int getFrame_size() { return data.size(); }

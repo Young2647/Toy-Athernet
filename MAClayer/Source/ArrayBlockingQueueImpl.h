@@ -1,3 +1,6 @@
+#ifndef _ARRAYBLOCKINGQUEUEIMPL_H_
+#define _ARRAYBLOCKINGQUEUEIMPL_H_
+
 #include<iostream>
 #include<string>
 
@@ -7,3 +10,4 @@
 template class ArrayBlockingQueue<int>;
 template class ArrayBlockingQueue<std::string>;
 
+#endif

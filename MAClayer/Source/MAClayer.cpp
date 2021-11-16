@@ -192,7 +192,7 @@ MAClayer::requestSend(int8_t data_frame_id) {
     ack_frame.reset(new MACframe(data_frame_id));
     ack_frame->setFrameId(id);
     send_id_array.insert(0, id);
-    frame_array.set(id, ack_frame);
+    frame_array[id] = std::move(ack_frame);
     return id;
 }
 
@@ -205,13 +205,13 @@ MAClayer::requestSend(Array<int8_t> frame_data) {
     data_frame.reset(new MACframe(0, frame_data));
     data_frame->setFrameId(id);
     send_id_array.insert(0, id);
-    frame_array.set(id, data_frame);
+    frame_array[id] = std::move(data_frame);
     return id;
 }
 
 void
 MAClayer::startTimer(int8_t data_frame_id) {
-    thread timer(&wait, data_frame_id);
+    thread timer(&MAClayer::wait, this, data_frame_id);
     timers.add(timer);
 }
 

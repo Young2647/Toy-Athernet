@@ -117,7 +117,7 @@ int Sender::startSend()
     output_buffer.clear();
     for (int j = 0; j < 480; j++)
         output_buffer.setSample(0, j, carrier_wave[j % num_samples_per_bit]);
-    
+    return 1;
 }
 
 
