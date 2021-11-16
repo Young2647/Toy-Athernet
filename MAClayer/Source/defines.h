@@ -13,8 +13,8 @@
 
 #define Tx_DONE 1
 
-#define num_bits_per_frame 128
-#define num_samples_per_bit 48
+#define BITS_PERFRAME 128
+#define SAMPLES_PERBIT 48
 
 #define DEFAULT_RWS 4
 #define MAX_WAITING_TIME 500

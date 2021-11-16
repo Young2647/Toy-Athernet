@@ -41,7 +41,6 @@ int main(int argc, char* argv[])
 
     std::cout << "Press any ENTER to start MAClayer.\n";
     getchar();
-    getchar();
     dev_manager.addAudioCallback(mac_layer.get());
     mac_layer.get()->StartMAClayer();
 

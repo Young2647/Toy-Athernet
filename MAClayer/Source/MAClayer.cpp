@@ -10,6 +10,10 @@
 
 #include "MAClayer.h"
 MAClayer::MAClayer() {
+    Mac_num_frame = 125;
+    num_bits_per_frame = 50;
+    num_samples_per_bit = 48;
+
     sender_LFS = 0;
     //sender_window.resize(sender_SWS);
     

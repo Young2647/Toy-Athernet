@@ -66,7 +66,9 @@ private:
     int receiver_LAF;
     int receiver_RWS;
     
-    int Mac_num_frame;
+    int Mac_num_frame; //total frame num
+    int num_bits_per_frame; // every frame bits num
+    int num_samples_per_bit; // every bit sample num
     bool Mac_stop;
     std::ofstream fout;
     std::condition_variable cv;
