@@ -13,6 +13,8 @@ class Receiver : public AudioIODeviceCallback
 {
 public:
     Receiver();
+    
+    Receiver(int bitlen, int packlen);
 
     void GenerateCarrierWave();
 

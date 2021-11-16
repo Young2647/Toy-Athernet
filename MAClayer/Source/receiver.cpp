@@ -6,6 +6,12 @@ Receiver::Receiver() {
     data_state = -1;
 }
 
+Receiver::Receiver(int bitlen, int packlen)
+{
+    bitLen = bitlen;
+    packLen = packlen;
+}
+
 void 
 Receiver::GenerateCarrierWave()
 {

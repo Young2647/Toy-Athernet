@@ -9,7 +9,7 @@
 */
 
 #include "MAClayer.h"
-MAClayer::MAClayer() {
+MAClayer::MAClayer() : Mac_receiver(num_samples_per_bit, num_bits_per_frame) {
     Mac_num_frame = 125;
     num_bits_per_frame = 50;
     num_samples_per_bit = 48;
@@ -24,6 +24,9 @@ MAClayer::MAClayer() {
     max_frame_gen_idx = -1;
     for (int i = 0; i < 256; i++)
         id_controller_array.add(i);
+
+    //init sender and receiver
+    
 }
 
 void
