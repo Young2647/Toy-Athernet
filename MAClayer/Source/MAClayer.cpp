@@ -42,6 +42,7 @@ MAClayer::receive()
 {
     while (!Mac_stop)
     {
+        cout << "...receiving...\n";
         //cv.notify_one();
         Array<int8_t> data = Mac_receiver.getData();
         MACframe receive_frame(data);
@@ -68,6 +69,7 @@ MAClayer::send() {
     int id = 0;
 
     readFromFile(Mac_num_frame);
+    requestSend(data_frames[0]);
     while (!Mac_stop)
     {
         for (auto i : send_id_array)
@@ -127,13 +129,15 @@ MAClayer::checkIdarray()
 void
 MAClayer::StartMAClayer()
 {
+    Mac_stop = false;
     receive_thread = thread(&MAClayer::receive, this);
     cout << "receiving thread start.\n";
     Mac_receiver.startRecording();
     cout << "receiver start recording.\n";
+    Mac_sender.startSend();
+    cout << "sender start sending";
     sending_thread = thread(&MAClayer::send, this);
     cout << "sending thread start.\n";
-    Mac_stop = false;
     fout.open("OUTPUT.bin", ios::out | ios::binary);
 }
 
@@ -157,19 +161,30 @@ MAClayer::Write2File(Array<int8_t>& byte_data)
     fout << (char*)byte_data.getRawDataPointer();
 }
 
-
+std::string getPath(const std::string& target, int depth = 5) {
+    std::string path = target;
+    for (int i = 0; i < depth; ++i) {
+        FILE* file = fopen(path.c_str(), "r");
+        if (file) {
+            fclose(file);
+            return path;
+        }
+        path = "../" + path;
+    }
+    return target;
+}
 
 void
 MAClayer::readFromFile(int num_frame) {
     data_frames.resize(num_frame);
     ifstream f;
     char tmp;
-    f.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021-main\\input.in");
+    f.open(getPath("test.in"));
     for (int i = 0; i < num_frame; i++) {
         data_frames[i].resize(num_bits_per_frame);
         for (int j = 0; j < num_bits_per_frame; j++) {
             f >> tmp;
-            data_frames[i].set(j, (int8_t)tmp - 48);
+            data_frames[i][j] = (int8_t)tmp - 48;
             //frame_bit[i][j] = 1;
         }
     }
@@ -204,7 +219,7 @@ MAClayer::requestSend(int8_t data_frame_id) {
 
 // requestSend for data packet
 int
-MAClayer::requestSend(Array<int8_t> frame_data) {
+MAClayer::requestSend(std::vector<int8_t> frame_data) {
     const ScopedLock s1(lock);
     int id = id_controller_array.getFirst();
     id_controller_array.remove(0);

@@ -22,9 +22,9 @@ MACframe::MACframe(int8_t ack_id) {
     data.add(ack_id);
 }
 
-MACframe::MACframe(bool identifier, Array<int8_t> frame_data) {
+MACframe::MACframe(bool identifier, std::vector<int8_t> frame_data) {
     type = (int8_t)TYPE_DATA;
-    data.addArray(frame_data);
+    data = Array<int8_t>(frame_data.begin(), frame_data.size());
 }
 
 

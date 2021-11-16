@@ -13,7 +13,7 @@ public:
     MACframe(Array<int8_t> all_data);
 
     MACframe(int8_t ack_id); // constructor of ack frame
-    MACframe(bool identifier, Array<int8_t> frame_data); // constructor of data frame
+    MACframe(bool identifier, std::vector<int8_t> frame_data); // constructor of data frame
     
     int8_t getType() { return type; }
     int8_t getFrame_id() { return frame_id; }

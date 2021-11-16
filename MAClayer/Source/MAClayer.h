@@ -36,7 +36,7 @@ public:
     void audioDeviceStopped() {}
 
     int requestSend(int8_t ack_id);
-    int requestSend(Array<int8_t> frame_data);
+    int requestSend(std::vector<int8_t> frame_data);
 
     void startTimer(int8_t frame_data_id);
     void wait(int8_t data_frame_id);
@@ -53,7 +53,7 @@ private:
 
     unsigned int frame_size;
 
-    Array<Array<int8_t>> data_frames;
+    std::vector<std::vector<int8_t>> data_frames;
     int max_frame_gen_idx;
 
     // variables maintained for sender's sliding window

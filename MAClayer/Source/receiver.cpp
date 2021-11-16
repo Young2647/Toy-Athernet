@@ -4,12 +4,34 @@ Receiver::Receiver() {
     syncPower_localMax = 0;
     isRecording = false;
     data_state = -1;
+    state = SYNC;
+
+    isRecording = false;
+    recordedSampleNum = 0;
+
+    sampleRate = 48000;
+
+    GenerateCarrierWave();
+    GenerateHeader();
 }
 
 Receiver::Receiver(int bitlen, int packlen)
 {
     bitLen = bitlen;
     packLen = packlen;
+
+    syncPower_localMax = 0;
+    isRecording = false;
+    data_state = -1;
+    state = SYNC;
+
+    isRecording = false;
+    recordedSampleNum = 0;
+
+    sampleRate = 48000;
+
+    GenerateCarrierWave();
+    GenerateHeader();
 }
 
 void 
@@ -55,13 +77,7 @@ Receiver::GenerateHeader() {
 void 
 Receiver::audioDeviceAboutToStart(AudioIODevice* device) 
 {
-    isRecording = false;
-    recordedSampleNum = 0;
 
-    sampleRate = 48000;
-
-    GenerateCarrierWave();
-    GenerateHeader();
 }
 
 void 

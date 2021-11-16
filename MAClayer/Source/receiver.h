@@ -55,7 +55,7 @@ private:
     int sampleRate;
     float syncPower_localMax;
     float power_;
-    int state;
+    int state; // processing state
     int data_state;
 };
 
