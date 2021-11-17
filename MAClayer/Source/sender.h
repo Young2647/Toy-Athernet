@@ -36,6 +36,8 @@ public:
 
     //void send();
 
+    void printOutput_buffer();
+
     void sendOnePacket(int frame_len, Array<int8_t> cur_frame_data);
 
     int startSend();

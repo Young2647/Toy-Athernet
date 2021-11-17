@@ -84,8 +84,12 @@ void Sender::generateHeader() {
 void Sender::Modulation(Array<int8_t> cur_frame_data, int frame_len) {
     frame_wave.fill(0);
     for (int i = 0; i < frame_len; i++) {
-        for (int j = 0; j < num_samples_per_bit; j++)
+        for (int j = 0; j < num_samples_per_bit; j++) {
+            /*if (cur_frame_data[i] > 1) {
+                cout << cur_frame_data[i] << endl;
+            }*/
             frame_wave.set(i * num_samples_per_bit + j, ((int)cur_frame_data[i] * 2 - 1) * carrier_wave[j]);
+        }
     }
 }
 
@@ -99,15 +103,16 @@ void Sender::sendOnePacket(int frame_len, Array<int8_t> cur_frame_data) {
         output_buffer.setSample(0, output_buffer_idx, 0);
 }
 
-
-    //ofstream of;
-    //of.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021-main\\Sender\\Builds\\VisualStudio2019\\out.out", ios::trunc);
-    //for (int i = 0; i < output_buffer.getNumSamples(); i++) {
-    //    if (of.is_open()) {
-    //        of << output_buffer.getSample(0, i) << endl;
-    //    }
-    //}
-    //of.close();
+void Sender::printOutput_buffer() {
+    ofstream of;
+    of.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021\\out.out", ios::trunc);
+    for (int i = 0; i < output_buffer.getNumSamples(); i++) {
+        if (of.is_open() && i < 119236) {
+            of << output_buffer.getSample(0, i) << endl;
+        }
+    }
+    of.close();
+}
 
 int Sender::startSend()
 {
@@ -117,7 +122,7 @@ int Sender::startSend()
     int len_buffer = num_frame * len_frame;
     output_buffer.setSize(1, len_buffer + 480 + len_warm_up);
     output_buffer.clear();
-    for (int j = 0; j < 480; j++)
+    for (int j = 0; j < 480; j++, output_buffer_idx++)
         output_buffer.setSample(0, j, carrier_wave[j % num_samples_per_bit]);
     return 1;
 }
@@ -143,6 +148,7 @@ void Sender::audioDeviceIOCallback(const float** inputChannelData, int numInputC
             if (outputChannelData[j] != nullptr)
             {
                 // Write the sample into the output channel
+                //outputChannelData[j][i] = (playingSampleNum < output_buffer.getNumSamples()) ? 1.0f : 0.0f;
                 outputChannelData[j][i] = (playingSampleNum < output_buffer.getNumSamples()) ? playBuffer[playingSampleNum] : 0.0f;
                 ++playingSampleNum;
             }

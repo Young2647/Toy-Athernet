@@ -110,6 +110,7 @@ Receiver::startRecording()
     const ScopedLock sl(lock);
     recordedSampleNum = 0;
     isRecording = true;
+    fout = std::ofstream("input.out");
 }
 
 void 
@@ -118,6 +119,7 @@ Receiver::stopRecording()
     if (isRecording)
     {
         isRecording = false;
+        fout.close();
     }
 }
 
@@ -147,6 +149,7 @@ Receiver::Int2Byte(Array<int>& int_data)
 int
 Receiver::Demodulate(float sample)
 {
+    fout << sample << "\n";
     //std::cout << sample << "\n";
     bool _ifheadercheck = false;
     Array<float> tempBuffer;
