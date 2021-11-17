@@ -25,7 +25,7 @@ public:
     void setSendTime();
     double getTimeDuration();
     void addResendtimes() { resend_times++; }
-    bool ResendToomuch() { return resend_times > MAX_RESEND_TIME; }
+    bool ResendToomuch() { return !(resend_times < MAX_RESEND_TIME); }
     Array<int8_t> toBitStream();
 private:
     int8_t type;

@@ -26,7 +26,7 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     for (int i = 0; i < 256; i++)
         id_controller_array.add(i);
     frame_array.resize(256);
-    trans_timeout = 3000ms;
+    trans_timeout = 500ms;
     //init sender and receiver
     
 }
@@ -170,6 +170,7 @@ MAClayer::StopMAClayer()
 {
     if (!Mac_stop)
     {
+        Mac_sender.printOutput_buffer();
         Mac_stop = true;
         receive_thread.join();
         cout << "receiving thread stop.\n";
@@ -204,16 +205,18 @@ std::string getPath(const std::string& target, int depth = 5) {
 void
 MAClayer::readFromFile(int num_frame) {
     data_frames.resize(num_frame);
-    ifstream f;
+    ifstream f(getPath("test.in"), ios::in | ios::binary);
     char tmp;
-    f.open(getPath("test.in"));
     for (int i = 0; i < num_frame; i++) {
-        data_frames[i].resize(num_bits_per_frame);
-        for (int j = 0; j < num_bits_per_frame; j++) {
-            f >> tmp;
-            data_frames[i][j] = (int8_t)tmp - 48;
-            //frame_bit[i][j] = 1;
+        data_frames[i].resize(num_bits_per_frame-2);
+        for (int j = 0; j < (num_bits_per_frame-2)/8; j++) {
+            while (f.get(tmp)) {
+                for (int k = 7; k >= 0; k--) {
+                    data_frames[i][j * 8 + (7 - k)] = (int8_t)((tmp >> k) & 1);
+                }
+            }
         }
+        
     }
     f.close();
 }

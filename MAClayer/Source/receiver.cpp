@@ -147,6 +147,7 @@ Receiver::Int2Byte(Array<int>& int_data)
 int
 Receiver::Demodulate(float sample)
 {
+    //std::cout << sample << "\n";
     bool _ifheadercheck = false;
     Array<float> tempBuffer;
     Array<int> int_data;
