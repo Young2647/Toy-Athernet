@@ -15,12 +15,14 @@ MACframe::MACframe(Array<int8_t> all_data) {
     frame_id = all_data[1];
     for (int i = 2; i < all_data.size(); i++) 
         data.add(all_data[i]);
+    resend_times = 0;
 }
 
 MACframe::MACframe(int8_t ack_id) {
     type = (int8_t)TYPE_ACK;
     data.add(ack_id);
     frame_status = Status_Waiting;
+    resend_times = 0;
 }
 
 MACframe::MACframe(bool identifier, std::vector<int8_t> frame_data) {
@@ -28,6 +30,7 @@ MACframe::MACframe(bool identifier, std::vector<int8_t> frame_data) {
     for (auto i : frame_data)
         data.add(i);
     frame_status = Status_Waiting;
+    resend_times = 0;
 }
 
 

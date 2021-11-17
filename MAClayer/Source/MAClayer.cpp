@@ -26,6 +26,7 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     for (int i = 0; i < 256; i++)
         id_controller_array.add(i);
     frame_array.resize(256);
+    trans_timeout = 500ms;
     //init sender and receiver
     
 }
@@ -44,7 +45,6 @@ MAClayer::receive()
     while (!Mac_stop)
     {
         cout << "...receiving...\n";
-        //cv.notify_one();
         Array<int8_t> data = Mac_receiver.getData();
         MACframe receive_frame(data);
         if (receive_frame.getType() == TYPE_DATA)
@@ -58,6 +58,7 @@ MAClayer::receive()
         {
             int ack_id = (int)receive_frame.getData()[0];
             frame_array[ack_id].get()->setStatus(Status_Acked);// let the frame in frame array to be marked as acked.
+            cv.notify_one();
             cout << "ACK" << ack_id << "received.\n";
             requestSend(data_frames[ack_id + 1]);//wait to be implemented
         }
@@ -92,12 +93,12 @@ MAClayer::send() {
                     frame_array[id].get()->setStatus(Status_Acked);
                 }
             }
-            else if (frame_array[id].get()->getStatus() == Status_Sent && frame_array[id].get()->getTimeDuration() >= MAX_WAITING_TIME)
+            /*else if (frame_array[id].get()->getStatus() == Status_Sent && frame_array[id].get()->getTimeDuration() >= MAX_WAITING_TIME)
             {
-                cout << "frame " << id << "ack not received. Try to resend package.\n";
+                cout << "frame " << id << " ack not received. Try to resend package.\n";
                 frame_array[id].get()->setStatus(Status_Waiting);
                 frame_array[id].get()->addResendtimes();
-            }
+            }*/
         }
         checkIdarray();
         this_thread::sleep_for(20ms);
@@ -237,23 +238,34 @@ MAClayer::requestSend(std::vector<int8_t> frame_data) {
 void
 MAClayer::startTimer(int8_t data_frame_id) {
     keep_timer = 1;
-    while (keep_timer) {
-        thread timer(&MAClayer::wait, this, data_frame_id);
-        timer.join();
+    if (!timers.empty()) {
+        timers[0].join();
+        timers.erase(timers.begin());
     }
+    thread timer(&MAClayer::wait, this, data_frame_id);
+    timers.push_back(std::move(timer));
 }
 
 void 
 MAClayer::wait(int8_t data_frame_id) {
     unique_lock<mutex> lk(cv_m);
-    auto now = std::chrono::system_clock::now();
-    if (cv.wait_until(lk, now + trans_timeout, [&]() {return frame_array[data_frame_id].get()->getStatus() == Status_Acked;})) {
-        keep_timer = 0;
-    }
-    else {
-        cerr << "frame " << data_frame_id << "timeout. Try to resend package.\n";
-        frame_array[data_frame_id].get()->setStatus(Status_Waiting);
-        frame_array[data_frame_id].get()->addResendtimes();
+    while (keep_timer)
+    {
+        auto now = std::chrono::system_clock::now();
+        if (cv.wait_until(lk, now + trans_timeout, [&]() {return frame_array[data_frame_id].get()->getStatus() == Status_Acked; })) {
+            keep_timer = 0;
+        }
+        else if (frame_array[data_frame_id].get()->ResendToomuch())
+        {
+            cout << "resend too many times.\n";
+            keep_timer = 0;
+        }
+        else
+        {
+            cerr << "frame " << data_frame_id << "timeout. Try to resend package.\n";
+            frame_array[data_frame_id].get()->setStatus(Status_Waiting);
+            frame_array[data_frame_id].get()->addResendtimes();
+        }
     }
 }
 
