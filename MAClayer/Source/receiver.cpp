@@ -218,6 +218,8 @@ Receiver::Demodulate(float sample)
             state = SYNC;
             _ifheadercheck = false;
             frame_data = Int2Byte(int_data);
+            int_data.clear();
+            tempBuffer.clear();
             return DATA_RECEIVED;
         }
         else
@@ -230,6 +232,7 @@ Receiver::Demodulate(float sample)
 Array<int8_t>
 Receiver::getData()
 {
+    data_state = SYNC;
     std::chrono::system_clock::time_point start_time = std::chrono::system_clock::now();
     while (data_state != DATA_RECEIVED)
     {
