@@ -70,6 +70,7 @@ private:
     int num_bits_per_frame; // every frame bits num
     int num_samples_per_bit; // every bit sample num
     bool Mac_stop;
+    bool keep_timer;
     std::ofstream fout;
     std::condition_variable cv;
     std::vector<unique_ptr<MACframe>> frame_array;
