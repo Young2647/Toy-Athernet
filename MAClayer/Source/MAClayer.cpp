@@ -77,9 +77,10 @@ MAClayer::receive()
         else if (receive_frame.getType() == TYPE_ACK)
         {
             int ack_id = (int)receive_frame.getData()[0];
-            frame_array[ack_id].get()->setStatus(Status_Acked);// let the frame in frame array to be marked as acked.
+            if (frame_array[ack_id].get())
+                frame_array[ack_id].get()->setStatus(Status_Acked);// let the frame in frame array to be marked as acked.
             cv.notify_one();
-            cout << "ACK" << ack_id << "received.\n";
+            cout << "ACK " << ack_id << "received.\n";
             requestSend(data_frames[ack_id + 1]);//wait to be implemented
         }
     }
@@ -105,8 +106,8 @@ MAClayer::send() {
                 if (frame_array[id].get()->getType() == TYPE_DATA)
                 {
                     frame_array[id].get()->setStatus(Status_Sent);
-                    if (!keep_timer)
-                        startTimer(id);
+                    //if (!keep_timer)
+                    //    startTimer(id);
                 }
                 else // ACK is defualt set as acked
                 {

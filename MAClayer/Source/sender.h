@@ -74,6 +74,7 @@ private:
     Array<float> carrier_wave;
     Array<float> header_wave;
     bool isPlaying;
+    ofstream fout;
     //    AudioDeviceManager audioDeviceManager;
     //    unique_ptr<audioDevice> device;
 };
