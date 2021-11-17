@@ -26,7 +26,7 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     for (int i = 0; i < 256; i++)
         id_controller_array.add(i);
     frame_array.resize(256);
-    trans_timeout = 500ms;
+    trans_timeout = 3000ms;
     //init sender and receiver
     
 }
