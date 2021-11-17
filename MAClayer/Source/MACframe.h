@@ -27,7 +27,7 @@ public:
     void addResendtimes() { resend_times++; }
     bool ResendToomuch() { return !(resend_times < MAX_RESEND_TIME); }
     Array<int8_t> toBitStream();
-    int8_t* byteToBits(int8_t number);
+    void byteToBits(Array<int8_t> ret_array, int8_t number);
 
 private:
     int8_t type;
