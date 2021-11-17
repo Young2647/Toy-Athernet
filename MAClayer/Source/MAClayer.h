@@ -76,7 +76,7 @@ private:
     std::vector<unique_ptr<MACframe>> frame_array;
     Array<int> send_id_array;
     Array<int> id_controller_array;
-    Array<thread> timers;
+    std::vector<thread> timers;
     STATE state;
     CriticalSection lock;
     mutex cv_m;

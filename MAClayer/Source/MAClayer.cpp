@@ -13,7 +13,6 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     this->Mac_num_frame = num_frame;
     this->num_bits_per_frame = num_bits_per_frame;
     this->num_samples_per_bit = num_samples_per_bit;
-    trans_timeout = 500ms;
 
     sender_LFS = 0;
     //sender_window.resize(sender_SWS);
@@ -27,6 +26,7 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     for (int i = 0; i < 256; i++)
         id_controller_array.add(i);
     frame_array.resize(256);
+    trans_timeout = 500ms;
     //init sender and receiver
     
 }
@@ -95,7 +95,7 @@ MAClayer::send() {
             }
             /*else if (frame_array[id].get()->getStatus() == Status_Sent && frame_array[id].get()->getTimeDuration() >= MAX_WAITING_TIME)
             {
-                cout << "frame " << id << "ack not received. Try to resend package.\n";
+                cout << "frame " << id << " ack not received. Try to resend package.\n";
                 frame_array[id].get()->setStatus(Status_Waiting);
                 frame_array[id].get()->addResendtimes();
             }*/
@@ -238,19 +238,30 @@ MAClayer::requestSend(std::vector<int8_t> frame_data) {
 void
 MAClayer::startTimer(int8_t data_frame_id) {
     keep_timer = 1;
+    if (!timers.empty()) {
+        timers[0].join();
+        timers.erase(timers.begin());
+    }
     thread timer(&MAClayer::wait, this, data_frame_id);
-    timer.join();
+    timers.push_back(std::move(timer));
 }
 
 void 
 MAClayer::wait(int8_t data_frame_id) {
     unique_lock<mutex> lk(cv_m);
-    while (keep_timer) {
+    while (keep_timer)
+    {
         auto now = std::chrono::system_clock::now();
         if (cv.wait_until(lk, now + trans_timeout, [&]() {return frame_array[data_frame_id].get()->getStatus() == Status_Acked; })) {
             keep_timer = 0;
         }
-        else {
+        else if (frame_array[data_frame_id].get()->ResendToomuch())
+        {
+            cout << "resend too many times.\n";
+            keep_timer = 0;
+        }
+        else
+        {
             cerr << "frame " << data_frame_id << "timeout. Try to resend package.\n";
             frame_array[data_frame_id].get()->setStatus(Status_Waiting);
             frame_array[data_frame_id].get()->addResendtimes();
