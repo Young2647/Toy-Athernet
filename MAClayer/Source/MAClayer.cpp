@@ -35,6 +35,14 @@ MAClayer::~MAClayer()
 {
     if (receive_thread.joinable()) receive_thread.join();
     if (sending_thread.joinable()) sending_thread.join();
+    if (!timers.empty())
+    {
+        for (int i = 0; i < timers.size(); i++)
+        {
+            if (timers[i].joinable())
+                timers[i].join();
+        }
+    }
 }
 
 
