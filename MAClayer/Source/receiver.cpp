@@ -151,9 +151,6 @@ Receiver::Demodulate(float sample)
 {
     fout << sample << "\n";
     //std::cout << sample << "\n";
-    bool _ifheadercheck = false;
-    Array<float> tempBuffer;
-    Array<int> int_data;
     power_ = power_ * (1 - 1.0 / 64.0) + sample * sample / 64.0;
     if (state == SYNC)// sync process
     {
