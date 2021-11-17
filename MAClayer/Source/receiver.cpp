@@ -189,8 +189,8 @@ Receiver::Demodulate(float sample)
                     state = DATA_PROCESS;
                     processingData = tempBuffer;
                 }
-
             }
+            return NO_HEADER;
         }
     }
     else if (state == DATA_PROCESS) //data process
@@ -229,9 +229,11 @@ Receiver::Demodulate(float sample)
 Array<int8_t>
 Receiver::getData()
 {
+    std::chrono::system_clock::time_point start_time = std::chrono::system_clock::now();
     while (data_state != DATA_RECEIVED)
     {
-
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_time).count();
+        if (duration >= MAX_WAITING_TIME) break;
     }
     return frame_data;
 }
