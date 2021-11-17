@@ -42,10 +42,15 @@ MAClayer::audioDeviceIOCallback(const float** inputChannelData, int numInputChan
 void 
 MAClayer::receive() 
 {
+    cout << "...receiving...\n";
     while (!Mac_stop)
     {
-        cout << "...receiving...\n";
         Array<int8_t> data = Mac_receiver.getData();
+        if (data.isEmpty())
+        {
+            cout << "nothing received.\n";
+            continue;
+        }
         MACframe receive_frame(data);
         if (receive_frame.getType() == TYPE_DATA)
         {

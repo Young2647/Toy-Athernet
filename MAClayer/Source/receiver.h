@@ -47,7 +47,7 @@ private:
     Array<int8_t> frame_data;
 
     CriticalSection lock;
-
+    
     int recordedSampleNum = -1;
     int bitLen = 48; //the length of one bit
     int packLen = 100; // how many bits per frame
