@@ -125,7 +125,7 @@ int Sender::startSend()
     output_buffer.clear();
     for (int j = 0; j < 480; j++, output_buffer_idx++)
         output_buffer.setSample(0, j, carrier_wave[j % num_samples_per_bit]);
-    of.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021\\out.out", ios::trunc);
+    //of.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021\\out.out", ios::trunc);
     return 1;
 }
 
@@ -172,5 +172,5 @@ void Sender::audioDeviceIOCallback(const float** inputChannelData, int numInputC
     //        }
     //    }
     //}
-    of.close();
+    //of.close();
 }
