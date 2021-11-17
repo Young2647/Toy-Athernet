@@ -107,7 +107,7 @@ void Sender::printOutput_buffer() {
     ofstream of;
     of.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021\\out.out", ios::trunc);
     for (int i = 0; i < output_buffer.getNumSamples(); i++) {
-        if (of.is_open() && i < 119236) {
+        if (of.is_open() && i < 210000) {
             of << output_buffer.getSample(0, i) << endl;
         }
     }
@@ -124,6 +124,7 @@ int Sender::startSend()
     output_buffer.clear();
     for (int j = 0; j < 480; j++, output_buffer_idx++)
         output_buffer.setSample(0, j, carrier_wave[j % num_samples_per_bit]);
+    of.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021\\out.out", ios::trunc);
     return 1;
 }
 
@@ -154,4 +155,20 @@ void Sender::audioDeviceIOCallback(const float** inputChannelData, int numInputC
             }
         }
     }
+   
+    
+    //for (int i = 0; i < numSamples; i++)
+    //{
+    //    for (auto j = numOutputChannels; --j >= 0;)
+    //    {
+
+    //        if (outputChannelData[j] != nullptr)
+    //        {
+    //            // Write the sample into the output channel
+    //            //outputChannelData[j][i] = (playingSampleNum < output_buffer.getNumSamples()) ? 1.0f : 0.0f;
+    //            of << outputChannelData[j][i] << endl;
+    //        }
+    //    }
+    //}
+    of.close();
 }
