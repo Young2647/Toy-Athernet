@@ -57,6 +57,7 @@ private:
     float power_;
     int state; // processing state
     int data_state;
+    std::ofstream fout;
 };
 
 #endif

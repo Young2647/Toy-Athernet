@@ -143,6 +143,7 @@ void Sender::audioDeviceIOCallback(const float** inputChannelData, int numInputC
             if (outputChannelData[j] != nullptr)
             {
                 // Write the sample into the output channel
+                //outputChannelData[j][i] = (playingSampleNum < output_buffer.getNumSamples()) ? 1.0f : 0.0f;
                 outputChannelData[j][i] = (playingSampleNum < output_buffer.getNumSamples()) ? playBuffer[playingSampleNum] : 0.0f;
                 ++playingSampleNum;
             }
