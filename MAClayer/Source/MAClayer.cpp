@@ -31,6 +31,13 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     
 }
 
+MAClayer::~MAClayer()
+{
+    if (receive_thread.joinable()) receive_thread.join();
+    if (sending_thread.joinable()) sending_thread.join();
+}
+
+
 void
 MAClayer::audioDeviceIOCallback(const float** inputChannelData, int numInputChannels,
     float** outputChannelData, int numOutputChannels, int numSamples)
@@ -119,11 +126,11 @@ MAClayer::checkIdarray()
         int head = send_id_array[0];
         if (frame_array[head].get()->getStatus() == Status_Sent)
         {
-            if (frame_array[head].get()->ResendToomuch())
-            {
-                cerr << "Resend too many times. Link error.\n";
-                StopMAClayer();//link error, mac layer stops
-            }
+            //if (frame_array[head].get()->ResendToomuch())
+            //{
+            //    cerr << "Resend too many times. Link error.\n";
+            //    StopMAClayer();//link error, mac layer stops
+            //}
             frame_send_complete = false;
         }
         else if (frame_array[head].get()->getStatus() == Status_Acked)
@@ -153,14 +160,17 @@ MAClayer::StartMAClayer()
 void
 MAClayer::StopMAClayer()
 {
-    Mac_stop = true;
-    receive_thread.join();
-    cout << "receiving thread stop.\n";
-    Mac_receiver.stopRecording();
-    cout << "receiver stop recording.\n";
-    sending_thread.join();
-    cout << "sending thread stop.\n";
-    fout.close();
+    if (!Mac_stop)
+    {
+        Mac_stop = true;
+        receive_thread.join();
+        cout << "receiving thread stop.\n";
+        Mac_receiver.stopRecording();
+        cout << "receiver stop recording.\n";
+        sending_thread.join();
+        cout << "sending thread stop.\n";
+        fout.close();
+    }
 }
 
 
@@ -262,8 +272,9 @@ MAClayer::wait(int8_t data_frame_id) {
         }
         else if (frame_array[data_frame_id].get()->ResendToomuch())
         {
-            cout << "resend too many times.\n";
             keep_timer = 0;
+            cerr << "Resend too many times. Link error.\n";
+            StopMAClayer();//link error, mac layer stops
         }
         else
         {
