@@ -19,7 +19,7 @@ Sender::Sender(int nbpf, int nspb) {
     header_wave.resize(header_len);
     generateHeader();
     isPlaying = false;
-    //fout = std::ofstream("output.out");
+    fout = std::ofstream("output.out");
 }
 
 void Sender::setHeaderLen(int len) {
@@ -127,8 +127,8 @@ int Sender::startSend()
     int len_buffer = num_frame * len_frame;
     output_buffer.setSize(1, len_buffer + 480 + len_warm_up);
     output_buffer.clear();
-    for (int j = 0; j < 480; j++, output_buffer_idx++)
-        output_buffer.setSample(0, j, carrier_wave[j % num_samples_per_bit]);
+    //for (int j = 0; j < 480; j++, output_buffer_idx++)
+    //    output_buffer.setSample(0, j, carrier_wave[j % num_samples_per_bit]);
     //of.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021\\out.out", ios::trunc);
     return 1;
 }
@@ -156,7 +156,7 @@ void Sender::audioDeviceIOCallback(const float** inputChannelData, int numInputC
                 // Write the sample into the output channel
                 //outputChannelData[j][i] = (playingSampleNum < output_buffer.getNumSamples()) ? 1.0f : 0.0f;
                 outputChannelData[j][i] = (playingSampleNum < output_buffer.getNumSamples()) ? playBuffer[playingSampleNum] : 0.0f;
-                //fout << outputChannelData[j][i] << "\n";
+                fout << outputChannelData[j][i] << "\n";
                 ++playingSampleNum;
             }
         }
