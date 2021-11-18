@@ -97,7 +97,7 @@ MAClayer::send() {
     int id = 0;
 
     readFromFile(Mac_num_frame);
-    //requestSend(data_frames[0]);
+    requestSend(data_frames[0]);
     while (!Mac_stop)
     {
         for (auto i : send_id_array)
@@ -195,7 +195,7 @@ MAClayer::StopMAClayer()
 void 
 MAClayer::Write2File(Array<int8_t>& byte_data)
 {
-    fout << (char*)byte_data.getRawDataPointer();
+    fout.write((char*)byte_data.getRawDataPointer(), byte_data.size());
 }
 
 std::string getPath(const std::string& target, int depth = 5) {
