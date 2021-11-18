@@ -104,7 +104,7 @@ MAClayer::send() {
     int id = 0;
 
     readFromFile(Mac_num_frame);
-    //requestSend(data_frames[0]);
+    requestSend(data_frames[0]);
     while (!Mac_stop)
     {
         for (auto i : send_id_array)
@@ -120,8 +120,8 @@ MAClayer::send() {
                 {
                     frame_array[id].get()->setStatus(Status_Sent);
                     cout << "frame " << id << " sent.\n";
-                    //if (!keep_timer)
-                    //    startTimer(id);
+                    if (!keep_timer)
+                        startTimer(id);
                 }
                 else // ACK is defualt set as acked
                 {
