@@ -37,6 +37,8 @@ public:
 
     Array<int8_t> getData();
 
+    void clearFrameData() { frame_data.clear(); }
+
     bool isRecording;
 private:
 
