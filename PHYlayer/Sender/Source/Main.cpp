@@ -90,7 +90,7 @@ int** Sender::getBitStream() {
     int** frame_bit = new int* [num_frame];
     ifstream f;
     char tmp;
-    f.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021\\input.in");
+    f.open("C:\\CS120\\CS120-Shanghaitech-Fall2021\\input.in");
     for (int i = 0; i < num_frame; i++) {
         frame_bit[i] = new int[num_bits_per_frame];
         for (int j = 0; j < num_bits_per_frame; j++) {
