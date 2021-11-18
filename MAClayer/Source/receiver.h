@@ -9,7 +9,7 @@ using namespace juce;
 
 
 
-class Receiver : public AudioIODeviceCallback
+class Receiver : public AudioIODeviceCallback, private HighResolutionTimer
 {
 public:
     Receiver();
@@ -40,6 +40,8 @@ public:
     void clearFrameData() { frame_data.clear(); }
 
     bool isRecording;
+
+    void hiResTimerCallback() override;
 private:
 
     Array<float> processingHeader;
@@ -47,7 +49,10 @@ private:
     Array<float> syncHeader;
     Array<float> carrierWave;
     Array<int8_t> frame_data;
-    std::vector<float> recordedSound;
+    
+    Array<float> recordedSound;
+    Array<float> demodulate_buffer;
+
     CriticalSection lock;
     
     int recordedSampleNum = -1;
