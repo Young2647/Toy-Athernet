@@ -84,9 +84,10 @@ MAClayer::receive()
             if (frame_array[ack_id].get())
                 frame_array[ack_id].get()->setStatus(Status_Acked);// let the frame in frame array to be marked as acked.
             cv.notify_one();
-            cout << "ACK " << ack_id << "received.\n";
+            cout << "ACK " << ack_id << " received.\n";
             requestSend(data_frames[ack_id + 1]);//wait to be implemented
         }
+        Mac_receiver.clearFrameData();
     }
 }
 

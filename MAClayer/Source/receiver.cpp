@@ -93,6 +93,7 @@ Receiver::audioDeviceIOCallback(const float** inputChannelData, int numInputChan
             for (auto j = numInputChannels; --j >= 0;)
                 if (inputChannelData[j] != nullptr)
                     inputSamp += inputChannelData[j][i];
+            
             data_state = Demodulate(inputSamp);
         }
 
