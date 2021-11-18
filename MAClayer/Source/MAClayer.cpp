@@ -67,6 +67,10 @@ MAClayer::receive()
             continue;
         }
         MACframe receive_frame(data);
+        vector<int8_t> vec;
+        for (int i = 0; i < 50; i++) {
+            vec.push_back(receive_frame.getData()[i]);
+        }
         if (receive_frame.getType() == TYPE_DATA)
         {
             int8_t receive_id = receive_frame.getFrame_id();

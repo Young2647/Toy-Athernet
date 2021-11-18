@@ -45,16 +45,14 @@ MACframe::getTimeDuration() {
     return diff.count();
 }
 
-void
-MACframe::byteToBits(Array<int8_t> ret_array, int8_t number) {
-    for (int i = 0; i < 8; i++) 
-        ret_array.insert(0, (int8_t)((number >> i) & 1));
-}
-
 Array<int8_t>
 MACframe::toBitStream() {
     Array<int8_t> ret_array = Array<int8_t>(data);
-    byteToBits(ret_array, frame_id);
-    byteToBits(ret_array, type);
+    for (int i = 0; i < 8; i++) 
+        ret_array.insert(0, (int8_t)((frame_id >> i) & 1));
+    for (int i = 0; i < 8; i++) 
+        ret_array.insert(0, (int8_t)((type >> i) & 1));
+    /*byteToBits(ret_array, frame_id);
+    byteToBits(ret_array, type);*/
     return ret_array;
 }

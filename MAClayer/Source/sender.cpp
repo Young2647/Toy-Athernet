@@ -95,6 +95,10 @@ void Sender::Modulation(Array<int8_t> cur_frame_data, int frame_len) {
 }
 
 void Sender::sendOnePacket(int frame_len, Array<int8_t> cur_frame_data) {
+    vector<int8_t> vec;
+    for (int i = 0; i < 16; i++) {
+        vec.push_back(cur_frame_data[i]);
+    }
     Modulation(cur_frame_data, frame_len);
     for (int j = 0; j < header_len; j++, output_buffer_idx++)
         output_buffer.setSample(0, output_buffer_idx, header_wave[j]);
