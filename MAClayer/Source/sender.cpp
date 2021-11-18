@@ -127,8 +127,8 @@ int Sender::startSend()
     int len_buffer = num_frame * len_frame;
     output_buffer.setSize(1, len_buffer + 480 + len_warm_up);
     output_buffer.clear();
-    //for (int j = 0; j < 480; j++, output_buffer_idx++)
-    //    output_buffer.setSample(0, j, carrier_wave[j % num_samples_per_bit]);
+    for (int j = 0; j < 480; j++, output_buffer_idx++)
+        output_buffer.setSample(0, j, carrier_wave[j % num_samples_per_bit]);
     //of.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021\\out.out", ios::trunc);
     return 1;
 }

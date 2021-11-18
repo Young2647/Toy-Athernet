@@ -68,10 +68,10 @@ Sender::Sender() {
     carrier_freq = 5000;
     carrier_phase = 0;
     carrier_amp = 1;
-    num_bits_per_frame = 100;
-    num_samples_per_bit = 48;
+    num_bits_per_frame = 416;
+    num_samples_per_bit = 24;
     len_zeros = 20;
-    num_frame = 100;
+    num_frame = 1;
     for (size_t i = 0; i < num_bits_per_frame * num_samples_per_bit; i++)
         frame_wave.push_back(0);
     GenerateCarrierWave();
