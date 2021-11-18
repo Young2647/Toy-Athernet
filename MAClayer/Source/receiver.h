@@ -47,7 +47,7 @@ private:
     Array<float> syncHeader;
     Array<float> carrierWave;
     Array<int8_t> frame_data;
-
+    std::vector<float> recordedSound;
     CriticalSection lock;
     
     int recordedSampleNum = -1;

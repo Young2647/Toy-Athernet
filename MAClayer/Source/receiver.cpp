@@ -92,10 +92,13 @@ Receiver::audioDeviceIOCallback(const float** inputChannelData, int numInputChan
             auto inputSamp = 0.0f;
             for (auto j = numInputChannels; --j >= 0;) {
                 if (inputChannelData[j] != nullptr)
+                {
                     inputSamp += inputChannelData[j][i];
-                of << inputChannelData[j][i] << "\n";
+                    of << inputChannelData[j][i] << "\n";
+                }
             }
-            data_state = Demodulate(inputSamp);
+            recordedSound.push_back(inputSamp);
+            //data_state = Demodulate(inputSamp);
         }
 
     }
@@ -247,6 +250,11 @@ Receiver::getData()
     {
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_time).count();
         if (duration >= MAX_WAITING_TIME) break;
+        if (!recordedSound.empty())
+        {
+            data_state = Demodulate(recordedSound[0]);
+            recordedSound.erase(recordedSound.begin());
+        }
     }
     return frame_data;
 }
