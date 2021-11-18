@@ -104,7 +104,8 @@ MAClayer::send() {
             id = i;
             if (frame_array[id].get()->getStatus() == Status_Waiting)
             {
-                Mac_sender.sendOnePacket(frame_array[id].get()->getFrame_size() + 2, frame_array[id].get()->toBitStream());
+                auto tmp = frame_array[id].get()->getFrame_size();
+                Mac_sender.sendOnePacket(frame_array[id].get()->getFrame_size() + 16, frame_array[id].get()->toBitStream());
                 cout << "frame " << id << " sent.\n";
                 frame_array[id].get()->setSendTime();
                 if (frame_array[id].get()->getType() == TYPE_DATA)
@@ -213,8 +214,8 @@ MAClayer::readFromFile(int num_frame) {
     ifstream f(getPath("test.in"), ios::in | ios::binary);
     char tmp;
     for (int i = 0; i < num_frame; i++) {
-        data_frames[i].resize(num_bits_per_frame-2);
-        for (int j = 0; j < (num_bits_per_frame-2)/8; j++) {
+        data_frames[i].resize(num_bits_per_frame-16);
+        for (int j = 0; j < (num_bits_per_frame-16)/8; j++) {
             while (f.get(tmp)) {
                 for (int k = 7; k >= 0; k--) {
                     data_frames[i][j * 8 + (7 - k)] = (int8_t)((tmp >> k) & 1);
