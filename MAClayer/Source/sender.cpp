@@ -5,7 +5,7 @@ Sender::Sender(int nbpf, int nspb) {
     num_bits_per_frame = nbpf;
     num_samples_per_bit = nspb;
     len_warm_up = 480;
-    header_len = 480;
+    header_len = 120;
     sample_rate = 48000;
     carrier_freq = 5000;
     carrier_phase = 0;

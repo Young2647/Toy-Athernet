@@ -58,7 +58,7 @@ private:
     int recordedSampleNum = -1;
     int bitLen = 48; //the length of one bit
     int packLen = 100; // how many bits per frame
-    int headerLength = 480;
+    int headerLength = 120;
     int sampleRate;
     float syncPower_localMax;
     float power_;
