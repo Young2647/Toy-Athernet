@@ -97,7 +97,7 @@ Receiver::audioDeviceIOCallback(const float** inputChannelData, int numInputChan
                     of << inputChannelData[j][i] << "\n";
                 }
             }
-            recordedSound.push_back(inputSamp);
+            recordedSound.add(inputSamp);
             //data_state = Demodulate(inputSamp);
         }
 
@@ -117,6 +117,7 @@ Receiver::startRecording()
     isRecording = true;
     fout = std::ofstream("input.out");
     of = std::ofstream("sample.out");
+    startTimer(50);
 }
 
 void 
@@ -241,6 +242,25 @@ Receiver::Demodulate(float sample)
     }
 }
 
+void
+Receiver::hiResTimerCallback()
+{
+    lock.enter();
+    if (!recordedSound.isEmpty())
+    {
+        demodulate_buffer.addArray(recordedSound);
+        recordedSound.clear();
+    }
+    lock.exit();
+    while (!demodulate_buffer.isEmpty())
+    {
+        data_state = Demodulate(demodulate_buffer[0]);
+        demodulate_buffer.remove(0);
+    }
+}
+
+
+
 Array<int8_t>
 Receiver::getData()
 {
@@ -251,11 +271,6 @@ Receiver::getData()
     {
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_time).count();
         if (duration >= MAX_WAITING_TIME) break;
-        if (!recordedSound.empty())
-        {
-            data_state = Demodulate(recordedSound[0]);
-            recordedSound.erase(recordedSound.begin());
-        }
     }
     return frame_data;
 }
