@@ -107,17 +107,19 @@ MAClayer::send() {
             {
                 auto tmp = frame_array[id].get()->getFrame_size();
                 Mac_sender.sendOnePacket(frame_array[id].get()->getFrame_size() + 16, frame_array[id].get()->toBitStream());
-                cout << "frame " << id << " sent.\n";
+                
                 frame_array[id].get()->setSendTime();
                 if (frame_array[id].get()->getType() == TYPE_DATA)
                 {
                     frame_array[id].get()->setStatus(Status_Sent);
+                    cout << "frame " << id << " sent.\n";
                     //if (!keep_timer)
                     //    startTimer(id);
                 }
                 else // ACK is defualt set as acked
                 {
                     frame_array[id].get()->setStatus(Status_Acked);
+                    cout << "ack " << (int)frame_array[id].get()->getData()[0] << " sent.\n";
                 }
             }
             /*else if (frame_array[id].get()->getStatus() == Status_Sent && frame_array[id].get()->getTimeDuration() >= MAX_WAITING_TIME)

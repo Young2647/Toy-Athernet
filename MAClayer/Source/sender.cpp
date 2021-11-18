@@ -95,22 +95,24 @@ void Sender::Modulation(Array<int8_t> cur_frame_data, int frame_len) {
 }
 
 void Sender::sendOnePacket(int frame_len, Array<int8_t> cur_frame_data) {
-    vector<int8_t> vec;
-    for (int i = 0; i < 16; i++) {
+    /*vector<int8_t> vec;
+    for (int i = 0; i < cur_frame_data.size(); i++) {
         vec.push_back(cur_frame_data[i]);
-    }
+    }*/
+    playingSampleNum = output_buffer_idx;
     Modulation(cur_frame_data, frame_len);
     for (int j = 0; j < header_len; j++, output_buffer_idx++)
         output_buffer.setSample(0, output_buffer_idx, header_wave[j]);
     for (int j = 0; j < frame_len * num_samples_per_bit; j++, output_buffer_idx++)
         output_buffer.setSample(0, output_buffer_idx, frame_wave[j]);
-    for (int j = 0; j < len_zeros; j++, header_wave[j])
+    for (int j = 0; j < len_zeros; j++, output_buffer_idx++)
         output_buffer.setSample(0, output_buffer_idx, 0);
+    //printOutput_buffer();
 }
 
 void Sender::printOutput_buffer() {
     ofstream of;
-    of.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021\\out.out", ios::trunc);
+    of.open("out.out", ios::trunc);
     for (int i = 0; i < output_buffer.getNumSamples(); i++) {
         if (of.is_open() && i < 210000) {
             of << output_buffer.getSample(0, i) << endl;
