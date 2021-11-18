@@ -145,7 +145,7 @@ Receiver::Int2Byte(Array<int>& int_data)
         for (int j = 0; j < 8; j++)
         {
             temp = temp << 1;
-            if (int_data[i * 8 + j] == 1)
+            if (int_data[i + j] == 1)
                 temp = temp | 0x01;
         }
         byte_data.add(temp);

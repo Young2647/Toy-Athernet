@@ -85,7 +85,15 @@ MAClayer::receive()
                 frame_array[ack_id].get()->setStatus(Status_Acked);// let the frame in frame array to be marked as acked.
             cv.notify_one();
             cout << "ACK " << ack_id << " received.\n";
-            requestSend(data_frames[ack_id + 1]);//wait to be implemented
+            if (ack_id + 1 == Mac_num_frame)
+            {
+                cout << "All data received.\n";
+                StopMAClayer();
+            }
+            else
+            {
+                requestSend(data_frames[ack_id + 1]);
+            }
         }
         Mac_receiver.clearFrameData();
     }
@@ -215,7 +223,7 @@ void
 MAClayer::readFromFile(int num_frame) {
     data_frames.resize(num_frame);
     ifstream f(getPath("test.in"), ios::in | ios::binary);
-    ofstream f1("test.out");
+    //ofstream f1("test.out");
     char tmp;
     for (int i = 0; i < num_frame; i++) {
         data_frames[i].resize(num_bits_per_frame-16);
@@ -227,13 +235,13 @@ MAClayer::readFromFile(int num_frame) {
             }
         }
     }
-    for (int i = 0; i < (num_bits_per_frame - 16); i++) {
+    /*for (int i = 0; i < (num_bits_per_frame - 16); i++) {
         f1 << (int)data_frames[0][i];
         if ((i + 1) % 8 == 0) {
             f1 << endl;
         }
     }
-    f1.close();
+    f1.close();*/
     f.close();
 
     ofstream of;
