@@ -133,6 +133,9 @@ Receiver::stopRecording()
 Array<int8_t> 
 Receiver::Int2Byte(Array<int>& int_data)
 {
+    std::vector<int8_t> vec;
+    for (auto i : int_data)
+        vec.push_back(i);
     if (int_data.size() / 8 * 8 != int_data.size())
     {
         std::cout << "data length wrong!\n";
@@ -145,7 +148,7 @@ Receiver::Int2Byte(Array<int>& int_data)
         for (int j = 0; j < 8; j++)
         {
             temp = temp << 1;
-            if (int_data[i * 8 + j] == 1)
+            if (int_data[i + j] == 1)
                 temp = temp | 0x01;
         }
         byte_data.add(temp);
