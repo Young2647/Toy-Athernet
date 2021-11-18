@@ -11,9 +11,9 @@
 #include "MACframe.h"
 
 MACframe::MACframe(Array<int8_t> all_data) {
-    std::vector<int8_t> vec;
+    /*std::vector<int8_t> vec;
     for (int i = 0; i < all_data.size(); i++)
-        vec.push_back(all_data[i]);
+        vec.push_back(all_data[i]);*/
     type = all_data[0];
     frame_id = all_data[1];
     for (int i = 2; i < all_data.size(); i++) 

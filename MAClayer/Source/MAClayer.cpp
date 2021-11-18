@@ -67,10 +67,10 @@ MAClayer::receive()
             continue;
         }
         MACframe receive_frame(data);
-        vector<int8_t> vec;
+        /*vector<int8_t> vec;
         for (int i = 0; i < 50; i++) {
             vec.push_back(receive_frame.getData()[i]);
-        }
+        }*/
         if (receive_frame.getType() == TYPE_DATA)
         {
             int8_t receive_id = receive_frame.getFrame_id();
@@ -104,7 +104,7 @@ MAClayer::send() {
     int id = 0;
 
     readFromFile(Mac_num_frame);
-    requestSend(data_frames[0]);
+    //requestSend(data_frames[0]);
     while (!Mac_stop)
     {
         for (auto i : send_id_array)
@@ -234,12 +234,12 @@ MAClayer::readFromFile(int num_frame) {
             }
         }
     }
-    for (int i = 0; i < (num_bits_per_frame - 16); i++) {
+    /*for (int i = 0; i < (num_bits_per_frame - 16); i++) {
         f1 << (int)data_frames[0][i];
         if ((i + 1) % 8 == 0) {
             f1 << endl;
         }
-    }
+    }*/
     f1.close();
     f.close();
 }

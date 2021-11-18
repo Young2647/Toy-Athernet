@@ -19,7 +19,7 @@ Sender::Sender(int nbpf, int nspb) {
     header_wave.resize(header_len);
     generateHeader();
     isPlaying = false;
-    fout = std::ofstream("output.out");
+    //fout = std::ofstream("output.out");
 }
 
 void Sender::setHeaderLen(int len) {
@@ -158,7 +158,7 @@ void Sender::audioDeviceIOCallback(const float** inputChannelData, int numInputC
                 // Write the sample into the output channel
                 //outputChannelData[j][i] = (playingSampleNum < output_buffer.getNumSamples()) ? 1.0f : 0.0f;
                 outputChannelData[j][i] = (playingSampleNum < output_buffer.getNumSamples()) ? playBuffer[playingSampleNum] : 0.0f;
-                fout << outputChannelData[j][i] << "\n";
+                //fout << outputChannelData[j][i] << "\n";
                 ++playingSampleNum;
             }
         }
