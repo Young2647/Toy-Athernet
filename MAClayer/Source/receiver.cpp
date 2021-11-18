@@ -244,6 +244,7 @@ Receiver::Demodulate(float sample)
 Array<int8_t>
 Receiver::getData()
 {
+    const ScopedLock sl(lock);
     data_state = SYNC;
     std::chrono::system_clock::time_point start_time = std::chrono::system_clock::now();
     while (data_state != DATA_RECEIVED)
