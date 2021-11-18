@@ -20,6 +20,7 @@ public :
     {
         syncPower_localMax = 0;
         isRecording = false;
+        
     }
 
     void GenerateCarrierWave()
@@ -134,13 +135,13 @@ public :
         Array<float> tempBuffer;
         float power = 0;
         //std::ofstream debugf("synpower.txt");
-        //std::ofstream recordeddebug("record.txt");
+        std::ofstream recordeddebug("record.txt");
         //std::ofstream datadebug("data.txt");
         std::ofstream fout("record.out");
         for (int i = 0; i < recordedSampleNum; i++)
         //for (int i = 0; i < buffer.getNumSamples(); i++)
         {
-            //recordeddebug << s[i] << "\n";
+            recordeddebug << s[i] << "\n";
             power = power * (1 - 1 / 64) + s[i] * s[i] / 64;
             if (processingHeader.size() < headerLength)
             {
@@ -196,10 +197,12 @@ public :
                                 sum += processingData[j * bitLen + k] * carrierWave[k];
                                //sum +=  carrierWave[j];
                             }
-                            if (sum > 0)
+                            if (sum > 0) 
                                 fout << 1;
                             else if (sum < 0)
                                 fout << 0;
+                            if ((j+1)%8 == 0)
+                                fout << std::endl;
                         }
                         /*
                         for (int i = 0; i < processingData.size() + 100; i++)
@@ -255,8 +258,8 @@ private :
     CriticalSection lock;
 
     int recordedSampleNum = -1;
-    int bitLen = 48; //the length of one bit
-    int packLen = 100; // how many bits per frame
+    int bitLen = 12; //the length of one bit
+    int packLen = 416; // how many bits per frame
     int headerLength = 480;
     int sampleRate;
     float syncPower_localMax;

@@ -222,9 +222,18 @@ MAClayer::readFromFile(int num_frame) {
                 }
             }
         }
-        
     }
     f.close();
+
+    ofstream of;
+    of.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021\\MAClayer\\sender.out", ios::trunc);
+    for (int i = 0; i < (num_bits_per_frame - 16); i++) {
+        of << (int)data_frames[0][i];
+        if ((i+1) % 8 == 0) {
+            of << endl;
+        }
+    }
+    of.close();
 }
 
 
