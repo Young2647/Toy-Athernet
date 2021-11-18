@@ -58,6 +58,7 @@ private:
     int state; // processing state
     int data_state;
     std::ofstream fout;
+    std::ofstream of;
     bool _ifheadercheck = false;
     Array<float> tempBuffer;
     Array<int> int_data;

@@ -90,9 +90,11 @@ Receiver::audioDeviceIOCallback(const float** inputChannelData, int numInputChan
         for (int i = 0; i < numSamples; i++)
         {
             auto inputSamp = 0.0f;
-            for (auto j = numInputChannels; --j >= 0;)
+            for (auto j = numInputChannels; --j >= 0;) {
                 if (inputChannelData[j] != nullptr)
                     inputSamp += inputChannelData[j][i];
+                of << inputChannelData[j][i] << "\n";
+            }
             data_state = Demodulate(inputSamp);
         }
 
@@ -111,6 +113,7 @@ Receiver::startRecording()
     recordedSampleNum = 0;
     isRecording = true;
     fout = std::ofstream("input.out");
+    of = std::ofstream("sample.out");
 }
 
 void 
@@ -149,7 +152,7 @@ Receiver::Int2Byte(Array<int>& int_data)
 int
 Receiver::Demodulate(float sample)
 {
-    fout << sample << "\n";
+    /*of << sample << "\n";*/
     //std::cout << sample << "\n";
     power_ = power_ * (1 - 1.0 / 64.0) + sample * sample / 64.0;
     if (state == SYNC)// sync process
@@ -217,6 +220,12 @@ Receiver::Demodulate(float sample)
             processingHeader.clear();
             state = SYNC;
             _ifheadercheck = false;
+            for (int j = 0; j < int_data.size(); j++) {
+                fout << int_data[j];
+                if ((j+1)%8 == 0) 
+                    fout << std::endl;
+            }
+                
             frame_data = Int2Byte(int_data);
             int_data.clear();
             tempBuffer.clear();
