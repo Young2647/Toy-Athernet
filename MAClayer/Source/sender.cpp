@@ -104,7 +104,7 @@ void Sender::sendOnePacket(int frame_len, Array<int8_t> cur_frame_data) {
         output_buffer.setSample(0, output_buffer_idx, header_wave[j]);
     for (int j = 0; j < frame_len * num_samples_per_bit; j++, output_buffer_idx++)
         output_buffer.setSample(0, output_buffer_idx, frame_wave[j]);
-    for (int j = 0; j < len_zeros; j++, header_wave[j])
+    for (int j = 0; j < len_zeros; j++, output_buffer_idx++)
         output_buffer.setSample(0, output_buffer_idx, 0);
 }
 

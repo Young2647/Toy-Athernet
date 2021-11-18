@@ -18,3 +18,12 @@ for i in input:
     elif cnt % 10 == 0:
         file.write('  ')
 file.close()
+
+file = open('input_byte.in', 'w')
+cnt = 0
+for i in input:
+    cnt += 1
+    file.write(str(i))
+    if cnt % 8 == 0 :
+        file.write('\n')
+file.close()
