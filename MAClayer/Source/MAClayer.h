@@ -55,7 +55,6 @@ private:
 
     unsigned int frame_size;
 
-    std::vector<std::vector<int8_t>> data_frames;
     int max_frame_gen_idx;
 
     // variables maintained for sender's sliding window
@@ -76,6 +75,7 @@ private:
     std::ofstream fout;
     std::condition_variable cv;
     std::vector<unique_ptr<MACframe>> frame_array;
+    std::vector<std::vector<int8_t>> data_frames;
     Array<int> send_id_array;
     Array<int> id_controller_array;
     std::vector<thread> timers;

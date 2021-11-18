@@ -11,6 +11,9 @@
 #include "MACframe.h"
 
 MACframe::MACframe(Array<int8_t> all_data) {
+    std::vector<int8_t> vec;
+    for (int i = 0; i < all_data.size(); i++)
+        vec.push_back(all_data[i]);
     type = all_data[0];
     frame_id = all_data[1];
     for (int i = 2; i < all_data.size(); i++) 
@@ -20,6 +23,7 @@ MACframe::MACframe(Array<int8_t> all_data) {
 
 MACframe::MACframe(int8_t ack_id) {
     type = (int8_t)TYPE_ACK;
+    this->ack_id = ack_id;
     for (int i = 0; i < 8; i++)
         data.insert(0, (int8_t)((ack_id >> i) & 1));
     frame_status = Status_Waiting;

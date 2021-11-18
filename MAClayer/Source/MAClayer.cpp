@@ -105,7 +105,7 @@ MAClayer::send() {
     int id = 0;
 
     readFromFile(Mac_num_frame);
-    requestSend(data_frames[0]);
+    //requestSend(data_frames[0]);
     while (!Mac_stop)
     {
         for (auto i : send_id_array)
@@ -127,7 +127,7 @@ MAClayer::send() {
                 else // ACK is defualt set as acked
                 {
                     frame_array[id].get()->setStatus(Status_Acked);
-                    cout << "ack " << (int)frame_array[id].get()->getData()[0] << " sent.\n";
+                    cout << "ack " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
                 }
             }
             /*else if (frame_array[id].get()->getStatus() == Status_Sent && frame_array[id].get()->getTimeDuration() >= MAX_WAITING_TIME)
@@ -228,7 +228,7 @@ MAClayer::readFromFile(int num_frame) {
     for (int i = 0; i < num_frame; i++) {
         data_frames[i].resize(num_bits_per_frame-16);
         for (int j = 0; j < (num_bits_per_frame-16)/8; j++) {
-            while (f.get(tmp)) {
+            if (f.get(tmp)) {
                 for (int k = 7; k >= 0; k--) {
                     data_frames[i][j * 8 + (7 - k)] = (int8_t)((tmp >> k) & 1);
                 }

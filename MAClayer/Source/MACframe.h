@@ -17,6 +17,7 @@ public:
     
     int8_t getType() { return type; }
     int8_t getFrame_id() { return frame_id; }
+    int8_t getAck_id() { return ack_id; }
     int getFrame_size() { return data.size(); }
     void setFrameId(int8_t id) { frame_id = id; }
     Array<int8_t> getData() { return data; }
@@ -31,6 +32,7 @@ public:
 private:
     int8_t type;
     int8_t frame_id;
+    int8_t ack_id;
     Array<int8_t> data;
     std::chrono::system_clock::time_point send_time;
     Status frame_status;
