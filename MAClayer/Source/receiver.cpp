@@ -115,8 +115,8 @@ Receiver::startRecording()
     const ScopedLock sl(lock);
     recordedSampleNum = 0;
     isRecording = true;
-    fout = std::ofstream("input.out");
-    of = std::ofstream("sample.out");
+    /*fout = std::ofstream("input.out");
+    of = std::ofstream("sample.out");*/
     startTimer(50);
 }
 
