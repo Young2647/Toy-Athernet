@@ -68,11 +68,11 @@ MAClayer::receive()
     while (!Mac_stop)
     {
         lock.enter();
-        if (frame_receive_num + 1 == Mac_num_frame) if_receive_done = true;
+        if (frame_receive_num == Mac_num_frame) if_receive_done = true;
         lock.exit();
         if (if_receive_done && !getStop())
         {
-            cout << "All frames received.\n";
+            cerr << "All frames received.\n";
             callStop();
         }
         Array<int8_t> data = Mac_receiver.getData();
@@ -229,7 +229,7 @@ MAClayer::send()
             }
         }
         checkIdarray();
-        this_thread::sleep_for(200ms);
+        this_thread::sleep_for(100ms);
     }
 }
 
