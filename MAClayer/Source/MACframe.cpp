@@ -16,13 +16,19 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
         vec.push_back(all_data[i]);*/
     type = all_data[0];
     frame_id = all_data[1];
-    int8_t frame_crc = all_data[all_data.size() - 1];
-    for (int i = 2; i < all_data.size() - 1; i++) {
-        data.add(all_data[i]);
-        crc.updateCRC(all_data[i]);
+    if (type == TYPE_DATA) {
+        int8_t frame_crc = all_data[all_data.size() - 1];
+        for (int i = 2; i < all_data.size() - 1; i++) {
+            data.add(all_data[i]);
+            crc.updateCRC(all_data[i]);
+        }
+        if (frame_crc != crc.getCRC())
+            bad_crc = 1;
     }
-    if (frame_crc != crc.getCRC())
-        bad_crc = 1;
+    else if (type == TYPE_ACK) {
+        for (int i = 2; i < all_data.size(); i++) 
+            data.add(all_data[i]);
+    }
     resend_times = 0;
 }
 
@@ -35,10 +41,16 @@ MACframe::MACframe(int8_t ack_id) {
     resend_times = 0;
 }
 
-MACframe::MACframe(bool identifier, std::vector<int8_t> frame_data) {
+MACframe::MACframe(bool identifier, std::vector<int8_t> frame_data) : crc() {
     type = (int8_t)TYPE_DATA;
-    for (auto i : frame_data)
-        data.add(i);
+    for (int i = 0; i < frame_data.size(); i++) {
+        crc.updateCRC(frame_data[i]);
+        for (int k = 7; k >= 0; k--)
+            data.add((int8_t)((frame_data[i] >> k) & 1));
+    }
+    auto tmp = crc.getCRC();
+    for (int k = 7; k >= 0; k--)
+       data.add((int8_t)(tmp >> k) & 1);
     frame_status = Status_Waiting;
     resend_times = 0;
 }

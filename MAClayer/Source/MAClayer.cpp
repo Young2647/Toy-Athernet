@@ -303,18 +303,11 @@ MAClayer::readFromFile(int num_frame) {
     //ofstream f1("test.out");
     char tmp;
     for (int i = 0; i < num_frame; i++) {
-        crc.resetCRC();
-        data_frames[i].resize(num_bits_per_frame - FRAME_OFFSET - CRC_LEN);
         for (int j = 0; j < (num_bits_per_frame - FRAME_OFFSET - CRC_LEN)/8; j++) {
-            if (f.get(tmp)) {
-                crc.updateCRC(tmp);
-                for (int k = 7; k >= 0; k--) 
-                    data_frames[i][j * 8 + (7 - k)] = (int8_t)((tmp >> k) & 1);
-            }
+            f.get(tmp);
+            data_frames[i].push_back(tmp);
+            
         }
-        tmp = crc.getCRC();
-        for (int k = 7; k >= 0; k--)
-            data_frames[i].push_back((int8_t)(tmp >> k) & 1);
 
     }
     /*for (int i = 0; i < data_frames[0].size(); i++) {
