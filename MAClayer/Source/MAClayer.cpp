@@ -79,7 +79,7 @@ MAClayer::receive()
         {
             int8_t receive_id = receive_frame.getFrame_id();
             cout << "Frame " << (int)receive_id << "received.\n";
-            Write2File(receive_frame.getData());
+            file_output.push_back(receive_frame.getData());
             requestSend(receive_id);
         }
         else if (receive_frame.getType() == TYPE_ACK)
@@ -148,6 +148,11 @@ MAClayer::receive()
 void
 MAClayer::send()
 {
+    readFromFile(Mac_num_frame);
+    for (int i = 0; i < Mac_num_frame; i++)
+    {
+        requestSend(data_frames[i]);
+    }
     while (!Mac_stop)
     {
         bool if_done = false;
@@ -158,18 +163,8 @@ MAClayer::send()
         if (if_done)
         {
             cout << "All frames sent.\n";
-            StopMAClayer();
+            callStop();
         }
-
-
-        for (int i = 0; i < Mac_num_frame; i++)
-        {
-            if (!ack_array[i])
-            {
-                requestSend(data_frames[i]);
-            }
-        }
-
         for (auto i : send_id_array)
         {
             auto id = i;
@@ -192,10 +187,23 @@ MAClayer::send()
                     cout << "ack " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
                 }
             }
-            this_thread::sleep_for(20ms);
+            else if (frame_array[id].get()->getStatus() == Status_Sent && frame_array[id].get()->getTimeDuration() >= MAX_WAITING_TIME)
+            {
+                cout << "frame " << id << " ack not received. Try to resend package.\n";
+                frame_array[id].get()->setStatus(Status_Waiting);
+                if (frame_array[id].get()->ResendToomuch())
+                {
+                    cerr << "Resend too many times. Link error.\n";
+                    callStop();//link error, mac layer stops
+                }
+                else
+                {
+                    frame_array[id].get()->addResendtimes();
+                }
+            }
         }
         checkIdarray();
-
+        this_thread::sleep_for(100ms);
     }
 }
 
@@ -220,7 +228,12 @@ MAClayer::checkIdarray()
             send_id_array.remove(0);
             id_controller_array.add(frame_array[head].get()->getFrame_id());
             ack_array.set(frame_array[head].get()->getFrame_id(), true);
+            frame_sent_num++;
             frame_send_complete = true;
+        }
+        else if (frame_array[head].get()->getStatus() == Status_Waiting)
+        {
+            frame_send_complete = false;
         }
     }
 }
@@ -247,11 +260,11 @@ MAClayer::StopMAClayer()
     {
         Mac_sender.printOutput_buffer();
         Mac_stop = true;
-        receive_thread.join();
+        if (receive_thread.joinable()) receive_thread.join();
         cout << "receiving thread stop.\n";
         Mac_receiver.stopRecording();
         cout << "receiver stop recording.\n";
-        sending_thread.join();
+        if (sending_thread.joinable()) sending_thread.join();
         cout << "sending thread stop.\n";
         fout.close();
     }
@@ -281,7 +294,7 @@ void
 MAClayer::readFromFile(int num_frame) {
     data_frames.resize(num_frame);
     ifstream f(getPath("test.in"), ios::in | ios::binary);
-    ofstream f1("test.out");
+    //ofstream f1("test.out");
     char tmp;
     for (int i = 0; i < num_frame; i++) {
         data_frames[i].resize(num_bits_per_frame-16);
@@ -299,7 +312,7 @@ MAClayer::readFromFile(int num_frame) {
             f1 << endl;
         }
     }*/
-    f1.close();
+    //f1.close();
     f.close();
 }
 
@@ -338,7 +351,7 @@ MAClayer::requestSend(std::vector<int8_t> frame_data) {
     unique_ptr<MACframe> data_frame;
     data_frame.reset(new MACframe(0, frame_data));
     data_frame->setFrameId(id);
-    send_id_array.insert(0, id);
+    send_id_array.insert(-1, id);
     frame_array[id] = std::move(data_frame);
     return id;
 }
@@ -367,7 +380,7 @@ MAClayer::wait(int8_t data_frame_id) {
         {
             keep_timer = 0;
             cerr << "Resend too many times. Link error.\n";
-            StopMAClayer();//link error, mac layer stops
+            callStop();//link error, mac layer stops
         }
         else
         {

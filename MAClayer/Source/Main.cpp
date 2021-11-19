@@ -7,7 +7,8 @@
 */
 
 #include <JuceHeader.h>
-#include<fstream>
+#include <fstream>
+#include <conio.h>
 #include "sender.h"
 #include "receiver.h"
 #include "defines.h"
@@ -45,7 +46,10 @@ int main(int argc, char* argv[])
     mac_layer.get()->StartMAClayer();
     auto start_time = std::chrono::system_clock::now();
     std::cout << "Press any ENTER to stop MAClayer.\n";
-    getchar();
+    while (!mac_layer.get()->getStop())
+    {
+        if (kbhit()) break;
+    }
     mac_layer.get()->StopMAClayer();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_time).count();
     std::cout << "Transmit time : " << duration << "ms.\n";

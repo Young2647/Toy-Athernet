@@ -43,6 +43,8 @@ public:
     void startTimer(int8_t frame_data_id);
     void wait(int8_t data_frame_id);
 
+    bool getStop() { return all_stop; }
+    void callStop() { all_stop = true; }
 private:
     Receiver Mac_receiver;
     Sender Mac_sender;
@@ -81,14 +83,15 @@ private:
     std::vector<std::vector<int8_t>> data_frames;
     
     Array<bool> ack_array;//array that record if ack is received
-
+    std::vector<Array<int8_t>> file_output;
     Array<int> send_id_array;
     Array<int> id_controller_array;
     std::vector<thread> timers;
     STATE state;
     CriticalSection lock;
     mutex cv_m;
-
+    
+    bool all_stop = false;
 };
 
 
