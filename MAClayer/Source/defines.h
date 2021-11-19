@@ -23,6 +23,8 @@
 #define FRAME_OFFSET 16
 #define CRC_LEN 8
 
+#define MAX_BYTE_NUM 6250
+
 constexpr size_t QUEUE_SIZE = 256;
 enum STATE {
 	FrameDetection = 1, Tx, Rx, TxACK

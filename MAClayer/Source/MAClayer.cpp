@@ -13,7 +13,7 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     this->Mac_num_frame = num_frame;
     this->num_bits_per_frame = num_bits_per_frame;
     this->num_samples_per_bit = num_samples_per_bit;
-    this->all_byte_num = Mac_num_frame * (num_bits_per_frame - FRAME_OFFSET - CRC_LEN) / 8;
+    this->all_byte_num = MAX_BYTE_NUM;
     sender_LFS = 0;
     //sender_window.resize(sender_SWS);
     
