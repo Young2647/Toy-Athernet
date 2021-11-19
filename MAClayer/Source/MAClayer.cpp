@@ -322,6 +322,7 @@ MAClayer::sendAck()
         if (!ack_queue.empty())
         {
             Mac_sender.sendOnePacket(ack_queue[0].get()->getFrame_size() + FRAME_OFFSET, ack_queue[0].get()->toBitStream());
+            cout << "ACK " << ack_queue[0].get()->getAck_id() << " sent.\n";
             ack_queue.erase(ack_queue.begin());
         }
     }

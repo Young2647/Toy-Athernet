@@ -102,7 +102,7 @@ void Sender::sendOnePacket(int frame_len, Array<int8_t> cur_frame_data) {
     //try reset output buffer
     //output_buffer.clear();
     //output_buffer_idx = 0;
-
+    const ScopedLock sl(lock);
     playingSampleNum = output_buffer_idx;
     Modulation(cur_frame_data, frame_len);
     for (int j = 0; j < header_len; j++, output_buffer_idx++)
