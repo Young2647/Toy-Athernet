@@ -189,8 +189,8 @@ MAClayer::send()
                     frame_array[id].get()->setStatus(Status_Sent);
                     cout << "frame " << id << " sent.\n";
                     this_thread::sleep_for(100ms);
-                    if (!keep_timer)
-                        startTimer(id);
+                    //if (!keep_timer)
+                    //    startTimer(id);
 
                 }
                 else // ACK is defualt set as acked
@@ -215,7 +215,7 @@ MAClayer::send()
             }
         }
         checkIdarray();
-        this_thread::sleep_for(100ms);
+        this_thread::sleep_for(200ms);
     }
 }
 

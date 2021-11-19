@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
     std::unique_ptr<MAClayer> mac_layer;
     if (mac_layer.get() == nullptr)
     {
-        mac_layer.reset(new MAClayer(3, 824, 20));
+        mac_layer.reset(new MAClayer(3, 824, 63));
     }
 
     std::cout << "Press any ENTER to start MAClayer.\n";
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     std::cout << "Press any ENTER to stop MAClayer.\n";
     while (!mac_layer.get()->getStop())
     {
-        if (kbhit()) break;
+        if (kbhit()) mac_layer.get()->callStop();
     }
     mac_layer.get()->StopMAClayer();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_time).count();
