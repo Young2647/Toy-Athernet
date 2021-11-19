@@ -20,7 +20,7 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
     src_address = all_data[3];
     if (type == TYPE_DATA) {
         int8_t frame_crc = all_data[all_data.size() - 1];
-        for (int i = 2; i < all_data.size() - 1; i++) {
+        for (int i = 4; i < all_data.size() - 1; i++) {
             data.add(all_data[i]);
             crc.updateCRC(all_data[i]);
         }
@@ -28,7 +28,7 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
             bad_crc = 1;
     }
     else if (type == TYPE_ACK) {
-        for (int i = 2; i < all_data.size(); i++) 
+        for (int i = 4; i < all_data.size(); i++) 
             data.add(all_data[i]);
     }
     resend_times = 0;
