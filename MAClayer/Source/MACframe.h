@@ -4,6 +4,7 @@
 #include <JuceHeader.h>
 #include <chrono>
 #include "defines.h"
+#include "CRC8.h"
 using namespace juce;
 /// <summary>
 /// A frame contains a header, a type, a frame_id, data
@@ -23,6 +24,7 @@ public:
     Array<int8_t> getData() { return data; }
     Status getStatus() { return frame_status; }
     void setStatus(Status status) { frame_status = status; }
+    bool isBadCRC() { return bad_crc; }
     void setSendTime();
     double getTimeDuration();
     void addResendtimes() { resend_times++; }
@@ -37,6 +39,8 @@ private:
     std::chrono::system_clock::time_point send_time;
     Status frame_status;
     int resend_times;
+    CRC8 crc;
+    bool bad_crc = 0;
 };
 #pragma once
 

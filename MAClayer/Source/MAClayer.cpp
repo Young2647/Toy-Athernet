@@ -9,7 +9,7 @@
 */
 
 #include "MAClayer.h"
-MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame) : Mac_receiver(num_samples_per_bit, num_bits_per_frame), Mac_sender(num_bits_per_frame, num_samples_per_bit) {
+MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame) : Mac_receiver(num_samples_per_bit, num_bits_per_frame), Mac_sender(num_bits_per_frame, num_samples_per_bit), crc() {
     this->Mac_num_frame = num_frame;
     this->num_bits_per_frame = num_bits_per_frame;
     this->num_samples_per_bit = num_samples_per_bit;
@@ -104,7 +104,7 @@ MAClayer::send() {
     int id = 0;
 
     readFromFile(Mac_num_frame);
-    requestSend(data_frames[0]);
+    //requestSend(data_frames[0]);
     while (!Mac_stop)
     {
         for (auto i : send_id_array)
@@ -225,21 +225,26 @@ MAClayer::readFromFile(int num_frame) {
     ofstream f1("test.out");
     char tmp;
     for (int i = 0; i < num_frame; i++) {
+        crc.resetCRC();
         data_frames[i].resize(num_bits_per_frame-16);
         for (int j = 0; j < (num_bits_per_frame-16)/8; j++) {
             if (f.get(tmp)) {
-                for (int k = 7; k >= 0; k--) {
+                crc.updateCRC(tmp);
+                for (int k = 7; k >= 0; k--) 
                     data_frames[i][j * 8 + (7 - k)] = (int8_t)((tmp >> k) & 1);
-                }
             }
         }
+        tmp = crc.getCRC();
+        for (int k = 7; k >= 0; k--)
+            data_frames[i].push_back((int8_t)(tmp >> k) & 1);
+
     }
-    /*for (int i = 0; i < (num_bits_per_frame - 16); i++) {
+    for (int i = 0; i < data_frames[0].size(); i++) {
         f1 << (int)data_frames[0][i];
         if ((i + 1) % 8 == 0) {
             f1 << endl;
         }
-    }*/
+    }
     f1.close();
     f.close();
 }

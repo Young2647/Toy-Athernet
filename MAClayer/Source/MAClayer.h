@@ -82,6 +82,8 @@ private:
     STATE state;
     CriticalSection lock;
     mutex cv_m;
+    CRC8 crc;
+    bool bad_crc = 0;
 };
 
 

@@ -4,6 +4,8 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="MRdOra" name="MAClayer">
     <GROUP id="{EFC64E43-D6E4-CE7C-7AB2-5FAC53B3FE72}" name="Source">
+      <FILE id="V3QSWl" name="CRC8.h" compile="0" resource="0" file="Source/CRC8.h"/>
+      <FILE id="RACGuy" name="CRC8.cpp" compile="1" resource="0" file="Source/CRC8.cpp"/>
       <FILE id="uwjrYr" name="defines.h" compile="0" resource="0" file="Source/defines.h"/>
       <FILE id="SJoVl1" name="MACframe.h" compile="0" resource="0" file="Source/MACframe.h"/>
       <FILE id="k8aLZL" name="MACframe.cpp" compile="1" resource="0" file="Source/MACframe.cpp"/>
