@@ -99,6 +99,7 @@ MAClayer::receive()
             if (ack_id + 1 == Mac_num_frame)
             {
                 cout << "All data sent.\n";
+                callStop();
             }
             else
             {
@@ -169,10 +170,9 @@ MAClayer::send()
         if (frame_sent_num == Mac_num_frame) if_done = true;
         lock.exit();
 
-        if (if_done)
+        if (if_done && !getStop())
         {
             cout << "All frames sent.\n";
-            Write2File();
             callStop();
         }
         for (auto i : send_id_array)
@@ -188,7 +188,7 @@ MAClayer::send()
                 {
                     frame_array[id].get()->setStatus(Status_Sent);
                     cout << "frame " << id << " sent.\n";
-                    this_thread::sleep_for(50ms);
+                    this_thread::sleep_for(100ms);
                     if (!keep_timer)
                         startTimer(id);
 
@@ -411,4 +411,12 @@ MAClayer::wait(int8_t data_frame_id) {
     }
 }
 
-
+void
+MAClayer::callStop()
+{
+    if (!all_stop)
+    {
+        all_stop = true;
+        Write2File();
+    }
+}

@@ -44,7 +44,7 @@ public:
     void wait(int8_t data_frame_id);
 
     bool getStop() { return all_stop; }
-    void callStop() { all_stop = true; }
+    void callStop();
 private:
     Receiver Mac_receiver;
     Sender Mac_sender;
