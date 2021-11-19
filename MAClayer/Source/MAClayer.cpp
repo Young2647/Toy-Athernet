@@ -74,9 +74,14 @@ MAClayer::receive()
         if (receive_frame.getType() == TYPE_DATA)
         {
             int8_t receive_id = receive_frame.getFrame_id();
-            cout << "Frame " << (int)receive_id << "received.\n";
-            Write2File(receive_frame.getData());
-            requestSend(receive_id);
+            cout << "Frame " << (int)receive_id << "received.";
+            if (receive_frame.isBadCRC())
+                cout << " however CRC is wrong.\n";
+            else {
+                cout << " CRC check pass!\n";
+                Write2File(receive_frame.getData());
+                requestSend(receive_id);
+            }
         }
         else if (receive_frame.getType() == TYPE_ACK)
         {
@@ -104,7 +109,7 @@ MAClayer::send() {
     int id = 0;
 
     readFromFile(Mac_num_frame);
-    //requestSend(data_frames[0]);
+    requestSend(data_frames[0]);
     while (!Mac_stop)
     {
         for (auto i : send_id_array)
@@ -113,7 +118,7 @@ MAClayer::send() {
             if (frame_array[id].get()->getStatus() == Status_Waiting)
             {
                 auto tmp = frame_array[id].get()->getFrame_size();
-                Mac_sender.sendOnePacket(frame_array[id].get()->getFrame_size() + 16, frame_array[id].get()->toBitStream());
+                Mac_sender.sendOnePacket(frame_array[id].get()->getFrame_size() + FRAME_OFFSET, frame_array[id].get()->toBitStream());
                 
                 frame_array[id].get()->setSendTime();
                 if (frame_array[id].get()->getType() == TYPE_DATA)
@@ -226,8 +231,8 @@ MAClayer::readFromFile(int num_frame) {
     char tmp;
     for (int i = 0; i < num_frame; i++) {
         crc.resetCRC();
-        data_frames[i].resize(num_bits_per_frame-16);
-        for (int j = 0; j < (num_bits_per_frame-16)/8; j++) {
+        data_frames[i].resize(num_bits_per_frame - FRAME_OFFSET - CRC_LEN);
+        for (int j = 0; j < (num_bits_per_frame - FRAME_OFFSET - CRC_LEN)/8; j++) {
             if (f.get(tmp)) {
                 crc.updateCRC(tmp);
                 for (int k = 7; k >= 0; k--) 
@@ -239,13 +244,13 @@ MAClayer::readFromFile(int num_frame) {
             data_frames[i].push_back((int8_t)(tmp >> k) & 1);
 
     }
-    for (int i = 0; i < data_frames[0].size(); i++) {
+    /*for (int i = 0; i < data_frames[0].size(); i++) {
         f1 << (int)data_frames[0][i];
         if ((i + 1) % 8 == 0) {
             f1 << endl;
         }
     }
-    f1.close();
+    f1.close();*/
     f.close();
 }
 
