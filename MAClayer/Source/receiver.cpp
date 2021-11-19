@@ -193,7 +193,7 @@ Receiver::Demodulate(float sample)
                 tempBuffer.add(sample);
 
                 //recordeddebug << s[i] << "\n";
-                if (tempBuffer.size() >= 500)
+                if (tempBuffer.size() >= 200)
                 {
                     std::cout << "header found.\n";
                     syncPower_localMax = 0;
