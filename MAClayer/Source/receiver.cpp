@@ -195,10 +195,11 @@ Receiver::Demodulate(float sample)
                 //recordeddebug << s[i] << "\n";
                 if (tempBuffer.size() >= 200)
                 {
-                    std::cout << "header found.\n";
+                    //std::cout << "header found.\n";
                     syncPower_localMax = 0;
                     state = DATA_PROCESS;
                     processingData = tempBuffer;
+
                 }
             }
             return NO_HEADER;

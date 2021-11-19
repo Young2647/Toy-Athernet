@@ -110,7 +110,7 @@ MAClayer::receive()
             int ack_id = (int)receive_frame.getData()[0];
             if (frame_array[ack_id].get())
                 frame_array[ack_id].get()->setStatus(Status_Acked);// let the frame in frame array to be marked as acked.
-            cv.notify_one();
+            //cv.notify_one();
             cout << "ACK " << ack_id << " received.\n";
             if (ack_id + 1 == Mac_num_frame)
             {
@@ -212,7 +212,7 @@ MAClayer::send()
                 {
                     frame_array[id].get()->setStatus(Status_Sent);
                     cout << "frame " << id << " sent.\n";
-                    this_thread::sleep_for(100ms);
+                    this_thread::sleep_for(70ms);
                     //if (!keep_timer)
                     //    startTimer(id);
 
@@ -221,6 +221,7 @@ MAClayer::send()
                 {
                     frame_array[id].get()->setStatus(Status_Acked);
                     cout << "ack " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
+                    this_thread::sleep_for(70ms);
                 }
             }
             else if (frame_array[id].get()->getStatus() == Status_Sent && frame_array[id].get()->getTimeDuration() >= MAX_WAITING_TIME)
@@ -239,7 +240,7 @@ MAClayer::send()
             }
         }
         checkIdarray();
-        this_thread::sleep_for(100ms);
+        this_thread::sleep_for(70ms);
     }
 }
 

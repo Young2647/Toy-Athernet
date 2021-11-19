@@ -16,6 +16,8 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
         vec.push_back(all_data[i]);*/
     type = all_data[0];
     frame_id = all_data[1];
+    dst_address = all_data[2];
+    src_address = all_data[3];
     if (type == TYPE_DATA) {
         int8_t frame_crc = all_data[all_data.size() - 1];
         for (int i = 2; i < all_data.size() - 1; i++) {
@@ -32,8 +34,10 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
     resend_times = 0;
 }
 
-MACframe::MACframe(int8_t ack_id) {
+MACframe::MACframe(int8_t dst_address, int8_t src_address,int8_t ack_id) {
     type = (int8_t)TYPE_ACK;
+    this->dst_address = dst_address;
+    this->src_address = src_address;
     this->ack_id = ack_id;
     for (int i = 0; i < 8; i++)
         data.insert(0, (int8_t)((ack_id >> i) & 1));
@@ -41,8 +45,10 @@ MACframe::MACframe(int8_t ack_id) {
     resend_times = 0;
 }
 
-MACframe::MACframe(bool identifier, std::vector<int8_t> frame_data) : crc() {
+MACframe::MACframe(int8_t dst_address, int8_t src_address, bool identifier, std::vector<int8_t> frame_data) : crc() {
     type = (int8_t)TYPE_DATA;
+    this->dst_address = dst_address;
+    this->src_address = src_address;
     for (int i = 0; i < frame_data.size(); i++) {
         crc.updateCRC(frame_data[i]);
         for (int k = 7; k >= 0; k--)
