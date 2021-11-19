@@ -45,7 +45,7 @@ MACframe::MACframe(int8_t dst_address, int8_t src_address,int8_t ack_id) {
     resend_times = 0;
 }
 
-MACframe::MACframe(int8_t dst_address, int8_t src_address, bool identifier, std::vector<int8_t> frame_data) : crc() {
+MACframe::MACframe(int8_t dst_address, int8_t src_address, std::vector<int8_t> frame_data) : crc() {
     type = (int8_t)TYPE_DATA;
     this->dst_address = dst_address;
     this->src_address = src_address;
@@ -77,9 +77,9 @@ Array<int8_t>
 MACframe::toBitStream() {
     Array<int8_t> ret_array = Array<int8_t>(data);
     for (int i = 0; i < 8; i++)
-        ret_array.insert(0, (int8_t)((src_addr >> i) & 1));
+        ret_array.insert(0, (int8_t)((src_address >> i) & 1));
     for (int i = 0; i < 8; i++)
-        ret_array.insert(0, (int8_t)((dst_addr >> i) & 1));
+        ret_array.insert(0, (int8_t)((dst_address >> i) & 1));
     for (int i = 0; i < 8; i++) 
         ret_array.insert(0, (int8_t)((frame_id >> i) & 1));
     for (int i = 0; i < 8; i++) 

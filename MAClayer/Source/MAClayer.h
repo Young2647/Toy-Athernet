@@ -12,7 +12,7 @@
 class MAClayer : public AudioIODeviceCallback
 {
 public:
-    MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame);
+    MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame, int8_t src_addr, int8_t dst_addr);
     
     ~MAClayer();
     
@@ -98,6 +98,9 @@ private:
 
     int all_byte_num;
     Array<int> temp_ack_array;
+
+    int8_t dst_addr;
+    int8_t src_addr;
 };
 
 

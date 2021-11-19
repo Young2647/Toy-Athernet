@@ -91,7 +91,7 @@ MAClayer::receive()
         for (int i = 0; i < 50; i++) {
             vec.push_back(receive_frame.getData()[i]);
         }*/
-        if (receive_frame.getSrcAddr() != this->dst_addr || receive_frame.getData() != this->src_addr) continue;
+        if (receive_frame.getSrcAddr() != this->dst_addr || receive_frame.getDstAddr() != this->src_addr) continue;
         if (receive_frame.getType() == TYPE_DATA)
         {
             int8_t receive_id = receive_frame.getFrame_id();
@@ -383,7 +383,7 @@ MAClayer::requestSend(int8_t data_frame_id) {
     int id = id_controller_array.getFirst();
     id_controller_array.remove(0);
     unique_ptr<MACframe> ack_frame;
-    ack_frame.reset(new MACframe(data_frame_id, dst_addr, src_addr));
+    ack_frame.reset(new MACframe(dst_addr, src_addr, data_frame_id));
     ack_frame->setFrameId(id);
     temp_ack_array.insert(-1, id);
     frame_array[id] = std::move(ack_frame);
@@ -397,7 +397,7 @@ MAClayer::requestSend(std::vector<int8_t> frame_data) {
     int id = id_controller_array.getFirst();
     id_controller_array.remove(0);
     unique_ptr<MACframe> data_frame;
-    data_frame.reset(new MACframe(frame_data, dst_addr, src_addr));
+    data_frame.reset(new MACframe(dst_addr, src_addr, frame_data));
     data_frame->setFrameId(id);
     send_id_array.insert(-1, id);
     frame_array[id] = std::move(data_frame);
