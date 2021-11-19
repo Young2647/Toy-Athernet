@@ -43,7 +43,7 @@ public:
 
     void hiResTimerCallback() override;
 
-    float getChannelPower() { return channel_power; }
+    float getChannelPower() { return power_; }
 private:
 
     Array<float> processingHeader;
@@ -63,7 +63,7 @@ private:
     int headerLength = 120;
     int sampleRate;
     float syncPower_localMax;
-    float power_;
+    float power_ = 0.0f;
     int state; // processing state
     int data_state;
     std::ofstream fout;
@@ -71,8 +71,6 @@ private:
     bool _ifheadercheck = false;
     Array<float> tempBuffer;
     Array<int> int_data;
-
-    float channel_power = 0.0f;
 };
 
 #endif
