@@ -120,7 +120,7 @@ MAClayer::receive()
                 frame_array[ack_id].get()->setStatus(Status_Acked);// let the frame in frame array to be marked as acked.
             //cv.notify_one();
             cout << "ACK " << ack_id << " received.\n";
-            if (ack_id + 1 == Mac_num_frame)
+            if (ack_id + 1 >= Mac_num_frame)
             {
                 cout << "All data sent.\n";
                 callStop();
