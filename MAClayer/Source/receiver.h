@@ -72,7 +72,7 @@ private:
     Array<float> tempBuffer;
     Array<int> int_data;
 
-    float channel_power = -1.0f;
+    float channel_power = 0.0f;
 };
 
 #endif

@@ -92,7 +92,11 @@ MAClayer::receive()
         for (int i = 0; i < 50; i++) {
             vec.push_back(receive_frame.getData()[i]);
         }*/
-        if (receive_frame.getSrcAddr() != this->dst_addr || receive_frame.getDstAddr() != this->src_addr) continue;
+        if (receive_frame.getSrcAddr() != this->dst_addr || receive_frame.getDstAddr() != this->src_addr)
+        {
+            cerr << "address not match.\n";
+            continue;
+        }
         if (receive_frame.getType() == TYPE_DATA)
         {
             int8_t receive_id = receive_frame.getFrame_id();
