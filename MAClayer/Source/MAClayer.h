@@ -22,6 +22,8 @@ public:
 
     void send(); //sending data
 
+    void sendAck();//sending ack
+
     void checkIdarray();
 
     void StartMAClayer();
@@ -51,6 +53,7 @@ private:
     
     thread receive_thread;
     thread sending_thread;
+    thread ack_sending_thread;
 
     int max_rescend;
     std::chrono::milliseconds trans_timeout;
@@ -82,6 +85,7 @@ private:
     std::ofstream fout;
     std::condition_variable cv;
     std::vector<unique_ptr<MACframe>> frame_array;
+    std::vector<std::unique_ptr<MACframe>> ack_queue; //queue to send ack
     std::vector<std::vector<int8_t>> data_frames;
     
     Array<bool> ack_array;//array that record if ack is received
@@ -101,6 +105,9 @@ private:
 
     int8_t dst_addr;
     int8_t src_addr;
+
+    bool csma_on = true;//if we have csma
+    std::chrono::milliseconds back_off_time = 10ms;
 };
 
 

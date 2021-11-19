@@ -94,10 +94,11 @@ Receiver::audioDeviceIOCallback(const float** inputChannelData, int numInputChan
                 if (inputChannelData[j] != nullptr)
                 {
                     inputSamp += inputChannelData[j][i];
-                    of << inputChannelData[j][i] << "\n";
+                    //of << inputChannelData[j][i] << "\n";
                 }
             }
             recordedSound.add(inputSamp);
+            channel_power = channel_power * 23 / 24 + inputSamp * inputSamp / 24;
             //data_state = Demodulate(inputSamp);
         }
 
@@ -195,11 +196,10 @@ Receiver::Demodulate(float sample)
                 //recordeddebug << s[i] << "\n";
                 if (tempBuffer.size() >= 200)
                 {
-                    //std::cout << "header found.\n";
+                    std::cout << "header found.\n";
                     syncPower_localMax = 0;
                     state = DATA_PROCESS;
                     processingData = tempBuffer;
-
                 }
             }
             return NO_HEADER;
@@ -223,6 +223,11 @@ Receiver::Demodulate(float sample)
                     int_data.add(1);
                 else if (sum < 0)
                     int_data.add(0);
+                if (j + 1 == FRAME_OFFSET + 8)
+                {
+                    frame_data = Int2Byte(int_data);
+                    if (frame_data[0] == TYPE_ACK) break;
+                }
             }
             processingData.clear();
             processingHeader.clear();

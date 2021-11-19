@@ -42,15 +42,7 @@ public:
 
     int startSend();
 
-    void hiResTimerCallback() override
-    {
-        if (isPlaying && playingSampleNum >= output_buffer.getNumSamples())
-        {
-            isPlaying = false;
-            stopTimer();
-
-        }
-    }
+    void hiResTimerCallback() override;
 
     
 

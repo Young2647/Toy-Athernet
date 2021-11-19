@@ -42,6 +42,8 @@ public:
     bool isRecording;
 
     void hiResTimerCallback() override;
+
+    float getChannelPower() { return channel_power; }
 private:
 
     Array<float> processingHeader;
@@ -69,6 +71,8 @@ private:
     bool _ifheadercheck = false;
     Array<float> tempBuffer;
     Array<int> int_data;
+
+    float channel_power = -1.0f;
 };
 
 #endif
