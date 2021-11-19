@@ -98,8 +98,8 @@ MAClayer::receive()
             cout << "ACK " << ack_id << " received.\n";
             if (ack_id + 1 == Mac_num_frame)
             {
-                cout << "All data sent.\n";
-                callStop();
+                //cout << "All data sent.\n";
+                //callStop();
             }
             else
             {
@@ -167,7 +167,7 @@ MAClayer::send()
     {
         bool if_done = false;
         lock.enter();
-        if (frame_sent_num == Mac_num_frame) if_done = true;
+        if (frame_sent_num + 1 == Mac_num_frame) if_done = true;
         lock.exit();
 
         if (if_done && !getStop())
