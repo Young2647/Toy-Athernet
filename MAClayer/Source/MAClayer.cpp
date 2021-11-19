@@ -33,6 +33,9 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     ack_array.resize(Mac_num_frame);
     ack_array.fill(false);
 
+    for (int i = 0; i < num_frame; i++)
+        frame_to_receive_list.push_back(1);
+
     //init file output
     file_output.resize(Mac_num_frame);
 }
@@ -96,7 +99,10 @@ MAClayer::receive()
                 cout << " CRC check pass!\n";
                 file_output[(int)receive_id] = (receive_frame.getData());
                 requestSend(receive_id);
-                frame_receive_num++;
+                if (frame_to_receive_list[receive_id]) {
+                    frame_to_receive_list[receive_id] = 0;
+                    frame_receive_num++;
+                }
             }
         }
         else if (receive_frame.getType() == TYPE_ACK)
@@ -371,7 +377,7 @@ MAClayer::requestSend(int8_t data_frame_id) {
     unique_ptr<MACframe> ack_frame;
     ack_frame.reset(new MACframe(data_frame_id));
     ack_frame->setFrameId(id);
-    send_id_array.insert(-1, id);
+    send_id_array.insert(0, id);
     frame_array[id] = std::move(ack_frame);
     return id;
 }
