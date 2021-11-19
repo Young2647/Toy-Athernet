@@ -100,8 +100,8 @@ void Sender::sendOnePacket(int frame_len, Array<int8_t> cur_frame_data) {
         vec.push_back(cur_frame_data[i]);
     }*/
     //try reset output buffer
-    output_buffer.clear();
-    output_buffer_idx = 0;
+    //output_buffer.clear();
+    //output_buffer_idx = 0;
 
     playingSampleNum = output_buffer_idx;
     Modulation(cur_frame_data, frame_len);
@@ -111,7 +111,7 @@ void Sender::sendOnePacket(int frame_len, Array<int8_t> cur_frame_data) {
         output_buffer.setSample(0, output_buffer_idx, frame_wave[j]);
     for (int j = 0; j < len_zeros; j++, output_buffer_idx++)
         output_buffer.setSample(0, output_buffer_idx, 0);
-    //printOutput_buffer();
+    printOutput_buffer();
 }
 
 void Sender::printOutput_buffer() {
@@ -131,7 +131,7 @@ int Sender::startSend()
     playingSampleNum = 0;
     isPlaying = true;
     int len_buffer = num_frame * len_frame;
-    output_buffer.setSize(1, len_buffer + 480 + len_warm_up);
+    output_buffer.setSize(1, 10 * (len_buffer + 480 + len_warm_up));
     output_buffer.clear();
     for (int j = 0; j < 480; j++, output_buffer_idx++)
         output_buffer.setSample(0, j, carrier_wave[j % num_samples_per_bit]);
