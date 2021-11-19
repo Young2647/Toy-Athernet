@@ -20,6 +20,9 @@
 #define MAX_WAITING_TIME 500
 #define MAX_RESEND_TIME 5
 
+#define FRAME_OFFSET 16
+#define CRC_LEN 8
+
 constexpr size_t QUEUE_SIZE = 256;
 enum STATE {
 	FrameDetection = 1, Tx, Rx, TxACK

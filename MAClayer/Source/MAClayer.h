@@ -92,6 +92,7 @@ private:
     mutex cv_m;
     
     bool all_stop = false;
+    CRC8 crc;
 };
 
 

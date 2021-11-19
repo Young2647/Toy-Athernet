@@ -10,14 +10,19 @@
 
 #include "MACframe.h"
 
-MACframe::MACframe(Array<int8_t> all_data) {
+MACframe::MACframe(Array<int8_t> all_data) : crc() {
     /*std::vector<int8_t> vec;
     for (int i = 0; i < all_data.size(); i++)
         vec.push_back(all_data[i]);*/
     type = all_data[0];
     frame_id = all_data[1];
-    for (int i = 2; i < all_data.size(); i++) 
+    int8_t frame_crc = all_data[all_data.size() - 1];
+    for (int i = 2; i < all_data.size() - 1; i++) {
         data.add(all_data[i]);
+        crc.updateCRC(all_data[i]);
+    }
+    if (frame_crc != crc.getCRC())
+        bad_crc = 1;
     resend_times = 0;
 }
 
