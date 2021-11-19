@@ -9,11 +9,13 @@
 */
 
 #include "MAClayer.h"
-MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame) : Mac_receiver(num_samples_per_bit, num_bits_per_frame), Mac_sender(num_bits_per_frame, num_samples_per_bit), crc() {
+MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame, int8_t src_addr, int8_t dst_addr) : Mac_receiver(num_samples_per_bit, num_bits_per_frame), Mac_sender(num_bits_per_frame, num_samples_per_bit), crc() {
     this->Mac_num_frame = num_frame;
     this->num_bits_per_frame = num_bits_per_frame;
     this->num_samples_per_bit = num_samples_per_bit;
     this->all_byte_num = MAX_BYTE_NUM;
+    this->src_addr = src_addr;
+    this->dst_addr = dst_addr;
     sender_LFS = 0;
     //sender_window.resize(sender_SWS);
     
@@ -89,6 +91,7 @@ MAClayer::receive()
         for (int i = 0; i < 50; i++) {
             vec.push_back(receive_frame.getData()[i]);
         }*/
+        if (receive_frame.getSrcAddr() != this->dst_addr || receive_frame.getData() != this->src_addr) continue;
         if (receive_frame.getType() == TYPE_DATA)
         {
             int8_t receive_id = receive_frame.getFrame_id();
@@ -110,7 +113,7 @@ MAClayer::receive()
             int ack_id = (int)receive_frame.getData()[0];
             if (frame_array[ack_id].get())
                 frame_array[ack_id].get()->setStatus(Status_Acked);// let the frame in frame array to be marked as acked.
-            cv.notify_one();
+            //cv.notify_one();
             cout << "ACK " << ack_id << " received.\n";
             if (ack_id + 1 == Mac_num_frame)
             {
@@ -212,7 +215,7 @@ MAClayer::send()
                 {
                     frame_array[id].get()->setStatus(Status_Sent);
                     cout << "frame " << id << " sent.\n";
-                    this_thread::sleep_for(100ms);
+                    this_thread::sleep_for(70ms);
                     //if (!keep_timer)
                     //    startTimer(id);
 
@@ -221,6 +224,7 @@ MAClayer::send()
                 {
                     frame_array[id].get()->setStatus(Status_Acked);
                     cout << "ack " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
+                    this_thread::sleep_for(70ms);
                 }
             }
             else if (frame_array[id].get()->getStatus() == Status_Sent && frame_array[id].get()->getTimeDuration() >= MAX_WAITING_TIME)
@@ -239,7 +243,7 @@ MAClayer::send()
             }
         }
         checkIdarray();
-        this_thread::sleep_for(100ms);
+        this_thread::sleep_for(70ms);
     }
 }
 
@@ -379,7 +383,7 @@ MAClayer::requestSend(int8_t data_frame_id) {
     int id = id_controller_array.getFirst();
     id_controller_array.remove(0);
     unique_ptr<MACframe> ack_frame;
-    ack_frame.reset(new MACframe(data_frame_id));
+    ack_frame.reset(new MACframe(data_frame_id, dst_addr, src_addr));
     ack_frame->setFrameId(id);
     temp_ack_array.insert(-1, id);
     frame_array[id] = std::move(ack_frame);
@@ -393,7 +397,7 @@ MAClayer::requestSend(std::vector<int8_t> frame_data) {
     int id = id_controller_array.getFirst();
     id_controller_array.remove(0);
     unique_ptr<MACframe> data_frame;
-    data_frame.reset(new MACframe(0, frame_data));
+    data_frame.reset(new MACframe(frame_data, dst_addr, src_addr));
     data_frame->setFrameId(id);
     send_id_array.insert(-1, id);
     frame_array[id] = std::move(data_frame);

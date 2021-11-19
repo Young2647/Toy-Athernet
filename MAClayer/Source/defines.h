@@ -17,10 +17,10 @@
 #define SAMPLES_PERBIT 48
 
 #define DEFAULT_RWS 4
-#define MAX_WAITING_TIME 500
+#define MAX_WAITING_TIME 600
 #define MAX_RESEND_TIME 5
 
-#define FRAME_OFFSET 16
+#define FRAME_OFFSET 32
 #define CRC_LEN 8
 
 #define MAX_BYTE_NUM 6250

@@ -70,6 +70,10 @@ MACframe::getTimeDuration() {
 Array<int8_t>
 MACframe::toBitStream() {
     Array<int8_t> ret_array = Array<int8_t>(data);
+    for (int i = 0; i < 8; i++)
+        ret_array.insert(0, (int8_t)((src_addr >> i) & 1));
+    for (int i = 0; i < 8; i++)
+        ret_array.insert(0, (int8_t)((dst_addr >> i) & 1));
     for (int i = 0; i < 8; i++) 
         ret_array.insert(0, (int8_t)((frame_id >> i) & 1));
     for (int i = 0; i < 8; i++) 
