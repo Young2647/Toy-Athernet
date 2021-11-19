@@ -16,7 +16,7 @@ public:
     
     ~MAClayer();
     
-    void Write2File(Array<int8_t>& byte_data);
+    void Write2File();
 
     void receive(); //receiving datas
 
@@ -93,6 +93,8 @@ private:
     
     bool all_stop = false;
     CRC8 crc;
+
+    int all_byte_num;
 };
 
 

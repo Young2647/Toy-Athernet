@@ -13,7 +13,7 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     this->Mac_num_frame = num_frame;
     this->num_bits_per_frame = num_bits_per_frame;
     this->num_samples_per_bit = num_samples_per_bit;
-
+    this->all_byte_num = Mac_num_frame * num_bits_per_frame / 8;
     sender_LFS = 0;
     //sender_window.resize(sender_SWS);
     
@@ -33,6 +33,8 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     ack_array.resize(Mac_num_frame);
     ack_array.fill(false);
 
+    //init file output
+    file_output.resize(Mac_num_frame);
 }
 
 MAClayer::~MAClayer()
@@ -83,7 +85,7 @@ MAClayer::receive()
                 cout << " however CRC is wrong.\n";
             else {
                 cout << " CRC check pass!\n";
-                Write2File(receive_frame.getData());
+                file_output[(int)receive_id] = (receive_frame.getData());
                 requestSend(receive_id);
             }
         }
@@ -168,6 +170,7 @@ MAClayer::send()
         if (if_done)
         {
             cout << "All frames sent.\n";
+            Write2File();
             callStop();
         }
         for (auto i : send_id_array)
@@ -183,6 +186,7 @@ MAClayer::send()
                 {
                     frame_array[id].get()->setStatus(Status_Sent);
                     cout << "frame " << id << " sent.\n";
+                    this_thread::sleep_for(10ms);
                     //if (!keep_timer)
                     //    startTimer(id);
 
@@ -278,9 +282,21 @@ MAClayer::StopMAClayer()
 
 
 void 
-MAClayer::Write2File(Array<int8_t>& byte_data)
+MAClayer::Write2File()
 {
-    fout.write((char*)byte_data.getRawDataPointer(), byte_data.size());
+    int bytecount = 0;
+    for (auto data : file_output)
+    {
+        if (bytecount + data.size() >= all_byte_num)
+        {
+            fout.write((char*)data.getRawDataPointer(), all_byte_num - bytecount);
+        }
+        else
+        {
+            fout.write((char*)data.getRawDataPointer(), data.size());
+            bytecount += data.size();
+        }
+    }
 }
 
 std::string getPath(const std::string& target, int depth = 5) {
