@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
     std::unique_ptr<MAClayer> mac_layer;
     if (mac_layer.get() == nullptr)
     {
-        mac_layer.reset(new MAClayer(3, 840, 63, ZYB, YHD));
+        mac_layer.reset(new MAClayer(3, 840, 63, YHD, ZYB));
     }
 
     std::cout << "Press any ENTER to start MAClayer.\n";

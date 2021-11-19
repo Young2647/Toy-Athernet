@@ -426,7 +426,8 @@ MAClayer::requestSend(int8_t data_frame_id) {
     unique_ptr<MACframe> ack_frame;
     ack_frame.reset(new MACframe(dst_addr, src_addr, data_frame_id));
     ack_frame->setFrameId(id);
-    temp_ack_array.insert(-1, id);
+    send_id_array.insert(-1, id);
+    //temp_ack_array.insert(-1, id);
     //ack_queue.push_back(std::move(ack_frame));
     frame_array[id] = std::move(ack_frame);
     return id;
