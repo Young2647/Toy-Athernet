@@ -64,8 +64,17 @@ void
 MAClayer::receive() 
 {
     cout << "...receiving...\n";
+    bool if_receive_done = false;
     while (!Mac_stop)
     {
+        lock.enter();
+        if (frame_receive_num + 1 == Mac_num_frame) if_receive_done = true;
+        lock.exit();
+        if (if_receive_done && !getStop())
+        {
+            cout << "All frames received.\n";
+            callStop();
+        }
         Array<int8_t> data = Mac_receiver.getData();
         if (data.isEmpty())
         {
@@ -87,6 +96,7 @@ MAClayer::receive()
                 cout << " CRC check pass!\n";
                 file_output[(int)receive_id] = (receive_frame.getData());
                 requestSend(receive_id);
+                frame_receive_num++;
             }
         }
         else if (receive_frame.getType() == TYPE_ACK)
@@ -158,11 +168,11 @@ MAClayer::receive()
 void
 MAClayer::send()
 {
-    readFromFile(Mac_num_frame);
+    /*readFromFile(Mac_num_frame);
     for (int i = 0; i < Mac_num_frame; i++)
     {
         requestSend(data_frames[i]);
-    }
+    }*/
     while (!Mac_stop)
     {
         bool if_done = false;
@@ -357,7 +367,7 @@ MAClayer::requestSend(int8_t data_frame_id) {
     unique_ptr<MACframe> ack_frame;
     ack_frame.reset(new MACframe(data_frame_id));
     ack_frame->setFrameId(id);
-    send_id_array.insert(0, id);
+    send_id_array.insert(-1, id);
     frame_array[id] = std::move(ack_frame);
     return id;
 }
