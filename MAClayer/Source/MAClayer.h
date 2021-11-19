@@ -97,6 +97,7 @@ private:
     CRC8 crc;
 
     int all_byte_num;
+    Array<int> temp_ack_array;
 };
 
 
