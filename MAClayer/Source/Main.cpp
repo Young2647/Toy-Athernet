@@ -36,18 +36,19 @@ int main(int argc, char* argv[])
     std::unique_ptr<MAClayer> mac_layer;
     if (mac_layer.get() == nullptr)
     {
-        mac_layer.reset(new MAClayer(12, 416, 2));
+        mac_layer.reset(new MAClayer(3, 816, 20));
     }
 
     std::cout << "Press any ENTER to start MAClayer.\n";
     getchar();
     dev_manager.addAudioCallback(mac_layer.get());
     mac_layer.get()->StartMAClayer();
-
+    auto start_time = std::chrono::system_clock::now();
     std::cout << "Press any ENTER to stop MAClayer.\n";
     getchar();
     mac_layer.get()->StopMAClayer();
-
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_time).count();
+    std::cout << "Transmit time : " << duration << "ms.\n";
     dev_manager.removeAudioCallback(mac_layer.get());
     DeletedAtShutdown::deleteAll();
     juce::MessageManager::deleteInstance();

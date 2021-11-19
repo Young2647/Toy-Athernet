@@ -71,10 +71,10 @@ MAClayer::receive()
             continue;
         }
         MACframe receive_frame(data);
-        vector<int8_t> vec;
+        /*vector<int8_t> vec;
         for (int i = 0; i < 50; i++) {
             vec.push_back(receive_frame.getData()[i]);
-        }
+        }*/
         if (receive_frame.getType() == TYPE_DATA)
         {
             int8_t receive_id = receive_frame.getFrame_id();
@@ -91,8 +91,7 @@ MAClayer::receive()
             cout << "ACK " << ack_id << " received.\n";
             if (ack_id + 1 == Mac_num_frame)
             {
-                cout << "All data received.\n";
-                StopMAClayer();
+                cout << "All data sent.\n";
             }
             else
             {
@@ -282,7 +281,7 @@ void
 MAClayer::readFromFile(int num_frame) {
     data_frames.resize(num_frame);
     ifstream f(getPath("test.in"), ios::in | ios::binary);
-    //ofstream f1("test.out");
+    ofstream f1("test.out");
     char tmp;
     for (int i = 0; i < num_frame; i++) {
         data_frames[i].resize(num_bits_per_frame-16);
@@ -299,19 +298,9 @@ MAClayer::readFromFile(int num_frame) {
         if ((i + 1) % 8 == 0) {
             f1 << endl;
         }
-    }
-    f1.close();*/
+    }*/
+    f1.close();
     f.close();
-
-    ofstream of;
-    of.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021\\MAClayer\\sender.out", ios::trunc);
-    for (int i = 0; i < (num_bits_per_frame - 16); i++) {
-        of << (int)data_frames[0][i];
-        if ((i+1) % 8 == 0) {
-            of << endl;
-        }
-    }
-    of.close();
 }
 
 

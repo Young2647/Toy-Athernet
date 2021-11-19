@@ -94,7 +94,7 @@ Receiver::audioDeviceIOCallback(const float** inputChannelData, int numInputChan
                 if (inputChannelData[j] != nullptr)
                 {
                     inputSamp += inputChannelData[j][i];
-                    of << inputChannelData[j][i] << "\n";
+                    //of << inputChannelData[j][i] << "\n";
                 }
             }
             recordedSound.add(inputSamp);
@@ -115,8 +115,8 @@ Receiver::startRecording()
     const ScopedLock sl(lock);
     recordedSampleNum = 0;
     isRecording = true;
-    fout = std::ofstream("input.out");
-    of = std::ofstream("sample.out");
+    /*fout = std::ofstream("input.out");
+    of = std::ofstream("sample.out");*/
     startTimer(50);
 }
 
@@ -227,11 +227,11 @@ Receiver::Demodulate(float sample)
             processingHeader.clear();
             state = SYNC;
             _ifheadercheck = false;
-            for (int j = 0; j < int_data.size(); j++) {
+            /*for (int j = 0; j < int_data.size(); j++) {
                 fout << int_data[j];
                 if ((j+1)%8 == 0) 
                     fout << std::endl;
-            }
+            }*/
                 
             frame_data = Int2Byte(int_data);
             int_data.clear();
