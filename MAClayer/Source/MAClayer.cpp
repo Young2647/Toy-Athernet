@@ -13,7 +13,7 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     this->Mac_num_frame = num_frame;
     this->num_bits_per_frame = num_bits_per_frame;
     this->num_samples_per_bit = num_samples_per_bit;
-    this->all_byte_num = Mac_num_frame * num_bits_per_frame / 8;
+    this->all_byte_num = Mac_num_frame * (num_bits_per_frame - FRAME_OFFSET - CRC_LEN) / 8;
     sender_LFS = 0;
     //sender_window.resize(sender_SWS);
     
@@ -118,6 +118,10 @@ MAClayer::receive()
                 //requestSend(data_frames[ack_id + 1]);
             }
         }
+        else 
+        {
+            cerr << "what is this ?\n";
+        }
         Mac_receiver.clearFrameData();
     }
 }
@@ -168,11 +172,11 @@ MAClayer::receive()
 void
 MAClayer::send()
 {
-    /*readFromFile(Mac_num_frame);
+    readFromFile(Mac_num_frame);
     for (int i = 0; i < Mac_num_frame; i++)
     {
         requestSend(data_frames[i]);
-    }*/
+    }
     while (!Mac_stop)
     {
         bool if_done = false;
