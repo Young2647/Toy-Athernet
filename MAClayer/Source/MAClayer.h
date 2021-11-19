@@ -66,6 +66,9 @@ private:
     int receiver_LFR;
     int receiver_LAF;
     int receiver_RWS;
+
+    //the num of frames that have been successfully sent.
+    int frame_sent_num = 0;
     
     int Mac_num_frame; //total frame num
     int num_bits_per_frame; // every frame bits num
@@ -76,12 +79,16 @@ private:
     std::condition_variable cv;
     std::vector<unique_ptr<MACframe>> frame_array;
     std::vector<std::vector<int8_t>> data_frames;
+    
+    Array<bool> ack_array;//array that record if ack is received
+
     Array<int> send_id_array;
     Array<int> id_controller_array;
     std::vector<thread> timers;
     STATE state;
     CriticalSection lock;
     mutex cv_m;
+
 };
 
 
