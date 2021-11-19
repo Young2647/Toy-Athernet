@@ -199,7 +199,6 @@ Receiver::Demodulate(float sample)
                     syncPower_localMax = 0;
                     state = DATA_PROCESS;
                     processingData = tempBuffer;
-
                 }
             }
             return NO_HEADER;
@@ -223,6 +222,11 @@ Receiver::Demodulate(float sample)
                     int_data.add(1);
                 else if (sum < 0)
                     int_data.add(0);
+                if (j + 1 == FRAME_OFFSET + 8)
+                {
+                    frame_data = Int2Byte(int_data);
+                    if (frame_data[0] == TYPE_ACK) break;
+                }
             }
             processingData.clear();
             processingHeader.clear();

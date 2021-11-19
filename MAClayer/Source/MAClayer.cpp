@@ -46,14 +46,15 @@ MAClayer::~MAClayer()
 {
     if (receive_thread.joinable()) receive_thread.join();
     if (sending_thread.joinable()) sending_thread.join();
-    if (!timers.empty())
-    {
-        for (int i = 0; i < timers.size(); i++)
-        {
-            if (timers[i].joinable())
-                timers[i].join();
-        }
-    }
+    if (ack_sending_thread.joinable()) ack_sending_thread.join();
+    //if (!timers.empty())
+    //{
+    //    for (int i = 0; i < timers.size(); i++)
+    //    {
+    //        if (timers[i].joinable())
+    //            timers[i].join();
+    //    }
+    //}
 }
 
 
@@ -204,6 +205,7 @@ MAClayer::send()
         }
         for (auto i : send_id_array)
         {
+            if (Mac_stop) break;
             auto id = i;
             if (frame_array[id].get()->getStatus() == Status_Waiting)
             {
@@ -288,6 +290,8 @@ MAClayer::StartMAClayer()
     cout << "sender start sending.\n";
     sending_thread = thread(&MAClayer::send, this);
     cout << "sending thread start.\n";
+    ack_sending_thread = thread(&MAClayer::sendAck, this);
+    cout << "ack sending thread start.\n";
     fout.open("OUTPUT.bin", ios::out | ios::binary);
 }
 
@@ -304,7 +308,22 @@ MAClayer::StopMAClayer()
         cout << "receiver stop recording.\n";
         if (sending_thread.joinable()) sending_thread.join();
         cout << "sending thread stop.\n";
+        if (ack_sending_thread.joinable()) ack_sending_thread.join();
+        cout << "ack sending thread stop.\n";
         fout.close();
+    }
+}
+
+void
+MAClayer::sendAck()
+{
+    while (!Mac_stop)
+    {
+        if (!ack_queue.empty())
+        {
+            Mac_sender.sendOnePacket(ack_queue[0].get()->getFrame_size() + FRAME_OFFSET, ack_queue[0].get()->toBitStream());
+            ack_queue.erase(ack_queue.begin());
+        }
     }
 }
 
@@ -385,7 +404,8 @@ MAClayer::requestSend(int8_t data_frame_id) {
     unique_ptr<MACframe> ack_frame;
     ack_frame.reset(new MACframe(dst_addr, src_addr, data_frame_id));
     ack_frame->setFrameId(id);
-    temp_ack_array.insert(-1, id);
+    //temp_ack_array.insert(-1, id);
+    ack_queue.push_back(std::move(ack_frame));
     frame_array[id] = std::move(ack_frame);
     return id;
 }
