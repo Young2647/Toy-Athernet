@@ -162,7 +162,7 @@ void Sender::audioDeviceIOCallback(const float** inputChannelData, int numInputC
                 // Write the sample into the output channel
                 //outputChannelData[j][i] = (playingSampleNum < output_buffer.getNumSamples()) ? 1.0f : 0.0f;
                 outputChannelData[j][i] = (playingSampleNum < output_buffer.getNumSamples()) ? playBuffer[playingSampleNum] : 0.0f;
-                fout << outputChannelData[j][i] << "\n";
+                //fout << outputChannelData[j][i] << "\n";
                 ++playingSampleNum;
             }
         }
@@ -183,4 +183,15 @@ void Sender::audioDeviceIOCallback(const float** inputChannelData, int numInputC
     //    }
     //}
     //of.close();
+}
+
+void
+Sender::hiResTimerCallback()
+{
+    if (isPlaying && playingSampleNum >= output_buffer.getNumSamples())
+    {
+        isPlaying = false;
+        stopTimer();
+
+    }
 }

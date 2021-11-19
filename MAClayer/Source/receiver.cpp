@@ -94,10 +94,11 @@ Receiver::audioDeviceIOCallback(const float** inputChannelData, int numInputChan
                 if (inputChannelData[j] != nullptr)
                 {
                     inputSamp += inputChannelData[j][i];
-                    of << inputChannelData[j][i] << "\n";
+                    //of << inputChannelData[j][i] << "\n";
                 }
             }
             recordedSound.add(inputSamp);
+            channel_power = channel_power * 23 / 24 + inputSamp * inputSamp / 24;
             //data_state = Demodulate(inputSamp);
         }
 

@@ -118,14 +118,14 @@ MAClayer::receive()
             cout << "ACK " << ack_id << " received.\n";
             if (ack_id + 1 == Mac_num_frame)
             {
-                //cout << "All data sent.\n";
-                //callStop();
+                cout << "All data sent.\n";
+                callStop();
             }
             else
             {
                 ack_array.set(ack_id, true);
                 frame_sent_num++;
-                //requestSend(data_frames[ack_id + 1]);
+                requestSend(data_frames[ack_id + 1]);
             }
         }
         else 
@@ -136,80 +136,29 @@ MAClayer::receive()
     }
 }
 
-//void
-//MAClayer::send() {
-//    //init parameters
-//    int id = 0;
-//
-//    readFromFile(Mac_num_frame);
-//    requestSend(data_frames[0]);
-//    while (!Mac_stop)
-//    {
-//        for (auto i : send_id_array)
-//        {
-//            id = i;
-//            if (frame_array[id].get()->getStatus() == Status_Waiting)
-//            {
-//                auto tmp = frame_array[id].get()->getFrame_size();
-//                Mac_sender.sendOnePacket(frame_array[id].get()->getFrame_size() + 16, frame_array[id].get()->toBitStream());
-//                
-//                frame_array[id].get()->setSendTime();
-//                if (frame_array[id].get()->getType() == TYPE_DATA)
-//                {
-//                    frame_array[id].get()->setStatus(Status_Sent);
-//                    cout << "frame " << id << " sent.\n";
-//                    //if (!keep_timer)
-//                    //    startTimer(id);
-//                }
-//                else // ACK is defualt set as acked
-//                {
-//                    frame_array[id].get()->setStatus(Status_Acked);
-//                    cout << "ack " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
-//                }
-//            }
-//            /*else if (frame_array[id].get()->getStatus() == Status_Sent && frame_array[id].get()->getTimeDuration() >= MAX_WAITING_TIME)
-//            {
-//                cout << "frame " << id << " ack not received. Try to resend package.\n";
-//                frame_array[id].get()->setStatus(Status_Waiting);
-//                frame_array[id].get()->addResendtimes();
-//            }*/
-//        }
-//        checkIdarray();
-//        this_thread::sleep_for(20ms);
-//    }
-//}
-
 void
-MAClayer::send()
-{
+MAClayer::send() {
+    //init parameters
+    int id = 0;
+
     readFromFile(Mac_num_frame);
-    for (int i = 0; i < Mac_num_frame; i++)
-    {
-        requestSend(data_frames[i]);
-    }
+    requestSend(data_frames[0]);
     while (!Mac_stop)
     {
-        bool if_done = false;
-        lock.enter();
-        if (frame_sent_num + 1 == Mac_num_frame) if_done = true;
-        lock.exit();
-
-        if (if_done && !getStop())
-        {
-            cout << "All frames sent.\n";
-            callStop();
-        }
-        if (!temp_ack_array.isEmpty())
-        {
-            send_id_array.insertArray(0,temp_ack_array.getRawDataPointer(), temp_ack_array.size());
-        }
         for (auto i : send_id_array)
         {
-            if (Mac_stop) break;
-            auto id = i;
+            id = i;
             if (frame_array[id].get()->getStatus() == Status_Waiting)
             {
                 auto tmp = frame_array[id].get()->getFrame_size();
+                if (csma_on)
+                {
+                    this_thread::sleep_for(500ms);
+                    while (Mac_receiver.getChannelPower() > 0.3f)// the channel is blocked
+                    {
+                        this_thread::sleep_for(back_off_time);
+                    }
+                }
                 Mac_sender.sendOnePacket(frame_array[id].get()->getFrame_size() + FRAME_OFFSET, frame_array[id].get()->toBitStream());
                 
                 frame_array[id].get()->setSendTime();
@@ -217,16 +166,13 @@ MAClayer::send()
                 {
                     frame_array[id].get()->setStatus(Status_Sent);
                     cout << "frame " << id << " sent.\n";
-                    this_thread::sleep_for(70ms);
                     //if (!keep_timer)
                     //    startTimer(id);
-
                 }
                 else // ACK is defualt set as acked
                 {
                     frame_array[id].get()->setStatus(Status_Acked);
                     cout << "ack " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
-                    this_thread::sleep_for(70ms);
                 }
             }
             else if (frame_array[id].get()->getStatus() == Status_Sent && frame_array[id].get()->getTimeDuration() >= MAX_WAITING_TIME)
@@ -245,9 +191,79 @@ MAClayer::send()
             }
         }
         checkIdarray();
-        this_thread::sleep_for(70ms);
+        this_thread::sleep_for(20ms);
     }
 }
+
+//void
+//MAClayer::send()
+//{
+//    readFromFile(Mac_num_frame);
+//    for (int i = 0; i < Mac_num_frame; i++)
+//    {
+//        requestSend(data_frames[i]);
+//    }
+//    while (!Mac_stop)
+//    {
+//        bool if_done = false;
+//        lock.enter();
+//        if (frame_sent_num + 1 == Mac_num_frame) if_done = true;
+//        lock.exit();
+//
+//        if (if_done && !getStop())
+//        {
+//            cout << "All frames sent.\n";
+//            callStop();
+//        }
+//        if (!temp_ack_array.isEmpty())
+//        {
+//            send_id_array.insertArray(0,temp_ack_array.getRawDataPointer(), temp_ack_array.size());
+//        }
+//        for (auto i : send_id_array)
+//        {
+//            if (Mac_stop) break;
+//            auto id = i;
+//            if (frame_array[id].get()->getStatus() == Status_Waiting)
+//            {
+//                auto tmp = frame_array[id].get()->getFrame_size();
+//                Mac_sender.sendOnePacket(frame_array[id].get()->getFrame_size() + FRAME_OFFSET, frame_array[id].get()->toBitStream());
+//                
+//                frame_array[id].get()->setSendTime();
+//                if (frame_array[id].get()->getType() == TYPE_DATA)
+//                {
+//                    frame_array[id].get()->setStatus(Status_Sent);
+//                    cout << "frame " << id << " sent.\n";
+//                    this_thread::sleep_for(70ms);
+//                    if (!keep_timer)
+//                        startTimer(id);
+//
+//                }
+//                else // ACK is defualt set as acked
+//                {
+//                    frame_array[id].get()->setStatus(Status_Acked);
+//                    cout << "ack " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
+//                    this_thread::sleep_for(70ms);
+//                }
+//            }
+//            else if (frame_array[id].get()->getStatus() == Status_Sent && frame_array[id].get()->getTimeDuration() >= MAX_WAITING_TIME)
+//            {
+//                cout << "frame " << id << " ack not received. Try to resend package.\n";
+//                frame_array[id].get()->setStatus(Status_Waiting);
+//                if (frame_array[id].get()->ResendToomuch())
+//                {
+//                    cerr << "Resend too many times. Link error.\n";
+//                    callStop();//link error, mac layer stops
+//                }
+//                else
+//                {
+//                    frame_array[id].get()->addResendtimes();
+//                }
+//            }
+//        }
+//        checkIdarray();
+//        this_thread::sleep_for(70ms);
+//    }
+//}
 
 void
 MAClayer::checkIdarray()
@@ -322,8 +338,9 @@ MAClayer::sendAck()
         if (!ack_queue.empty())
         {
             Mac_sender.sendOnePacket(ack_queue[0].get()->getFrame_size() + FRAME_OFFSET, ack_queue[0].get()->toBitStream());
-            cout << "ACK " << ack_queue[0].get()->getAck_id() << " sent.\n";
+            cout << "ACK " << (int)ack_queue[0].get()->getAck_id() << " sent.\n";
             ack_queue.erase(ack_queue.begin());
+            this_thread::sleep_for(100ms);
         }
     }
 }

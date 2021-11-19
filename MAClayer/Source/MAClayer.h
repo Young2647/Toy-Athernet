@@ -105,6 +105,9 @@ private:
 
     int8_t dst_addr;
     int8_t src_addr;
+
+    bool csma_on = true;//if we have csma
+    std::chrono::milliseconds back_off_time = 10ms;
 };
 
 
