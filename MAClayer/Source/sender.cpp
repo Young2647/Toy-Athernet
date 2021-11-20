@@ -109,12 +109,12 @@ void Sender::sendOnePacket(int frame_len, Array<int8_t> cur_frame_data) {
         output_buffer.setSample(0, output_buffer_idx, header_wave[j]);
     for (int j = 0; j < frame_len; j++, output_buffer_idx+= num_samples_per_bit) {
         if (cur_frame_data[j] == 0) {
-            output_buffer.setSample(0, output_buffer_idx, -1);
-            output_buffer.setSample(0, output_buffer_idx + 1, 1);
+            output_buffer.setSample(0, output_buffer_idx, -5);
+            output_buffer.setSample(0, output_buffer_idx + 1, 5);
         }
         else if (cur_frame_data[j] == 1) {
-            output_buffer.setSample(0, output_buffer_idx, 1);
-            output_buffer.setSample(0, output_buffer_idx + 1, -1);
+            output_buffer.setSample(0, output_buffer_idx, 5);
+            output_buffer.setSample(0, output_buffer_idx + 1, -5);
         }
     }
     for (int j = 0; j < len_zeros; j++, output_buffer_idx++)

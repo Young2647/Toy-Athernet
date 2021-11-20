@@ -215,15 +215,15 @@ Receiver::Demodulate(float sample)
             for (int j = 0; j < packLen; j++)
             {
                 float sum = 0;
-                for (int k = 0; k < bitLen; k++)
+                for (int k = 0; k < bitLen; k+=2)
                 {
-                    sum += processingData[j * bitLen + k] * (k-0.5)*2;
+                    int_data.add((processingData[j * bitLen + k] < processingData[j * bitLen + k]) ? 0 : 1);
                     //sum +=  carrierWave[j];
                 }
-                if (sum > 0)
-                    int_data.add(0);
-                else if (sum < 0)
-                    int_data.add(1);
+                //if (sum > 0)
+                //    int_data.add(0);
+                //else if (sum < 0)
+                //    int_data.add(1);
                 if (j + 1 == FRAME_OFFSET + 8)
                 {
                     frame_data = Int2Byte(int_data);
