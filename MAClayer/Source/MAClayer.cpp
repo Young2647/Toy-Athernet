@@ -35,6 +35,8 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     ack_array.resize(Mac_num_frame);
     ack_array.fill(false);
 
+    for (int i = 0; i < num_frame*2; i++)
+        frame_to_receive_list.push_back(1);
 
     //init file output
     //file_output.resize(Mac_num_frame);
@@ -80,7 +82,7 @@ MAClayer::receive()
         {
             cerr << "All frames received.\n";
             receive_end = true;
-            callStop();
+            callStop(0);
         }
         Array<int8_t> data = Mac_receiver.getData();
         if (data.isEmpty())
@@ -136,7 +138,7 @@ MAClayer::receive()
             {
                 send_end = true;
                 cout << "All data sent.\n";
-                callStop();
+                callStop(0);
             }
             else
             {
@@ -240,9 +242,7 @@ MAClayer::send() {
                 if (frame_array[id].get()->ResendToomuch())
                 {
                     cerr << "Resend too many times. Link error.\n";
-                    receive_end = true;
-                    send_end = true;
-                    callStop();//link error, mac layer stops
+                    callStop(1);//link error, mac layer stops
                 }
                 else
                 {
@@ -618,9 +618,9 @@ MAClayer::wait(int8_t data_frame_id) {
 }
 
 void
-MAClayer::callStop()
+MAClayer::callStop(bool identifier)
 {
-    if (receive_end && send_end) {
+    if ((receive_end && send_end) || identifier == true) {
         if (!all_stop)
         {
             all_stop = true;

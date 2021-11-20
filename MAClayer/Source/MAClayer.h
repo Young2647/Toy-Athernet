@@ -52,7 +52,7 @@ public:
     bool getIfPerfing() { return macperf_on; }
 
     bool getStop() { return all_stop; }
-    void callStop();
+    void callStop(bool identifier);
 
     int getSentframeNum() { return frame_sent_num; }
 private:

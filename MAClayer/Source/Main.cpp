@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
             int curr_sent_num = mac_layer.get()->getSentframeNum();
             cout << "kbps = " << (float)(curr_sent_num - init_sent_num) * num_bits_per_frame / (float)1000 << "kb/s.\n";
         }
-        if (kbhit()) mac_layer.get()->callStop();
+        if (kbhit()) mac_layer.get()->callStop(1);
     }
     mac_layer.get()->StopMAClayer();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_time).count();
