@@ -97,6 +97,7 @@ MAClayer::receive()
             cerr << "address not match.\n";
             continue;
         }
+        cout << Mac_receiver.getMaxPower() << endl;
         if (receive_frame.getType() == TYPE_DATA)
         {
             int8_t receive_id = receive_frame.getFrame_id();
@@ -146,7 +147,7 @@ MAClayer::send() {
     int id = 0;
 
     readFromFile(Mac_num_frame);
-    requestSend(data_frames[0]);
+    //requestSend(data_frames[0]);
     while (!Mac_stop)
     {
         for (auto i : send_id_array)

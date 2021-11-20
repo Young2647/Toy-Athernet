@@ -162,6 +162,7 @@ Receiver::Demodulate(float sample)
     /*of << sample << "\n";*/
     //std::cout << sample << "\n";
     power_ = power_ * (1 - 1.0 / 64.0) + sample * sample / 64.0;
+    max_power = (max_power >= power_) ? max_power : power_;
     if (state == SYNC)// sync process
     {
         if (processingHeader.size() < headerLength)
