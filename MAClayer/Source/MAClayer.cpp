@@ -178,7 +178,7 @@ MAClayer::send() {
         requestSend(0, TYPE_MACPING_REQUEST);
     } 
     readFromFile(Mac_num_frame);
-    requestSend(data_frames[0]);
+    //requestSend(data_frames[0]);
     while (!Mac_stop)
     {
         for (int i = 0; i < min(send_id_array.size(), window_size); i++)
@@ -190,7 +190,7 @@ MAClayer::send() {
                 auto tmp = frame_array[id].get()->getFrame_size();
                 if (csma_on)
                 {
-                    this_thread::sleep_for(50ms);
+                    this_thread::sleep_for(200ms);
                     while (Mac_receiver.getChannelPower() > 0.3f)// the channel is blocked
                     {
                         this_thread::sleep_for(back_off_time);
