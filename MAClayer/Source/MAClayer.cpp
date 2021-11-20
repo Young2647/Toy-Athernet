@@ -97,11 +97,13 @@ MAClayer::receive()
             cerr << "address not match.\n";
             continue;
         }
-        cout << Mac_receiver.getMaxPower() << endl;
+        //cout << Mac_receiver.getMaxPower() << endl;
         if (receive_frame.getType() == TYPE_DATA)
         {
             int8_t receive_id = receive_frame.getFrame_id();
             cout << "Frame " << (int)receive_id << "received.";
+            vector<int8_t> test;
+            for (auto i : receive_frame.getData()) test.push_back(i);
             if (receive_frame.isBadCRC() && !macperf_on)
                 cout << " however CRC is wrong.\n";
             else {
@@ -161,10 +163,10 @@ void
 MAClayer::send() {
     //init parameters
     int id = 0;
+    readFromFile(Mac_num_frame);
     if (macperf_on)
         requestSend();
     else {
-        readFromFile(Mac_num_frame);
         requestSend(0, TYPE_MACPING_REQUEST);
     }
     //requestSend(data_frames[0]);
@@ -173,13 +175,14 @@ MAClayer::send() {
         for (auto i : send_id_array)
         {
             id = i;
+            if (id > 255 || id < 0) continue;
             if (frame_array[id].get()->getStatus() == Status_Waiting)
             {
                 auto tmp = frame_array[id].get()->getFrame_size();
                 if (csma_on)
                 {
-                    this_thread::sleep_for(500ms);
-                    while (Mac_receiver.getChannelPower() > 0.3f)// the channel is blocked
+                    this_thread::sleep_for(200ms);
+                    while (Mac_receiver.getChannelPower() * 3 > 0.03f)// the channel is blocked
                     {
                         this_thread::sleep_for(back_off_time);
                     }

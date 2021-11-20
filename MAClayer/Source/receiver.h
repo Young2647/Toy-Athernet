@@ -70,6 +70,7 @@ private:
     int data_state;
     std::ofstream fout;
     std::ofstream of;
+    std::ofstream powerf;
     bool _ifheadercheck = false;
     Array<float> tempBuffer;
     Array<int> int_data;

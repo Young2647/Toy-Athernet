@@ -117,6 +117,7 @@ Receiver::startRecording()
     isRecording = true;
     /*fout = std::ofstream("input.out");*/
     of = std::ofstream("sample.out");
+    powerf = std::ofstream("power.out");
     startTimer(50);
 }
 
@@ -162,6 +163,7 @@ Receiver::Demodulate(float sample)
     /*of << sample << "\n";*/
     //std::cout << sample << "\n";
     power_ = power_ * (1 - 1.0 / 64.0) + sample * sample / 64.0;
+    powerf << power_ << "\n";
     max_power = (max_power >= power_) ? max_power : power_;
     if (state == SYNC)// sync process
     {
