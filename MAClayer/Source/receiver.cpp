@@ -223,6 +223,7 @@ Receiver::Demodulate(float sample)
                             }
                         }                    
                     }
+                    int_data.clear();
                 }
             }
             return NO_HEADER;
