@@ -140,7 +140,7 @@ Receiver::Int2Byte(Array<int>& int_data)
         vec.push_back(i);
     if (int_data.size() / 8 * 8 != int_data.size())
     {
-        std::cout << "data length wrong!\n";
+        //std::cout << "data length wrong!\n";
     }
     Array<int8_t> byte_data;
 
@@ -198,7 +198,7 @@ Receiver::Demodulate(float sample)
                 //recordeddebug << s[i] << "\n";
                 if (tempBuffer.size() >= 200)
                 {
-                    std::cout << "header found.\n";
+                    //std::cout << "header found.\n";
                     syncPower_localMax = 0;
                     state = DATA_PROCESS;
                     processingData = tempBuffer;
