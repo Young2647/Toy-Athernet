@@ -169,7 +169,8 @@ MAClayer::send() {
     else {
         requestSend(0, TYPE_MACPING_REQUEST);
     }
-    //requestSend(data_frames[0]);
+    /*readFromFile(Mac_num_frame);
+    requestSend(data_frames[0]);*/
     while (!Mac_stop)
     {
         for (auto i : send_id_array)
@@ -431,12 +432,14 @@ MAClayer::readFromFile(int num_frame) {
     data_frames.resize(num_frame);
     ifstream f(getPath("test.in"), ios::in | ios::binary);
     //ofstream f1("test.out");
+    vector<int8_t> vec;
     char tmp;
     for (int i = 0; i < num_frame; i++) {
         for (int j = 0; j < (num_bits_per_frame - FRAME_OFFSET - CRC_LEN)/8; j++) {
             f.get(tmp);
             data_frames[i].push_back(tmp);
-            
+            if (i == 0)
+                vec.push_back(tmp);
         }
 
     }
