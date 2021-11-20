@@ -102,13 +102,14 @@ MAClayer::receive()
         {
             int8_t receive_id = receive_frame.getFrame_id();
             cout << "Frame " << (int)receive_id << "received.";
-            if (receive_frame.isBadCRC())
+            if (receive_frame.isBadCRC() && !macperf_on)
                 cout << " however CRC is wrong.\n";
             else {
-                cout << " CRC check pass!\n";
+                if (!macperf_on)
+                    cout << " CRC check pass!\n";
                 file_output[(int)receive_id] = (receive_frame.getData());
                 requestSend(receive_id);
-                if (frame_to_receive_list[receive_id]) {
+                if (frame_to_receive_list[receive_id] && !macperf_on) {
                     frame_to_receive_list[receive_id] = 0;
                     frame_receive_num++;
                 }
@@ -117,9 +118,6 @@ MAClayer::receive()
         else if (receive_frame.getType() == TYPE_ACK)
         {
             int ack_id = (int)receive_frame.getData()[0];
-            if (macperf_on) {
-
-            }
             if (frame_array[ack_id].get())
                 frame_array[ack_id].get()->setStatus(Status_Acked);// let the frame in frame array to be marked as acked.
             //cv.notify_one();
@@ -133,8 +131,23 @@ MAClayer::receive()
             {
                 ack_array.set(ack_id, true);
                 frame_sent_num++;
-                requestSend(data_frames[ack_id + 1]);
+                if (macperf_on)
+                    requestSend();
+                else
+                    requestSend(data_frames[ack_id + 1]);
             }
+        }
+        else if (receive_frame.getType() == TYPE_MACPING_REQUEST)
+        {
+            cout << "MAC request " << (int)receive_frame.getFrame_id() << " received.\n";
+            requestSend((int)receive_frame.getFrame_id(), TYPE_MACPING_REPLY);
+        }
+        else if (receive_frame.getType() == TYPE_MACPING_REPLY)
+        {
+            int reply_id = (int)receive_frame.getData()[0];
+            cout << "MAC " << reply_id << "get replied. ";
+            cout << "RTT is " << frame_array[reply_id].get()->getTimeDuration() << "ms.\n";
+            requestSend(reply_id, TYPE_MACPING_REQUEST);
         }
         else 
         {
@@ -148,9 +161,13 @@ void
 MAClayer::send() {
     //init parameters
     int id = 0;
-
-    readFromFile(Mac_num_frame);
-    requestSend(data_frames[0]);
+    if (macperf_on)
+        requestSend();
+    else {
+        readFromFile(Mac_num_frame);
+        requestSend(0, TYPE_MACPING_REQUEST);
+    }
+    //requestSend(data_frames[0]);
     while (!Mac_stop)
     {
         for (auto i : send_id_array)
@@ -180,7 +197,16 @@ MAClayer::send() {
                 else // ACK is defualt set as acked
                 {
                     frame_array[id].get()->setStatus(Status_Acked);
-                    cout << "ack " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
+                    if (frame_array[id].get()->getType() == TYPE_MACPING_REQUEST)
+                    {
+                        cout << "macping request " << id << " sent.\n";
+                    }
+                    else if (frame_array[id].get()->getType() == TYPE_MACPING_REPLY)
+                    {
+                        cout << "macping request " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
+                    }
+                    else if (frame_array[id].get()->getType() == TYPE_ACK)
+                        cout << "ack " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
                 }
             }
             else if (frame_array[id].get()->getStatus() == Status_Sent && frame_array[id].get()->getTimeDuration() >= MAX_WAITING_TIME)
@@ -460,6 +486,36 @@ MAClayer::requestSend(std::vector<int8_t> frame_data) {
     data_frame->setFrameId(id);
     send_id_array.insert(-1, id);
     frame_array[id] = std::move(data_frame);
+    return id;
+}
+
+// requestSend for macping packet
+int 
+MAClayer::requestSend(int8_t request_id, int8_t type)
+{
+    const ScopedLock sl(lock);
+    int id = id_controller_array.getFirst();
+    id_controller_array.remove(0);
+    unique_ptr<MACframe> macping_frame;
+    macping_frame.reset(new MACframe(type, request_id, dst_addr, src_addr));
+    macping_frame->setFrameId(id);
+    send_id_array.insert(-1, id);
+    //temp_ack_array.insert(-1, id);
+    //ack_queue.push_back(std::move(ack_frame));
+    frame_array[id] = std::move(macping_frame);
+    return id;
+}
+
+int 
+MAClayer::requestSend() {
+    const ScopedLock sl(lock);
+    int id = id_controller_array.getFirst();
+    id_controller_array.remove(0);
+    unique_ptr<MACframe> macperf_frame;
+    macperf_frame.reset(new MACframe(dst_addr, src_addr, 1024));
+    macperf_frame->setFrameId(id);
+    send_id_array.insert(-1, id);
+    frame_array[id] = std::move(macperf_frame);
     return id;
 }
 

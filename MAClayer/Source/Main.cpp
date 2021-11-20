@@ -33,11 +33,12 @@ int main(int argc, char* argv[])
     dev_info.sampleRate = 48000; // Setup sample rate to 48000 Hz
     dev_manager.setAudioDeviceSetup(dev_info, false);
 
+    int num_bits_per_frame = 840;
 
     std::unique_ptr<MAClayer> mac_layer;
     if (mac_layer.get() == nullptr)
     {
-        mac_layer.reset(new MAClayer(3, 840, 63, ZYB, YHD));
+        mac_layer.reset(new MAClayer(3, num_bits_per_frame, 63, ZYB, YHD));
     }
 
     std::cout << "Press any ENTER to start MAClayer.\n";
@@ -48,6 +49,10 @@ int main(int argc, char* argv[])
     std::cout << "Press any ENTER to stop MAClayer.\n";
     while (!mac_layer.get()->getStop())
     {
+        int init_sent_num = mac_layer.get()->getSentframeNum();
+        this_thread::sleep_for(1000ms);
+        int curr_sent_num = mac_layer.get()->getSentframeNum();
+        cout << "kbps = " << (curr_sent_num - init_sent_num) * num_bits_per_frame / 1000 << "kb/s.\n";
         if (kbhit()) mac_layer.get()->callStop();
     }
     mac_layer.get()->StopMAClayer();

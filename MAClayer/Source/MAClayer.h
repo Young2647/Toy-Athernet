@@ -43,12 +43,15 @@ public:
 
     int requestSend(int8_t ack_id);
     int requestSend(std::vector<int8_t> frame_data);
-
+    int requestSend(int8_t request_id, int8_t type);
+    int requestSend();
     void startTimer(int8_t frame_data_id);
     void wait(int8_t data_frame_id);
 
     bool getStop() { return all_stop; }
     void callStop();
+
+    int getSentframeNum() { return frame_sent_num; }
 private:
     Receiver Mac_receiver;
     Sender Mac_sender;
