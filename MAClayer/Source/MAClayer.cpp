@@ -151,7 +151,8 @@ MAClayer::receive()
         {
             int reply_id = (int)receive_frame.getData()[0];
             cout << "MAC " << reply_id << "get replied. ";
-            cout << "RTT is " << (receive_frame.getReceiveTime() - frame_array[reply_id].get()->getSendTime()).count() << "ms.\n";
+            std::chrono::duration<double, std::milli> diff = receive_frame.getReceiveTime() - frame_array[reply_id].get()->getSendTime();
+            cout << "RTT is " << diff.count() << "ms.\n";
             requestSend(reply_id, TYPE_MACPING_REQUEST);
         }
         else 
