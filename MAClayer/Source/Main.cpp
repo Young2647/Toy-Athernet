@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
     dev_info.sampleRate = 48000; // Setup sample rate to 48000 Hz
     dev_manager.setAudioDeviceSetup(dev_info, false);
 
-    int num_bits_per_frame = 440;
+    int num_bits_per_frame = 1040;
 
     std::unique_ptr<MAClayer> mac_layer;
     if (mac_layer.get() == nullptr)

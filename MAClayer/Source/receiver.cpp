@@ -228,7 +228,7 @@ Receiver::Demodulate(float sample)
                 if (j + 1 == FRAME_OFFSET + 8)
                 {
                     frame_data = Int2Byte(int_data);
-                    if (frame_data[0] == TYPE_ACK) break;
+                    if (frame_data[0] == TYPE_ACK||frame_data[0] == TYPE_MACPING_REPLY) break;
                 }
             }
             processingData.clear();

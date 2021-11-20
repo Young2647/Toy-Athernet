@@ -35,8 +35,6 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     ack_array.resize(Mac_num_frame);
     ack_array.fill(false);
 
-    for (int i = 0; i < num_frame; i++)
-        frame_to_receive_list.push_back(1);
 
     //init file output
     file_output.resize(Mac_num_frame);
@@ -117,10 +115,6 @@ MAClayer::receive()
                 if (!macperf_on)
                     file_output[(int)receive_id] = (receive_frame.getData());
                 requestSend(receive_id);
-                if (frame_to_receive_list[receive_id] && !macperf_on) {
-                    frame_to_receive_list[receive_id] = 0;
-                    frame_receive_num++;
-                }
             }
         }
         else if (receive_frame.getType() == TYPE_ACK)
@@ -177,7 +171,7 @@ MAClayer::send() {
         requestSend();
     }
     else {
-        requestSend(0, TYPE_MACPING_REQUEST);
+        //requestSend(0, TYPE_MACPING_REQUEST);
     }
     /*readFromFile(Mac_num_frame);
     requestSend(data_frames[0]);*/
@@ -192,7 +186,7 @@ MAClayer::send() {
                 auto tmp = frame_array[id].get()->getFrame_size();
                 if (csma_on)
                 {
-                    this_thread::sleep_for(300ms);
+                    this_thread::sleep_for(100ms);
                     while (Mac_receiver.getChannelPower() > 0.3f)// the channel is blocked
                     {
                         this_thread::sleep_for(back_off_time);
@@ -218,7 +212,7 @@ MAClayer::send() {
                     }
                     else if (frame_array[id].get()->getType() == TYPE_MACPING_REPLY)
                     {
-                        cout << "macping request " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
+                        cout << "macping reply " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
                     }
                     else if (frame_array[id].get()->getType() == TYPE_ACK)
                         cout << "ack " << (int)frame_array[id].get()->getAck_id() << " sent.\n";

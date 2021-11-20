@@ -79,7 +79,6 @@ private:
 
     //the num of frames that have been successfully sent.
     int frame_sent_num = 0;
-    vector<int> frame_to_receive_list;
     int frame_receive_num = 0;
     
     int Mac_num_frame; //total frame num
@@ -114,7 +113,7 @@ private:
     bool csma_on = true;//if we have csma
     std::chrono::milliseconds back_off_time = 10ms;
 
-    bool macperf_on = true;
+    bool macperf_on = false;
     bool debug_on = false;
     int throughput;
     int acked_list;

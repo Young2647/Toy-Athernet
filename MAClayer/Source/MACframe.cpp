@@ -28,7 +28,7 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
         if (frame_crc != crc.getCRC())
             bad_crc = 1;
     }
-    else if (type == TYPE_ACK) {
+    else if (type == TYPE_ACK || type == TYPE_MACPING_REPLY) {
         for (int i = 4; i < all_data.size(); i++) 
             data.add(all_data[i]);
     }
