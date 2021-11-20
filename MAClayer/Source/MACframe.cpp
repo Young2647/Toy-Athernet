@@ -61,6 +61,18 @@ MACframe::MACframe(int8_t dst_address, int8_t src_address, std::vector<int8_t> f
     resend_times = 0;
 }
 
+//construct a MACPING frame
+MACframe::MACframe(int8_t type, int8_t reply_id, int8_t dst_address, int8_t src_address)
+{
+    this->dst_address = dst_address;
+    this->src_address = src_address;
+    this->type = (int8_t)type;
+    this->ack_id = (int8_t)reply_id;
+    for (int i = 0; i < 8; i++)
+        data.insert(0, (int8_t)((reply_id >> i) & 1));
+    frame_status = Status_Waiting;
+    resend_times = 0;
+}
 
 void 
 MACframe::setSendTime() { 

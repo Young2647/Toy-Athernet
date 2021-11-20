@@ -15,7 +15,7 @@ public:
 
     MACframe(int8_t dst_address, int8_t src_address, int8_t ack_id); // constructor of ack frame
     MACframe(int8_t dst_address, int8_t src_address, std::vector<int8_t> frame_data); // constructor of data frame
-    
+    MACframe(int8_t type, int8_t reply_id, int8_t dst_address, int8_t src_address); //constructor of MACPING frame
     int8_t getType() { return type; }
     int8_t getFrame_id() { return frame_id; }
     int8_t getAck_id() { return ack_id; }

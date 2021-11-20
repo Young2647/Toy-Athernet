@@ -5,6 +5,8 @@
 
 #define TYPE_ACK 0
 #define TYPE_DATA 1
+#define TYPE_MACPING_REQUEST 2
+#define TYPE_MACPING_REPLY 3
 
 #define NO_HEADER -1
 #define SYNC 0
