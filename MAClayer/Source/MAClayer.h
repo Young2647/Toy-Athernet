@@ -26,6 +26,8 @@ public:
 
     void sendAck();//sending ack
 
+    void mac_ping(); // send macping request
+
     void checkIdarray();
 
     void StartMAClayer();
@@ -58,7 +60,8 @@ private:
     
     thread receive_thread;
     thread sending_thread;
-    thread ack_sending_thread;
+    //thread ack_sending_thread;
+    thread macping_thread;
 
     int max_rescend;
     std::chrono::milliseconds trans_timeout;
@@ -96,6 +99,7 @@ private:
     std::vector<Array<int8_t>> file_output;
     Array<int> send_id_array;
     Array<int> id_controller_array;
+    Array<int> mac_ping_array; // array that record the buffer for mac ping
     std::vector<thread> timers;
     STATE state;
     CriticalSection lock;
@@ -114,7 +118,8 @@ private:
     std::chrono::milliseconds back_off_time = 10ms;
 
     bool macperf_on = false;
-    bool debug_on = false;
+    bool macping_on = true;
+    bool debug_on = true;
     int throughput;
     int acked_list;
     int window_size;

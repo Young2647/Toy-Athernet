@@ -45,6 +45,7 @@ MAClayer::~MAClayer()
 {
     if (receive_thread.joinable()) receive_thread.join();
     if (sending_thread.joinable()) sending_thread.join();
+    if (macping_thread.joinable()) macping_thread.join();
     //if (ack_sending_thread.joinable()) ack_sending_thread.join();
     //if (!timers.empty())
     //{
@@ -152,8 +153,9 @@ MAClayer::receive()
             int reply_id = (int)receive_frame.getData()[0];
             cout << "MAC " << reply_id << "get replied. ";
             std::chrono::duration<double, std::milli> diff = receive_frame.getReceiveTime() - frame_array[reply_id].get()->getSendTime();
-            cout << "RTT is " << diff.count() << "ms.\n";
-            requestSend(reply_id, TYPE_MACPING_REQUEST);
+            cout << "RTT is " << diff.count() - 30 << "ms.\n"; // the 30ms is the about the time waste in the program.
+            mac_ping_array.removeFirstMatchingValue(reply_id);
+            //requestSend(reply_id, TYPE_MACPING_REQUEST);
         }
         else 
         {
@@ -171,8 +173,9 @@ MAClayer::send() {
     {
         requestSend();
     }
-    else {
-        requestSend(0, TYPE_MACPING_REQUEST);
+    if (macping_on) 
+    {
+        //requestSend(0, TYPE_MACPING_REQUEST);
     }
     /*readFromFile(Mac_num_frame);
     requestSend(data_frames[0]);*/
@@ -211,7 +214,7 @@ MAClayer::send() {
                     {
                        /* while (!Mac_sender.isFinished()) {}
                         frame_array[id].get()->setSendTime();*/
-                        frame_array[id].get()->setStatus(Status_Sent);
+                        //frame_array[id].get()->setStatus(Status_Sent);
                         cout << "macping request " << id << " sent.\n";
                     }
                     else if (frame_array[id].get()->getType() == TYPE_MACPING_REPLY)
@@ -369,6 +372,11 @@ MAClayer::StartMAClayer()
     cout << "sending thread start.\n";
     //ack_sending_thread = thread(&MAClayer::sendAck, this);
     //cout << "ack sending thread start.\n";
+    if (macping_on)
+    {
+        macping_thread = thread(&MAClayer::mac_ping, this);
+        cout << "macping thread start.\n";
+    }
     fout.open("OUTPUT.bin", ios::out | ios::binary);
 }
 
@@ -387,7 +395,34 @@ MAClayer::StopMAClayer()
         cout << "sending thread stop.\n";
         //if (ack_sending_thread.joinable()) ack_sending_thread.join();
         //cout << "ack sending thread stop.\n";
+        if (macping_thread.joinable()) macping_thread.join();
+        cout << "macping thread stop,\n";
         fout.close();
+    }
+}
+
+void
+MAClayer::mac_ping()
+{
+    while (!Mac_stop)
+    {
+        requestSend(0, TYPE_MACPING_REQUEST);
+
+        this_thread::sleep_for(1000ms);
+        auto temp_ping_array = mac_ping_array;
+        for (int i = 0; i < temp_ping_array.size(); i++)
+        {
+            int id = temp_ping_array[i];
+            if (frame_array[id])
+            {
+                std::chrono::duration<double, std::milli> diff = std::chrono::system_clock::now() - frame_array[id].get()->getSendTime();
+                if (diff.count() > 2000)
+                {
+                    mac_ping_array.removeFirstMatchingValue(id);
+                    cout << "time out for mac ping " << id << "\n";
+                }
+            }
+        }
     }
 }
 
@@ -517,6 +552,7 @@ MAClayer::requestSend(int8_t request_id, int8_t type)
     macping_frame.reset(new MACframe(type, request_id, dst_addr, src_addr));
     macping_frame->setFrameId(id);
     send_id_array.insert(-1, id);
+    mac_ping_array.add(id);
     //temp_ack_array.insert(-1, id);
     //ack_queue.push_back(std::move(ack_frame));
     frame_array[id] = std::move(macping_frame);
