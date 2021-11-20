@@ -22,6 +22,8 @@ public:
 
     void send(); //sending data
 
+    void macperf_send(); // sending macperf frame
+
     void sendAck();//sending ack
 
     void checkIdarray();
@@ -108,6 +110,10 @@ private:
 
     bool csma_on = true;//if we have csma
     std::chrono::milliseconds back_off_time = 10ms;
+
+    bool macperf_on = false;
+    int throughput;
+    int acked_list;
 };
 
 

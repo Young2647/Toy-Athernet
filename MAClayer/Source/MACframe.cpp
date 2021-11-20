@@ -10,6 +10,7 @@
 
 #include "MACframe.h"
 
+// constructor for receive
 MACframe::MACframe(Array<int8_t> all_data) : crc() {
     /*std::vector<int8_t> vec;
     for (int i = 0; i < all_data.size(); i++)
@@ -34,6 +35,7 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
     resend_times = 0;
 }
 
+// constructor for ack frame
 MACframe::MACframe(int8_t dst_address, int8_t src_address,int8_t ack_id) {
     type = (int8_t)TYPE_ACK;
     this->dst_address = dst_address;
@@ -45,6 +47,7 @@ MACframe::MACframe(int8_t dst_address, int8_t src_address,int8_t ack_id) {
     resend_times = 0;
 }
 
+// constructor for data frame
 MACframe::MACframe(int8_t dst_address, int8_t src_address, std::vector<int8_t> frame_data) : crc() {
     type = (int8_t)TYPE_DATA;
     this->dst_address = dst_address;
@@ -61,6 +64,13 @@ MACframe::MACframe(int8_t dst_address, int8_t src_address, std::vector<int8_t> f
     resend_times = 0;
 }
 
+// constructor for macperf frame
+MACframe::MACframe(int8_t dst_address, int8_t src_address, int frame_bit_num) {
+    type = (int8_t)TYPE_DATA;
+    this->dst_address = dst_address;
+    this->src_address = src_address;
+
+}
 
 void 
 MACframe::setSendTime() { 

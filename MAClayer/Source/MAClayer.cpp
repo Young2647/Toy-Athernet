@@ -117,6 +117,9 @@ MAClayer::receive()
         else if (receive_frame.getType() == TYPE_ACK)
         {
             int ack_id = (int)receive_frame.getData()[0];
+            if (macperf_on) {
+
+            }
             if (frame_array[ack_id].get())
                 frame_array[ack_id].get()->setStatus(Status_Acked);// let the frame in frame array to be marked as acked.
             //cv.notify_one();
@@ -147,7 +150,7 @@ MAClayer::send() {
     int id = 0;
 
     readFromFile(Mac_num_frame);
-    //requestSend(data_frames[0]);
+    requestSend(data_frames[0]);
     while (!Mac_stop)
     {
         for (auto i : send_id_array)
@@ -200,6 +203,18 @@ MAClayer::send() {
     }
 }
 
+void 
+MAClayer::macperf_send() {
+    const int perf_frame_len = 1024;
+    MACframe perf_frame(dst_addr, src_addr, perf_frame_len);
+    int8_t id = 0;
+    while (!Mac_stop) {
+        perf_frame.setFrameId(id++);
+        Mac_sender.sendOnePacket(perf_frame_len, perf_frame.toBitStream());
+        id = (id == 256) ? 0 : id;
+        this_thread::sleep_for(100ms);
+    }
+}
 //void
 //MAClayer::send()
 //{

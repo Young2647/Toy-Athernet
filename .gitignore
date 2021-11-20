@@ -14,3 +14,6 @@ obj/
 .vscode/
 %{default}/
 builds/
+MAClayer/Source/macperf.h
+MAClayer/MAClayer.jucer
+MAClayer/Source/macperf.cpp
