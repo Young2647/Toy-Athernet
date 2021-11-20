@@ -75,6 +75,8 @@ private:
     Array<float> tempBuffer;
     Array<int> int_data;
     float max_power = 0.0f;
+
+    bool is_short_packet = false;
 };
 
 #endif
