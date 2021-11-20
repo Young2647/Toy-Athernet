@@ -98,6 +98,7 @@ Receiver::audioDeviceIOCallback(const float** inputChannelData, int numInputChan
                 }
             }
             recordedSound.add(inputSamp);
+            channel_power = channel_power * 23 / 24 + inputSamp * inputSamp / 24;
             //data_state = Demodulate(inputSamp);
         }
 
@@ -182,7 +183,7 @@ Receiver::Demodulate(float sample)
                 syncPower += syncHeader[j] * processingHeader[j];
             }
             //debugf << syncPower << "\n";
-            if (syncPower > power_ && syncPower > syncPower_localMax && syncPower > 0.5)
+            if (syncPower > syncPower_localMax && syncPower > 0.5)
             {
                 syncPower_localMax = syncPower;
                 tempBuffer.clear();
@@ -209,21 +210,19 @@ Receiver::Demodulate(float sample)
         processingData.add(sample);
         if (processingData.size() == bitLen * packLen)
         {
-            std::vector<float> vec;
-            for (int k = 0; k < processingData.size(); k++)
-                vec.push_back(processingData[k]);
             for (int j = 0; j < packLen; j++)
             {
                 float sum = 0;
-                for (int k = 0; k < bitLen; k+=2)
+                for (int k = 0; k < bitLen; k++)
                 {
-                    int_data.add((processingData[j * bitLen + k] < processingData[j * bitLen + k]) ? 0 : 1);
+                    int temp = processingData[j * bitLen + k] * carrierWave[k];
+                    sum += processingData[j * bitLen + k] * carrierWave[k];
                     //sum +=  carrierWave[j];
                 }
-                //if (sum > 0)
-                //    int_data.add(0);
-                //else if (sum < 0)
-                //    int_data.add(1);
+                if (sum > 0)
+                    int_data.add(1);
+                else if (sum < 0)
+                    int_data.add(0);
                 if (j + 1 == FRAME_OFFSET + 8)
                 {
                     frame_data = Int2Byte(int_data);

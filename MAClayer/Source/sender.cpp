@@ -10,7 +10,7 @@ Sender::Sender(int nbpf, int nspb) {
     carrier_freq = 5000;
     carrier_phase = 0;
     carrier_amp = 1;
-    len_zeros = 10;
+    len_zeros = 20;
     num_frame = 100;
     output_buffer_idx = 0;
     len_frame = header_len + num_samples_per_bit * num_bits_per_frame + len_zeros;
@@ -82,17 +82,17 @@ void Sender::generateHeader() {
 }
 
 
-//void Sender::Modulation(Array<int8_t> cur_frame_data, int frame_len) {
-//    frame_wave.fill(0);
-//    for (int i = 0; i < frame_len; i++) {
-//        for (int j = 0; j < num_samples_per_bit; j++) {
-//            /*if (cur_frame_data[i] > 1) {
-//                cout << cur_frame_data[i] << endl;
-//            }*/
-//            frame_wave.set(i * num_samples_per_bit + j, ((int)cur_frame_data[i] * 2 - 1) * carrier_wave[j]);
-//        }
-//    }
-//}
+void Sender::Modulation(Array<int8_t> cur_frame_data, int frame_len) {
+    frame_wave.fill(0);
+    for (int i = 0; i < frame_len; i++) {
+        for (int j = 0; j < num_samples_per_bit; j++) {
+            /*if (cur_frame_data[i] > 1) {
+                cout << cur_frame_data[i] << endl;
+            }*/
+            frame_wave.set(i * num_samples_per_bit + j, ((int)cur_frame_data[i] * 2 - 1) * carrier_wave[j]);
+        }
+    }
+}
 
 void Sender::sendOnePacket(int frame_len, Array<int8_t> cur_frame_data) {
     /*vector<int8_t> vec;
@@ -104,19 +104,11 @@ void Sender::sendOnePacket(int frame_len, Array<int8_t> cur_frame_data) {
     //output_buffer_idx = 0;
     const ScopedLock sl(lock);
     playingSampleNum = output_buffer_idx;
-    //Modulation(cur_frame_data, frame_len);
+    Modulation(cur_frame_data, frame_len);
     for (int j = 0; j < header_len; j++, output_buffer_idx++)
         output_buffer.setSample(0, output_buffer_idx, header_wave[j]);
-    for (int j = 0; j < frame_len; j++, output_buffer_idx+= num_samples_per_bit) {
-        if (cur_frame_data[j] == 0) {
-            output_buffer.setSample(0, output_buffer_idx, -5);
-            output_buffer.setSample(0, output_buffer_idx + 1, 5);
-        }
-        else if (cur_frame_data[j] == 1) {
-            output_buffer.setSample(0, output_buffer_idx, 5);
-            output_buffer.setSample(0, output_buffer_idx + 1, -5);
-        }
-    }
+    for (int j = 0; j < frame_len * num_samples_per_bit; j++, output_buffer_idx++)
+        output_buffer.setSample(0, output_buffer_idx, frame_wave[j]);
     for (int j = 0; j < len_zeros; j++, output_buffer_idx++)
         output_buffer.setSample(0, output_buffer_idx, 0);
     //printOutput_buffer();
@@ -170,7 +162,7 @@ void Sender::audioDeviceIOCallback(const float** inputChannelData, int numInputC
                 // Write the sample into the output channel
                 //outputChannelData[j][i] = (playingSampleNum < output_buffer.getNumSamples()) ? 1.0f : 0.0f;
                 outputChannelData[j][i] = (playingSampleNum < output_buffer.getNumSamples()) ? playBuffer[playingSampleNum] : 0.0f;
-                fout << outputChannelData[j][i] << "\n";
+                //fout << outputChannelData[j][i] << "\n";
                 ++playingSampleNum;
             }
         }
