@@ -124,6 +124,8 @@ private:
     int throughput;
     int acked_list;
     int window_size;
+    bool receive_end = false;
+    bool send_end = false;
 
     std::chrono::system_clock::time_point test_time;
 };

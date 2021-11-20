@@ -37,7 +37,7 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
 
 
     //init file output
-    file_output.resize(Mac_num_frame);
+    //file_output.resize(Mac_num_frame);
     this->window_size = window_size;
 }
 
@@ -79,6 +79,7 @@ MAClayer::receive()
         if (if_receive_done && !getStop())
         {
             cerr << "All frames received.\n";
+            receive_end = true;
             callStop();
         }
         Array<int8_t> data = Mac_receiver.getData();
@@ -99,8 +100,8 @@ MAClayer::receive()
                 cerr << "address not match.\n";
             continue;
         }
-        if (debug_on)
-            cout << Mac_receiver.getMaxPower() << endl;
+        /*if (debug_on)
+            cout << Mac_receiver.getMaxPower() << endl;*/
         if (receive_frame.getType() == TYPE_DATA)
         {
             int8_t receive_id = receive_frame.getFrame_id();
@@ -114,7 +115,7 @@ MAClayer::receive()
                 if (!macperf_on && debug_on)
                     cout << " CRC check pass!\n";
                 if (!macperf_on)
-                    file_output[(int)receive_id] = (receive_frame.getData());
+                    file_output.push_back(receive_frame.getData());
                 requestSend(receive_id);
             }
         }
@@ -126,21 +127,21 @@ MAClayer::receive()
             //cv.notify_one();
             if (debug_on)
                 cout << "ACK " << ack_id << " received.\n";
-            if (ack_id + 1 >= Mac_num_frame)
+            if (frame_sent_num++ >= Mac_num_frame)
             {
+                send_end = true;
                 cout << "All data sent.\n";
                 callStop();
             }
             else
             {
                 ack_array.set(ack_id, true);
-                frame_sent_num++;
                 if (macperf_on)
                 {
                     requestSend();
                 }
                 else
-                    requestSend(data_frames[ack_id + 1]);
+                    requestSend(data_frames[frame_sent_num + 1]);
             }
         }
         else if (receive_frame.getType() == TYPE_MACPING_REQUEST)
@@ -178,7 +179,7 @@ MAClayer::send() {
         requestSend(0, TYPE_MACPING_REQUEST);
     } 
     readFromFile(Mac_num_frame);
-    //requestSend(data_frames[0]);
+    requestSend(data_frames[0]);
     while (!Mac_stop)
     {
         for (int i = 0; i < min(send_id_array.size(), window_size); i++)
@@ -190,7 +191,7 @@ MAClayer::send() {
                 auto tmp = frame_array[id].get()->getFrame_size();
                 if (csma_on)
                 {
-                    this_thread::sleep_for(200ms);
+                    this_thread::sleep_for(100ms);
                     while (Mac_receiver.getChannelPower() > 0.3f)// the channel is blocked
                     {
                         this_thread::sleep_for(back_off_time);
@@ -234,6 +235,8 @@ MAClayer::send() {
                 if (frame_array[id].get()->ResendToomuch())
                 {
                     cerr << "Resend too many times. Link error.\n";
+                    receive_end = true;
+                    send_end = true;
                     callStop();//link error, mac layer stops
                 }
                 else
@@ -383,6 +386,7 @@ MAClayer::StartMAClayer()
 void
 MAClayer::StopMAClayer()
 {
+
     if (!Mac_stop)
     {
         //Mac_sender.printOutput_buffer();
@@ -611,10 +615,12 @@ MAClayer::wait(int8_t data_frame_id) {
 void
 MAClayer::callStop()
 {
-    if (!all_stop)
-    {
-        all_stop = true;
-        if (!macperf_on)
-            Write2File();
+    if (receive_end && send_end) {
+        if (!all_stop)
+        {
+            all_stop = true;
+            if (!macperf_on)
+                Write2File();
+        }
     }
 }
