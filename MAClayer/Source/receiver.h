@@ -44,6 +44,8 @@ public:
     void hiResTimerCallback() override;
 
     float getChannelPower() { return power_; }
+
+    float getMaxPower() { return max_power; }
 private:
 
     Array<float> processingHeader;
@@ -71,6 +73,7 @@ private:
     bool _ifheadercheck = false;
     Array<float> tempBuffer;
     Array<int> int_data;
+    float max_power = 0.0f;
 };
 
 #endif
