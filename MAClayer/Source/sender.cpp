@@ -10,7 +10,7 @@ Sender::Sender(int nbpf, int nspb) {
     carrier_freq = 5000;
     carrier_phase = 0;
     carrier_amp = 1;
-    len_zeros = 20;
+    len_zeros = 10;
     num_frame = 100;
     output_buffer_idx = 0;
     len_frame = header_len + num_samples_per_bit * num_bits_per_frame + len_zeros;
@@ -107,7 +107,7 @@ void Sender::sendOnePacket(int frame_len, Array<int8_t> cur_frame_data) {
     //Modulation(cur_frame_data, frame_len);
     for (int j = 0; j < header_len; j++, output_buffer_idx++)
         output_buffer.setSample(0, output_buffer_idx, header_wave[j]);
-    for (int j = 0; j < frame_len * num_samples_per_bit; j++, output_buffer_idx+=2) {
+    for (int j = 0; j < frame_len; j++, output_buffer_idx+= num_samples_per_bit) {
         if (cur_frame_data[j] == 0) {
             output_buffer.setSample(0, output_buffer_idx, -1);
             output_buffer.setSample(0, output_buffer_idx + 1, 1);
@@ -170,7 +170,7 @@ void Sender::audioDeviceIOCallback(const float** inputChannelData, int numInputC
                 // Write the sample into the output channel
                 //outputChannelData[j][i] = (playingSampleNum < output_buffer.getNumSamples()) ? 1.0f : 0.0f;
                 outputChannelData[j][i] = (playingSampleNum < output_buffer.getNumSamples()) ? playBuffer[playingSampleNum] : 0.0f;
-                //fout << outputChannelData[j][i] << "\n";
+                fout << outputChannelData[j][i] << "\n";
                 ++playingSampleNum;
             }
         }

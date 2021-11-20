@@ -209,6 +209,9 @@ Receiver::Demodulate(float sample)
         processingData.add(sample);
         if (processingData.size() == bitLen * packLen)
         {
+            std::vector<float> vec;
+            for (int k = 0; k < processingData.size(); k++)
+                vec.push_back(processingData[k]);
             for (int j = 0; j < packLen; j++)
             {
                 float sum = 0;
