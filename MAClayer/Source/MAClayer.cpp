@@ -114,7 +114,8 @@ MAClayer::receive()
             else {
                 if (!macperf_on && debug_on)
                     cout << " CRC check pass!\n";
-                file_output[(int)receive_id] = (receive_frame.getData());
+                if (!macperf_on)
+                    file_output[(int)receive_id] = (receive_frame.getData());
                 requestSend(receive_id);
                 if (frame_to_receive_list[receive_id] && !macperf_on) {
                     frame_to_receive_list[receive_id] = 0;
@@ -529,7 +530,7 @@ MAClayer::requestSend() {
     int id = id_controller_array.getFirst();
     id_controller_array.remove(0);
     unique_ptr<MACframe> macperf_frame;
-    macperf_frame.reset(new MACframe(dst_addr, src_addr, 1024));
+    macperf_frame.reset(new MACframe(dst_addr, src_addr, num_bits_per_frame-FRAME_OFFSET));
     macperf_frame->setFrameId(id);
     send_id_array.insert(-1, id);
     frame_array[id] = std::move(macperf_frame);
@@ -578,6 +579,7 @@ MAClayer::callStop()
     if (!all_stop)
     {
         all_stop = true;
-        Write2File();
+        if (!macperf_on)
+            Write2File();
     }
 }
