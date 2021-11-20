@@ -182,7 +182,7 @@ Receiver::Demodulate(float sample)
                 syncPower += syncHeader[j] * processingHeader[j];
             }
             //debugf << syncPower << "\n";
-            if (syncPower > syncPower_localMax && syncPower > 0.5)
+            if (syncPower > power_ && syncPower > syncPower_localMax && syncPower > 0.5)
             {
                 syncPower_localMax = syncPower;
                 tempBuffer.clear();
