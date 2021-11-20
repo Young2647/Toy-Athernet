@@ -151,7 +151,7 @@ MAClayer::receive()
         {
             int reply_id = (int)receive_frame.getData()[0];
             cout << "MAC " << reply_id << "get replied. ";
-            cout << "RTT is " << frame_array[reply_id].get()->getTimeDuration() << "ms.\n";
+            cout << "RTT is " << (receive_frame.getReceiveTime() - frame_array[reply_id].get()->getSendTime()).count() << "ms.\n";
             requestSend(reply_id, TYPE_MACPING_REQUEST);
         }
         else 
@@ -186,7 +186,7 @@ MAClayer::send() {
                 auto tmp = frame_array[id].get()->getFrame_size();
                 if (csma_on)
                 {
-                    this_thread::sleep_for(100ms);
+                    this_thread::sleep_for(50ms);
                     while (Mac_receiver.getChannelPower() > 0.3f)// the channel is blocked
                     {
                         this_thread::sleep_for(back_off_time);

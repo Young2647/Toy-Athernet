@@ -12,6 +12,7 @@
 
 // constructor for receive
 MACframe::MACframe(Array<int8_t> all_data) : crc() {
+    this->receive_time = std::chrono::system_clock::now();
     /*std::vector<int8_t> vec;
     for (int i = 0; i < all_data.size(); i++)
         vec.push_back(all_data[i]);*/
@@ -91,6 +92,17 @@ MACframe::MACframe(int8_t dst_address, int8_t src_address, int frame_bit_num) {
 void 
 MACframe::setSendTime() { 
     send_time = std::chrono::system_clock::now();
+}
+void
+MACframe::setReceiveTime()
+{
+    receive_time = std::chrono::system_clock::now();
+}
+
+double
+MACframe::getRTT()
+{
+    return (receive_time - send_time).count();
 }
 
 double 

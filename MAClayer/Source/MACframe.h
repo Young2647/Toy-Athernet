@@ -26,7 +26,12 @@ public:
     Status getStatus() { return frame_status; }
     void setStatus(Status status) { frame_status = status; }
     bool isBadCRC() { return bad_crc; }
+    
     void setSendTime();
+    void setReceiveTime();
+    double getRTT();
+    std::chrono::system_clock::time_point getSendTime() { return send_time; }
+    std::chrono::system_clock::time_point getReceiveTime() { return receive_time; }
     double getTimeDuration();
     void addResendtimes() { resend_times++; }
     bool ResendToomuch() { return !(resend_times < MAX_RESEND_TIME); }
@@ -43,6 +48,7 @@ private:
     int8_t ack_id;
     Array<int8_t> data;
     std::chrono::system_clock::time_point send_time;
+    std::chrono::system_clock::time_point receive_time;
     Status frame_status;
     int resend_times;
     CRC8 crc;
