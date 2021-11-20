@@ -94,7 +94,7 @@ Receiver::audioDeviceIOCallback(const float** inputChannelData, int numInputChan
                 if (inputChannelData[j] != nullptr)
                 {
                     inputSamp += inputChannelData[j][i];
-                    of << inputChannelData[j][i] << "\n";
+                    //of << inputChannelData[j][i] << "\n";
                 }
             }
             recordedSound.add(inputSamp);
@@ -117,9 +117,9 @@ Receiver::startRecording()
     recordedSampleNum = 0;
     isRecording = true;
     /*fout = std::ofstream("input.out");*/
-    of = std::ofstream("sample.out");
-    powerf = std::ofstream("power.out");
-    startTimer(50);
+    /*of = std::ofstream("sample.out");
+    powerf = std::ofstream("power.out");*/
+    startTimer(10);
 }
 
 void 
