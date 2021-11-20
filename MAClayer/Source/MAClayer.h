@@ -12,7 +12,7 @@
 class MAClayer : public AudioIODeviceCallback
 {
 public:
-    MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame, int8_t src_addr, int8_t dst_addr);
+    MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame, int8_t src_addr, int8_t dst_addr, int window_size = DEAFULT_WINDOW_SIZE);
     
     ~MAClayer();
     
@@ -117,6 +117,7 @@ private:
     bool macperf_on = true;
     int throughput;
     int acked_list;
+    int window_size;
 };
 
 

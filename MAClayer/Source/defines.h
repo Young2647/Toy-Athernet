@@ -26,7 +26,7 @@
 #define CRC_LEN 8
 
 #define MAX_BYTE_NUM 6250
-
+#define DEAFULT_WINDOW_SIZE 63
 // address
 #define YHD 0x01
 #define ZYB 0x10

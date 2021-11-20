@@ -9,7 +9,7 @@
 */
 
 #include "MAClayer.h"
-MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame, int8_t src_addr, int8_t dst_addr) : Mac_receiver(num_samples_per_bit, num_bits_per_frame), Mac_sender(num_bits_per_frame, num_samples_per_bit), crc() {
+MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame, int8_t src_addr, int8_t dst_addr, int window_size) : Mac_receiver(num_samples_per_bit, num_bits_per_frame), Mac_sender(num_bits_per_frame, num_samples_per_bit), crc() {
     this->Mac_num_frame = num_frame;
     this->num_bits_per_frame = num_bits_per_frame;
     this->num_samples_per_bit = num_samples_per_bit;
@@ -40,6 +40,7 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
 
     //init file output
     file_output.resize(Mac_num_frame);
+    this->window_size = window_size;
 }
 
 MAClayer::~MAClayer()
@@ -134,7 +135,9 @@ MAClayer::receive()
                 ack_array.set(ack_id, true);
                 frame_sent_num++;
                 if (macperf_on)
-                    requestSend();
+                {
+                    //requestSend();
+                }
                 else
                     requestSend(data_frames[ack_id + 1]);
             }
@@ -165,7 +168,8 @@ MAClayer::send() {
     int id = 0;
     readFromFile(Mac_num_frame);
     if (macperf_on)
-        requestSend();
+        for (int i = 0; i < 30; i++)
+            requestSend();
     else {
         requestSend(0, TYPE_MACPING_REQUEST);
     }
@@ -173,9 +177,9 @@ MAClayer::send() {
     requestSend(data_frames[0]);*/
     while (!Mac_stop)
     {
-        for (auto i : send_id_array)
+        for (int i = 0; i < min(send_id_array.size(), window_size); i++)
         {
-            id = i;
+            id = send_id_array[i];
             if (id > 255 || id < 0) continue;
             if (frame_array[id].get()->getStatus() == Status_Waiting)
             {
