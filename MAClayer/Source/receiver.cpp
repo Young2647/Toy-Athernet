@@ -239,6 +239,7 @@ Receiver::Demodulate(float sample)
             _ifheadercheck = false;
             int_data.clear();
             tempBuffer.clear();
+            is_short_packet = false;
             return DATA_RECEIVED;
         }
 
