@@ -211,6 +211,7 @@ MAClayer::send() {
                     {
                        /* while (!Mac_sender.isFinished()) {}
                         frame_array[id].get()->setSendTime();*/
+                        frame_array[id].get()->setStatus(Status_Sent);
                         cout << "macping request " << id << " sent.\n";
                     }
                     else if (frame_array[id].get()->getType() == TYPE_MACPING_REPLY)
