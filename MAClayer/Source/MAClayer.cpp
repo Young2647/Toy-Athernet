@@ -164,21 +164,22 @@ MAClayer::send() {
     if (macperf_on)
         requestSend();
     else {
-        readFromFile(Mac_num_frame);
         requestSend(0, TYPE_MACPING_REQUEST);
     }
-    //requestSend(data_frames[0]);
+    /*readFromFile(Mac_num_frame);
+    requestSend(data_frames[0]);*/
     while (!Mac_stop)
     {
         for (auto i : send_id_array)
         {
             id = i;
+            if (id > 255 || id < 0) continue;
             if (frame_array[id].get()->getStatus() == Status_Waiting)
             {
                 auto tmp = frame_array[id].get()->getFrame_size();
                 if (csma_on)
                 {
-                    this_thread::sleep_for(500ms);
+                    this_thread::sleep_for(300ms);
                     while (Mac_receiver.getChannelPower() > 0.3f)// the channel is blocked
                     {
                         this_thread::sleep_for(back_off_time);
@@ -428,12 +429,14 @@ MAClayer::readFromFile(int num_frame) {
     data_frames.resize(num_frame);
     ifstream f(getPath("test.in"), ios::in | ios::binary);
     //ofstream f1("test.out");
+    vector<int8_t> vec;
     char tmp;
     for (int i = 0; i < num_frame; i++) {
         for (int j = 0; j < (num_bits_per_frame - FRAME_OFFSET - CRC_LEN)/8; j++) {
             f.get(tmp);
             data_frames[i].push_back(tmp);
-            
+            if (i == 0)
+                vec.push_back(tmp);
         }
 
     }

@@ -114,7 +114,7 @@ private:
     bool csma_on = true;//if we have csma
     std::chrono::milliseconds back_off_time = 10ms;
 
-    bool macperf_on = false;
+    bool macperf_on = true;
     int throughput;
     int acked_list;
 };
