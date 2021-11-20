@@ -141,7 +141,7 @@ MAClayer::receive()
                 frame_sent_num++;
                 if (macperf_on)
                 {
-                    //requestSend();
+                    requestSend();
                 }
                 else
                     requestSend(data_frames[ack_id + 1]);
@@ -172,8 +172,9 @@ MAClayer::send() {
     //init parameters
     int id = 0;
     if (macperf_on)
-        for (int i = 0; i < 30; i++)
-            requestSend();
+    {
+        requestSend();
+    }
     else {
         requestSend(0, TYPE_MACPING_REQUEST);
     }

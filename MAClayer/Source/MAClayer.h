@@ -115,7 +115,7 @@ private:
     std::chrono::milliseconds back_off_time = 10ms;
 
     bool macperf_on = true;
-    bool debug_on = true;
+    bool debug_on = false;
     int throughput;
     int acked_list;
     int window_size;
