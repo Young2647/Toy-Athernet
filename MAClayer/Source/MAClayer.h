@@ -84,6 +84,7 @@ private:
     //the num of frames that have been successfully sent.
     int frame_sent_num = 0;
     int frame_receive_num = 0;
+    vector<int> frame_to_receive_list;
     
     int Mac_num_frame; //total frame num
     int num_bits_per_frame; // every frame bits num

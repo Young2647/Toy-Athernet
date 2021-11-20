@@ -116,6 +116,10 @@ MAClayer::receive()
                     cout << " CRC check pass!\n";
                 if (!macperf_on)
                     file_output.push_back(receive_frame.getData());
+                    if (frame_to_receive_list[receive_id]) {
+                        frame_to_receive_list[receive_id] = 0;
+                        frame_receive_num++;
+                    }
                 requestSend(receive_id);
             }
         }
@@ -127,7 +131,8 @@ MAClayer::receive()
             //cv.notify_one();
             if (debug_on)
                 cout << "ACK " << ack_id << " received.\n";
-            if (frame_sent_num++ >= Mac_num_frame)
+            frame_sent_num++;
+            if (frame_sent_num+1 >= Mac_num_frame)
             {
                 send_end = true;
                 cout << "All data sent.\n";
