@@ -110,7 +110,7 @@ private:
     int8_t dst_addr;
     int8_t src_addr;
 
-    bool csma_on = true;//if we have csma
+    bool csma_on = false;//if we have csma
     std::chrono::milliseconds back_off_time = 10ms;
 
     bool macperf_on = false;
@@ -118,6 +118,8 @@ private:
     int throughput;
     int acked_list;
     int window_size;
+
+    std::chrono::system_clock::time_point test_time;
 };
 
 

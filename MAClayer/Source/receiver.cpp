@@ -94,7 +94,7 @@ Receiver::audioDeviceIOCallback(const float** inputChannelData, int numInputChan
                 if (inputChannelData[j] != nullptr)
                 {
                     inputSamp += inputChannelData[j][i];
-                    of << inputChannelData[j][i] << "\n";
+                    //of << inputChannelData[j][i] << "\n";
                 }
             }
             recordedSound.add(inputSamp);
@@ -119,7 +119,7 @@ Receiver::startRecording()
     /*fout = std::ofstream("input.out");*/
     of = std::ofstream("sample.out");
     powerf = std::ofstream("power.out");
-    startTimer(50);
+    startTimer(10);
 }
 
 void 
@@ -164,7 +164,7 @@ Receiver::Demodulate(float sample)
     /*of << sample << "\n";*/
     //std::cout << sample << "\n";
     //powerf << power_ << "\n";
-    max_power = (max_power >= power_) ? max_power : power_;
+    //max_power = (max_power >= power_) ? max_power : power_;
     if (state == SYNC)// sync process
     {
         if (processingHeader.size() < headerLength)
@@ -196,12 +196,33 @@ Receiver::Demodulate(float sample)
                 tempBuffer.add(sample);
 
                 //recordeddebug << s[i] << "\n";
-                if (tempBuffer.size() >= 200)
+                if (tempBuffer.size() >= 150)
                 {
                     //std::cout << "header found.\n";
                     syncPower_localMax = 0;
                     state = DATA_PROCESS;
                     processingData = tempBuffer;
+                    for (int j = 0; j < FRAME_OFFSET + 8; j++)
+                    {
+                        float sum = 0;
+                        for (int k = 0; k < bitLen; k++)
+                        {
+                            sum += processingData[j * bitLen + k] * carrierWave[k];
+                            //sum +=  carrierWave[j];
+                        }
+                        if (sum > 0)
+                            int_data.add(1);
+                        else if (sum < 0)
+                            int_data.add(0);
+                        if (j + 1 == FRAME_OFFSET + 8)
+                        {
+                            frame_data = Int2Byte(int_data);
+                            if (frame_data[0] == TYPE_ACK || frame_data[0] == TYPE_MACPING_REPLY || frame_data[0] == TYPE_MACPING_REQUEST )
+                            {
+                                is_short_packet = true;
+                            }
+                        }                    
+                    }
                 }
             }
             return NO_HEADER;
@@ -209,7 +230,18 @@ Receiver::Demodulate(float sample)
     }
     else if (state == DATA_PROCESS) //data process
     {
-        processingData.add(sample);
+        if (is_short_packet)
+        {
+            processingData.clear();
+            processingHeader.clear();
+            state = SYNC;
+            _ifheadercheck = false;
+            int_data.clear();
+            tempBuffer.clear();
+            return DATA_RECEIVED;
+        }
+
+        processingData.add(sample);        
         if (processingData.size() == bitLen * packLen)
         {
             for (int j = 0; j < packLen; j++)
@@ -217,7 +249,6 @@ Receiver::Demodulate(float sample)
                 float sum = 0;
                 for (int k = 0; k < bitLen; k++)
                 {
-                    int temp = processingData[j * bitLen + k] * carrierWave[k];
                     sum += processingData[j * bitLen + k] * carrierWave[k];
                     //sum +=  carrierWave[j];
                 }
@@ -225,11 +256,6 @@ Receiver::Demodulate(float sample)
                     int_data.add(1);
                 else if (sum < 0)
                     int_data.add(0);
-                if (j + 1 == FRAME_OFFSET + 8)
-                {
-                    frame_data = Int2Byte(int_data);
-                    if (frame_data[0] == TYPE_ACK||frame_data[0] == TYPE_MACPING_REPLY) break;
-                }
             }
             processingData.clear();
             processingHeader.clear();

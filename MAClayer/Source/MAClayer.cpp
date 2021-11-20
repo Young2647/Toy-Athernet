@@ -172,7 +172,7 @@ MAClayer::send() {
         requestSend();
     }
     else {
-        //requestSend(0, TYPE_MACPING_REQUEST);
+        requestSend(0, TYPE_MACPING_REQUEST);
     }
     /*readFromFile(Mac_num_frame);
     requestSend(data_frames[0]);*/
@@ -373,7 +373,7 @@ MAClayer::StopMAClayer()
 {
     if (!Mac_stop)
     {
-        Mac_sender.printOutput_buffer();
+        //Mac_sender.printOutput_buffer();
         Mac_stop = true;
         if (receive_thread.joinable()) receive_thread.join();
         cout << "receiving thread stop.\n";
