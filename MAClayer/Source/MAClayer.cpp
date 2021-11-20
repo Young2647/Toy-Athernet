@@ -85,7 +85,8 @@ MAClayer::receive()
         Array<int8_t> data = Mac_receiver.getData();
         if (data.isEmpty())
         {
-            cout << "nothing received.\n";
+            if (debug_on)
+                cout << "nothing received.\n";
             continue;
         }
         MACframe receive_frame(data);
@@ -95,20 +96,23 @@ MAClayer::receive()
         }*/
         if (receive_frame.getSrcAddr() != this->dst_addr || receive_frame.getDstAddr() != this->src_addr)
         {
-            cerr << "address not match.\n";
+            if (debug_on)
+                cerr << "address not match.\n";
             continue;
         }
-        //cout << Mac_receiver.getMaxPower() << endl;
+        if (debug_on)
+            cout << Mac_receiver.getMaxPower() << endl;
         if (receive_frame.getType() == TYPE_DATA)
         {
             int8_t receive_id = receive_frame.getFrame_id();
-            cout << "Frame " << (int)receive_id << "received.";
-            vector<int8_t> test;
-            for (auto i : receive_frame.getData()) test.push_back(i);
-            if (receive_frame.isBadCRC() && !macperf_on)
-                cout << " however CRC is wrong.\n";
+            if (debug_on)
+                cout << "Frame " << (int)receive_id << "received.";
+            if (receive_frame.isBadCRC() && !macperf_on) {
+                if (debug_on)
+                    cout << " however CRC is wrong.\n";
+            }
             else {
-                if (!macperf_on)
+                if (!macperf_on && debug_on)
                     cout << " CRC check pass!\n";
                 file_output[(int)receive_id] = (receive_frame.getData());
                 requestSend(receive_id);
@@ -124,7 +128,8 @@ MAClayer::receive()
             if (frame_array[ack_id].get())
                 frame_array[ack_id].get()->setStatus(Status_Acked);// let the frame in frame array to be marked as acked.
             //cv.notify_one();
-            cout << "ACK " << ack_id << " received.\n";
+            if (debug_on)
+                cout << "ACK " << ack_id << " received.\n";
             if (ack_id + 1 >= Mac_num_frame)
             {
                 cout << "All data sent.\n";
@@ -166,7 +171,6 @@ void
 MAClayer::send() {
     //init parameters
     int id = 0;
-    readFromFile(Mac_num_frame);
     if (macperf_on)
         for (int i = 0; i < 30; i++)
             requestSend();
@@ -186,8 +190,8 @@ MAClayer::send() {
                 auto tmp = frame_array[id].get()->getFrame_size();
                 if (csma_on)
                 {
-                    this_thread::sleep_for(200ms);
-                    while (Mac_receiver.getChannelPower() * 3 > 0.03f)// the channel is blocked
+                    this_thread::sleep_for(300ms);
+                    while (Mac_receiver.getChannelPower() > 0.3f)// the channel is blocked
                     {
                         this_thread::sleep_for(back_off_time);
                     }
@@ -198,7 +202,8 @@ MAClayer::send() {
                 if (frame_array[id].get()->getType() == TYPE_DATA)
                 {
                     frame_array[id].get()->setStatus(Status_Sent);
-                    cout << "frame " << id << " sent.\n";
+                    if (debug_on)
+                        cout << "frame " << id << " sent.\n";
                     //if (!keep_timer)
                     //    startTimer(id);
                 }
@@ -219,7 +224,8 @@ MAClayer::send() {
             }
             else if (frame_array[id].get()->getStatus() == Status_Sent && frame_array[id].get()->getTimeDuration() >= MAX_WAITING_TIME)
             {
-                cout << "frame " << id << " ack not received. Try to resend package.\n";
+                if (debug_on)
+                    cout << "frame " << id << " ack not received. Try to resend package.\n";
                 frame_array[id].get()->setStatus(Status_Waiting);
                 if (frame_array[id].get()->ResendToomuch())
                 {
@@ -557,7 +563,8 @@ MAClayer::wait(int8_t data_frame_id) {
         }
         else
         {
-            cerr << "frame " << data_frame_id << "timeout. Try to resend package.\n";
+            if (debug_on)
+                cerr << "frame " << data_frame_id << "timeout. Try to resend package.\n";
             frame_array[data_frame_id].get()->setStatus(Status_Waiting);
             frame_array[data_frame_id].get()->addResendtimes();
         }
