@@ -175,10 +175,10 @@ MAClayer::send() {
     }
     if (macping_on) 
     {
-        //requestSend(0, TYPE_MACPING_REQUEST);
-    }
-    /*readFromFile(Mac_num_frame);
-    requestSend(data_frames[0]);*/
+        requestSend(0, TYPE_MACPING_REQUEST);
+    } 
+    readFromFile(Mac_num_frame);
+    requestSend(data_frames[0]);
     while (!Mac_stop)
     {
         for (int i = 0; i < min(send_id_array.size(), window_size); i++)

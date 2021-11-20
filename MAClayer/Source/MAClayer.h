@@ -49,6 +49,7 @@ public:
     int requestSend();
     void startTimer(int8_t frame_data_id);
     void wait(int8_t data_frame_id);
+    bool getIfPerfing() { return macperf_on; }
 
     bool getStop() { return all_stop; }
     void callStop();
@@ -114,11 +115,11 @@ private:
     int8_t dst_addr;
     int8_t src_addr;
 
-    bool csma_on = false;//if we have csma
+    bool csma_on = true;//if we have csma
     std::chrono::milliseconds back_off_time = 10ms;
 
     bool macperf_on = false;
-    bool macping_on = true;
+    bool macping_on = false;
     bool debug_on = true;
     int throughput;
     int acked_list;
