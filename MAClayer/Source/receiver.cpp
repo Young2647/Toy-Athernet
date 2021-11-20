@@ -98,7 +98,6 @@ Receiver::audioDeviceIOCallback(const float** inputChannelData, int numInputChan
                 }
             }
             recordedSound.add(inputSamp);
-            channel_power = channel_power * 23 / 24 + inputSamp * inputSamp / 24;
             //data_state = Demodulate(inputSamp);
         }
 
