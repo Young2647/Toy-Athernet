@@ -14,7 +14,7 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     this->num_bits_per_frame = num_bits_per_frame;
     this->num_samples_per_bit = num_samples_per_bit;
     this->Mac_num_receive_frame = DEFAULT_RECEIVE_NUM;
-    this->all_byte_num = Mac_num_receive_frame;
+    this->all_byte_num = MAX_BYTE_NUM;
     this->src_addr = src_addr;
     this->dst_addr = dst_addr;
     sender_LFS = 0;
@@ -134,7 +134,11 @@ MAClayer::receive()
             //cv.notify_one();
             if (debug_on)
                 cout << "ACK " << ack_id << " received.\n";
-            frame_sent_num++;
+            if (!ack_array[ack_id])
+            {
+                ack_array.set(ack_id, true);
+                frame_sent_num++;
+            }
             if (frame_sent_num >= Mac_num_frame)
             {
                 send_end = true;
@@ -143,7 +147,6 @@ MAClayer::receive()
             }
             else
             {
-                ack_array.set(ack_id, true);
                 if (macperf_on)
                 {
                     requestSend();
