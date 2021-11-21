@@ -92,10 +92,10 @@ MAClayer::receive()
             continue;
         }
         MACframe receive_frame(data);
-        /*vector<int8_t> vec;
+        vector<int8_t> vec;
         for (int i = 0; i < 50; i++) {
             vec.push_back(receive_frame.getData()[i]);
-        }*/
+        }
         if (receive_frame.getSrcAddr() != this->dst_addr || receive_frame.getDstAddr() != this->src_addr)
         {
             if (debug_on)
@@ -199,7 +199,7 @@ MAClayer::send() {
                 if (csma_on)
                 {
                     this_thread::sleep_for(100ms);
-                    while (Mac_receiver.getChannelPower() > 0.3f)// the channel is blocked
+                    while (Mac_receiver.getChannelPower() * 3 > 0.03f)// the channel is blocked
                     {
                         this_thread::sleep_for(back_off_time);
                     }
