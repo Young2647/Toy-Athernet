@@ -163,7 +163,7 @@ Receiver::Demodulate(float sample)
 {
     /*of << sample << "\n";*/
     //std::cout << sample << "\n";
-    //powerf << power_ << "\n";
+    powerf << power_ << "\n";
     //max_power = (max_power >= power_) ? max_power : power_;
     if (state == SYNC)// sync process
     {

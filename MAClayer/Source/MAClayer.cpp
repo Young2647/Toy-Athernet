@@ -13,7 +13,8 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     this->Mac_num_frame = num_frame;
     this->num_bits_per_frame = num_bits_per_frame;
     this->num_samples_per_bit = num_samples_per_bit;
-    this->all_byte_num = MAX_BYTE_NUM;
+    this->Mac_num_receive_frame = DEFAULT_RECEIVE_NUM;
+    this->all_byte_num = Mac_num_receive_frame;
     this->src_addr = src_addr;
     this->dst_addr = dst_addr;
     sender_LFS = 0;
@@ -76,7 +77,7 @@ MAClayer::receive()
     while (!Mac_stop)
     {
         lock.enter();
-        if (frame_receive_num == Mac_num_frame) if_receive_done = true;
+        if (frame_receive_num == Mac_num_receive_frame) if_receive_done = true;
         lock.exit();
         if (if_receive_done && !getStop())
         {
@@ -102,8 +103,8 @@ MAClayer::receive()
                 cerr << "address not match.\n";
             continue;
         }
-        /*if (debug_on)
-            cout << Mac_receiver.getMaxPower() << endl;*/
+        //if (debug_on)
+        //    cout << Mac_receiver.getMaxPower() << endl;
         if (receive_frame.getType() == TYPE_DATA)
         {
             int8_t receive_id = receive_frame.getFrame_id();
@@ -199,7 +200,7 @@ MAClayer::send() {
                 if (csma_on)
                 {
                     this_thread::sleep_for(100ms);
-                    while (Mac_receiver.getChannelPower() * 3 > 0.03f)// the channel is blocked
+                    while (Mac_receiver.getChannelPower() > 0.006f)// the channel is blocked
                     {
                         this_thread::sleep_for(back_off_time);
                     }

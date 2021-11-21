@@ -87,7 +87,8 @@ private:
     vector<int> frame_to_receive_list;
     bool frame_receive_increase = 0;
     
-    int Mac_num_frame; //total frame num
+    int Mac_num_frame; //total frame num to send
+    int Mac_num_receive_frame; // total frame num to receive
     int num_bits_per_frame; // every frame bits num
     int num_samples_per_bit; // every bit sample num
     bool Mac_stop;
