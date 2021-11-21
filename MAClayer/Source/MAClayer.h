@@ -85,6 +85,7 @@ private:
     int frame_sent_num = 0;
     int frame_receive_num = 0;
     vector<int> frame_to_receive_list;
+    bool frame_receive_increase = 0;
     
     int Mac_num_frame; //total frame num
     int num_bits_per_frame; // every frame bits num

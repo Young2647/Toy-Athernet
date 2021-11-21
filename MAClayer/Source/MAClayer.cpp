@@ -120,7 +120,7 @@ MAClayer::receive()
                     if (frame_to_receive_list[receive_id]) {
                         file_output.push_back(receive_frame.getData());
                         frame_to_receive_list[receive_id] = 0;
-                        frame_receive_num++;
+                        frame_receive_increase = 1;
                     }
                 requestSend(receive_id);
             }
@@ -230,8 +230,13 @@ MAClayer::send() {
 
                         cout << "macping reply " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
                     }
-                    else if (frame_array[id].get()->getType() == TYPE_ACK)
+                    else if (frame_array[id].get()->getType() == TYPE_ACK) {
+                        if (frame_receive_increase) {
+                            frame_receive_num++;
+                            frame_receive_increase = 0;
+                        }
                         cout << "ack " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
+                    }
                 }
             }
             else if (frame_array[id].get()->getStatus() == Status_Sent && frame_array[id].get()->getTimeDuration() >= MAX_WAITING_TIME)
