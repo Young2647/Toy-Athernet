@@ -35,7 +35,7 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     ack_array.resize(Mac_num_frame);
     ack_array.fill(false);
 
-    for (int i = 0; i < num_frame*2; i++)
+    for (int i = 0; i < num_frame*3; i++)
         frame_to_receive_list.push_back(1);
 
     //init file output
@@ -117,8 +117,8 @@ MAClayer::receive()
                 if (!macperf_on && debug_on)
                     cout << " CRC check pass!\n";
                 if (!macperf_on)
-                    file_output.push_back(receive_frame.getData());
                     if (frame_to_receive_list[receive_id]) {
+                        file_output.push_back(receive_frame.getData());
                         frame_to_receive_list[receive_id] = 0;
                         frame_receive_num++;
                     }
@@ -134,7 +134,7 @@ MAClayer::receive()
             if (debug_on)
                 cout << "ACK " << ack_id << " received.\n";
             frame_sent_num++;
-            if (frame_sent_num+1 >= Mac_num_frame)
+            if (frame_sent_num >= Mac_num_frame)
             {
                 send_end = true;
                 cout << "All data sent.\n";
@@ -148,7 +148,7 @@ MAClayer::receive()
                     requestSend();
                 }
                 else
-                    requestSend(data_frames[frame_sent_num + 1]);
+                    requestSend(data_frames[frame_sent_num]);
             }
         }
         else if (receive_frame.getType() == TYPE_MACPING_REQUEST)
@@ -455,6 +455,7 @@ void
 MAClayer::Write2File()
 {
     int bytecount = 0;
+    auto tmp = file_output.size();
     for (auto data : file_output)
     {
         if (bytecount + data.size() >= all_byte_num)
@@ -605,7 +606,7 @@ MAClayer::wait(int8_t data_frame_id) {
         {
             keep_timer = 0;
             cerr << "Resend too many times. Link error.\n";
-            callStop();//link error, mac layer stops
+            callStop(1);//link error, mac layer stops
         }
         else
         {

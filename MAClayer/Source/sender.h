@@ -67,6 +67,7 @@ private:
     Array<float> header_wave;
     bool isPlaying;
     ofstream fout;
+    std::atomic<int> finish_prev_send{ 0 };
     //    AudioDeviceManager audioDeviceManager;
     //    unique_ptr<audioDevice> device;
 };
