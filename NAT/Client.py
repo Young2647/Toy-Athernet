@@ -15,7 +15,10 @@ class Client :
         self.clientsocket.sendto(data, self.ip_port)
 
     def StopClient(self) :
+        self.sendData("Exit")
+        print("Client has stopped.")
         self.clientsocket.close()
+
 if __name__ == "__main__" :
     client = Client("10.19.73.48", 23333)
     while True :

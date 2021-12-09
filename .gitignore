@@ -17,3 +17,4 @@ builds/
 MAClayer/Source/macperf.h
 MAClayer/MAClayer.jucer
 MAClayer/Source/macperf.cpp
+*.wav

@@ -165,7 +165,7 @@ MAClayer::receive()
             int reply_id = (int)receive_frame.getData()[0];
             cout << "MAC " << reply_id << "get replied. ";
             std::chrono::duration<double, std::milli> diff = receive_frame.getReceiveTime() - frame_array[reply_id].get()->getSendTime();
-            cout << "RTT is " << diff.count() - 30 << "ms.\n"; // the 30ms is the about the time waste in the program.
+            cout << "RTT is " << diff.count() << "ms.\n";
             mac_ping_array.removeFirstMatchingValue(reply_id);
             //requestSend(reply_id, TYPE_MACPING_REQUEST);
         }
@@ -276,6 +276,7 @@ MAClayer::macperf_send() {
         this_thread::sleep_for(100ms);
     }
 }
+
 //void
 //MAClayer::send()
 //{
@@ -591,41 +592,41 @@ MAClayer::requestSend() {
     return id;
 }
 
-void
-MAClayer::startTimer(int8_t data_frame_id) {
-    keep_timer = 1;
-    if (!timers.empty()) {
-        timers[0].join();
-        timers.erase(timers.begin());
-    }
-    thread timer(&MAClayer::wait, this, data_frame_id);
-    timers.push_back(std::move(timer));
-}
-
-void 
-MAClayer::wait(int8_t data_frame_id) {
-    unique_lock<mutex> lk(cv_m);
-    while (keep_timer)
-    {
-        auto now = std::chrono::system_clock::now();
-        if (cv.wait_until(lk, now + trans_timeout, [&]() {return frame_array[data_frame_id].get()->getStatus() == Status_Acked; })) {
-            keep_timer = 0;
-        }
-        else if (frame_array[data_frame_id].get()->ResendToomuch())
-        {
-            keep_timer = 0;
-            cerr << "Resend too many times. Link error.\n";
-            callStop(1);//link error, mac layer stops
-        }
-        else
-        {
-            if (debug_on)
-                cerr << "frame " << data_frame_id << "timeout. Try to resend package.\n";
-            frame_array[data_frame_id].get()->setStatus(Status_Waiting);
-            frame_array[data_frame_id].get()->addResendtimes();
-        }
-    }
-}
+//void
+//MAClayer::startTimer(int8_t data_frame_id) {
+//    keep_timer = 1;
+//    if (!timers.empty()) {
+//        timers[0].join();
+//        timers.erase(timers.begin());
+//    }
+//    thread timer(&MAClayer::wait, this, data_frame_id);
+//    timers.push_back(std::move(timer));
+//}
+//
+//void 
+//MAClayer::wait(int8_t data_frame_id) {
+//    unique_lock<mutex> lk(cv_m);
+//    while (keep_timer)
+//    {
+//        auto now = std::chrono::system_clock::now();
+//        if (cv.wait_until(lk, now + trans_timeout, [&]() {return frame_array[data_frame_id].get()->getStatus() == Status_Acked; })) {
+//            keep_timer = 0;
+//        }
+//        else if (frame_array[data_frame_id].get()->ResendToomuch())
+//        {
+//            keep_timer = 0;
+//            cerr << "Resend too many times. Link error.\n";
+//            callStop(1);//link error, mac layer stops
+//        }
+//        else
+//        {
+//            if (debug_on)
+//                cerr << "frame " << data_frame_id << "timeout. Try to resend package.\n";
+//            frame_array[data_frame_id].get()->setStatus(Status_Waiting);
+//            frame_array[data_frame_id].get()->addResendtimes();
+//        }
+//    }
+//}
 
 void
 MAClayer::callStop(bool identifier)
