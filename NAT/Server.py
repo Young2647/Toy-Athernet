@@ -3,21 +3,21 @@ import sys
 import os
 
 class Server :
-    def __init__(self, ip, port):
-        self.ip_port = (ip, port)
+    def __init__(self, port):
         self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.serversocket.bind(self.ip_port)
+        self.serversocket.bind(('', port))
 
     def receiveData(self) :
         data, address = self.serversocket.recvfrom(1024)
-        print("address is : {} data is : {}".format(address, data.decode()))
+        data = data.decode('utf8')
+        print("address is : ", address, "data is : ", data)
         return data
     def stopServer(self) :
         print("Server has stopped.")
         self.serversocket.close()
 
 if __name__ == "__main__" :
-    server = Server("10.19.73.48", 23333)
+    server = Server(23333)
     while True :
         data = server.receiveData()
         if data == "Exit" :
