@@ -22,6 +22,8 @@ class Client :
     def StopClient(self) :
         self.sendData("Exit".encode())
         print("Client has stopped.")
+
+    def __del__(self) :
         self.clientsocket.close()
 
 if __name__ == "__main__" :
