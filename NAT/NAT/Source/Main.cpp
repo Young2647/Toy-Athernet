@@ -35,6 +35,8 @@ int main(int argc, char* argv[])
     int mode = MODE_UDP_NODE1;
     if (mode == MODE_UDP_NODE2)
     {
+        std::cout << "Press any ENTER to start MAClayer.\n";
+        getchar();
         std::fstream notify_file;
         notify_file.open("WRITE_DOWN.txt", ios::in);
         cout << "Waiting for python to notify...\n";

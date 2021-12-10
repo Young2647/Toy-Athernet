@@ -121,13 +121,15 @@ private:
     int8_t dst_addr;
     int8_t src_addr;
 
-    bool csma_on = true;//if we have csma
+    bool csma_on = false;//if we have csma
     std::chrono::milliseconds back_off_time = 10ms;
 
     bool macperf_on = false;
     bool macping_on = false;
     bool icmp_on = false;
     bool debug_on = true;
+    bool is_receiver = false;
+    bool is_sender = true;
     int throughput;
     int acked_list;
     int window_size;
