@@ -632,6 +632,8 @@ MAClayer::requestSend() {
 void
 MAClayer::callStop(bool identifier)
 {
+    if (!is_receiver) receive_end = true;
+    if (!is_sender) send_end = true;
     if ((receive_end && send_end) || identifier == true) {
         if (!all_stop)
         {
