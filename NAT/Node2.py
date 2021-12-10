@@ -1,7 +1,6 @@
 import socket
 from typing_extensions import final
 from Client import Client
-from Client import Getch
 from Server import Server
 import os
 import msvcrt
@@ -37,7 +36,7 @@ class Node2 :
     
     def receiveFromNode1(self) :
         while True :
-            if Getch() : break
+            if msvcrt.kbhit() : break
             if os.path.exists("NOTIFY_DONE.txt") :
                 os.remove("NOTIFY_DONE.txt")
                 break
@@ -48,7 +47,7 @@ class Node2 :
     def receiveFromNode3(self) :
         with open("input.bin", "wb") as inputfile : 
             while True :
-                if Getch : break
+                if msvcrt.kbhit() : break
                 data, address = self.server.receiveData()
                 if data == "Exit" :
                     break
@@ -79,7 +78,7 @@ class Node2 :
 
     def ICMPecho(self) :
         while True :
-            if Getch() : break
+            if msvcrt.kbhit() : break
             if os.path.exists("ICMP_NOTIFY.txt") :
                 os.remove("ICMP_NOTIFY.txt")
                 break

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="kKaRA1" name="MAClayer_macOS" projectType="consoleapp" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
+  <MAINGROUP id="j9At5B" name="MAClayer_macOS">
+    <GROUP id="{77CCC9D3-7470-9C4C-2F13-04AA93FC2B47}" name="Source">
+      <FILE id="q5nYSD" name="ArrayBlockingQueue.cpp" compile="1" resource="0"
+            file="../Source/ArrayBlockingQueue.cpp"/>
+      <FILE id="muPG7C" name="ArrayBlockingQueue.h" compile="0" resource="0"
+            file="../Source/ArrayBlockingQueue.h"/>
+      <FILE id="gnEIoU" name="ArrayBlockingQueueExceptions.h" compile="0"
+            resource="0" file="../Source/ArrayBlockingQueueExceptions.h"/>
+      <FILE id="FoTQU9" name="ArrayBlockingQueueImpl.h" compile="0" resource="0"
+            file="../Source/ArrayBlockingQueueImpl.h"/>
+      <FILE id="pp4kej" name="defines.h" compile="0" resource="0" file="../Source/defines.h"/>
+      <FILE id="X8QTgd" name="Iterator.h" compile="0" resource="0" file="../Source/Iterator.h"/>
+      <FILE id="BFEDHe" name="MACframe.cpp" compile="1" resource="0" file="../Source/MACframe.cpp"/>
+      <FILE id="anu9uQ" name="MACframe.h" compile="0" resource="0" file="../Source/MACframe.h"/>
+      <FILE id="tCSaeM" name="MAClayer.cpp" compile="1" resource="0" file="../Source/MAClayer.cpp"/>
+      <FILE id="DNHwvF" name="MAClayer.h" compile="0" resource="0" file="../Source/MAClayer.h"/>
+      <FILE id="j2h8DO" name="Main.cpp" compile="1" resource="0" file="../Source/Main.cpp"/>
+      <FILE id="WUHmbH" name="receiver.cpp" compile="1" resource="0" file="../Source/receiver.cpp"/>
+      <FILE id="MjNF85" name="receiver.h" compile="0" resource="0" file="../Source/receiver.h"/>
+      <FILE id="dXiZfY" name="sender.cpp" compile="1" resource="0" file="../Source/sender.cpp"/>
+      <FILE id="IhkHbL" name="sender.h" compile="0" resource="0" file="../Source/sender.h"/>
+      <FILE id="YuppZU" name="TimeUtils.h" compile="0" resource="0" file="../Source/TimeUtils.h"/>
+    </GROUP>
+  </MAINGROUP>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
+  <EXPORTFORMATS>
+    <XCODE_MAC targetFolder="Builds/MacOSX">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="MAClayer_macOS"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="MAClayer_macOS"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../../JUCE/modules"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+</JUCERPROJECT>

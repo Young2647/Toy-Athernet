@@ -5,29 +5,6 @@ import time
 import random
 import string
 
-def Getch():
-    def _GetchUnix():
-        import sys, tty, termios
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        try:
-            tty.setraw(sys.stdin.fileno())
-            ch = sys.stdin.read(1)
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-        return ch
-
-    def _GetchWindows():
-        import msvcrt
-        return msvcrt.getch()
-
-    try:
-        impl = _GetchWindows()
-    except ImportError:
-        impl = _GetchUnix()
-    return impl
-
-
 def randomString(n):
     payload = ''.join(random.choices(string.ascii_uppercase + string.digits, k=20 )) 
     return bytes(payload, encoding='utf8')
@@ -55,12 +32,12 @@ class Client :
 
 if __name__ == "__main__" :
     client = Client("10.20.225.5", 23333)
-    while True :
-        if Getch() :
-            break
-        t = time.time()
-        data = randomString(20)
-        print (data.decode())
-        client.sendData(data)
-        time.sleep(1)
-    client.StopClient()
+    try:
+        while True :
+            t = time.time()
+            data = randomString(20)
+            print (data.decode())
+            client.sendData(data)
+            time.sleep(1)
+    except KeyboardInterrupt:
+        client.StopClient()
