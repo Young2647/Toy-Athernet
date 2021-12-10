@@ -143,8 +143,8 @@ private:
     bool if_send_ip = false;
     string ip;
     int port;
-    int8_t node1_addr[4] = { 192, 168, 1, 2 };
-    int8_t node1_port[2] = { 91, 38 };
+    int8_t node1_addr[4] = { (int8_t)192, (int8_t)168, (int8_t)1, (int8_t)2 };
+    int8_t node1_port[2] = { (int8_t)91, (int8_t)38 };
 
     std::chrono::system_clock::time_point test_time;
 };
