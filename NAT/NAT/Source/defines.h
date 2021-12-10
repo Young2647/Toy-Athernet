@@ -52,5 +52,4 @@ enum Status {
 };
 
 
-
 #endif // !_DEFINES_H_

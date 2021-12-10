@@ -59,6 +59,7 @@ public:
     int getSentframeNum() { return frame_sent_num; }
     void setReceiver() { is_receiver = true; is_sender = false; }
     void setSender() { is_receiver = false; is_sender = true; }
+    void setSendIP() { if_send_ip = true; }
 private:
     Receiver Mac_receiver;
     Sender Mac_sender;
@@ -130,8 +131,8 @@ private:
     bool macping_on = false;
     bool icmp_on = false;
     bool debug_on = true;
-    bool is_receiver = false;
-    bool is_sender = true;
+    bool is_receiver;
+    bool is_sender;
     int throughput;
     int acked_list;
     int window_size;
@@ -142,6 +143,8 @@ private:
     bool if_send_ip = false;
     string ip;
     int port;
+    int8_t node1_addr[4] = { 192, 168, 1, 2 };
+    int8_t node1_port[2] = { 91, 38 };
 
     std::chrono::system_clock::time_point test_time;
 };

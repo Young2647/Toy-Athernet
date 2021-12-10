@@ -209,7 +209,7 @@ MAClayer::send() {
                         this_thread::sleep_for(back_off_time);
                     }
                 }
-                Mac_sender.sendOnePacket(frame_array[id].get()->getFrame_size() + FRAME_OFFSET + IP_PORT_LEN, frame_array[id].get()->toBitStream());
+                Mac_sender.sendOnePacket(frame_array[id].get()->getFrame_size() + FRAME_OFFSET, frame_array[id].get()->toBitStream());
 
                 frame_array[id].get()->setSendTime();
                 if (frame_array[id].get()->getType() == TYPE_DATA)
@@ -501,8 +501,15 @@ MAClayer::readFromFile(int num_frame) {
     //ofstream f1("test.out");
     vector<int8_t> vec;
     char tmp;
+    int byte_num = (if_send_ip) ? (num_bits_per_frame - FRAME_OFFSET - IP_PORT_LEN - CRC_LEN) / 8 : (num_bits_per_frame - FRAME_OFFSET - CRC_LEN) / 8;
     for (int i = 0; i < num_frame; i++) {
-        for (int j = 0; j < (num_bits_per_frame - FRAME_OFFSET - CRC_LEN)/8; j++) {
+        if (if_send_ip) {
+            for (int i = 0; i < 4; i++)
+                data_frames[i].push_back(node1_addr[i]);
+            for (int i = 0; i < 2; i++)
+                data_frames[i].push_back(node1_port[i]);
+        }
+        for (int j = 0; j < byte_num; j++) {
             f.get(tmp);
             data_frames[i].push_back(tmp);
             if (i == 0)

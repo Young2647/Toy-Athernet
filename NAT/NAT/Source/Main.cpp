@@ -129,6 +129,7 @@ int main(int argc, char* argv[])
         {
             mac_layer.reset(new MAClayer(3, num_bits_per_frame, num_frame, ZYB, YHD, 20));
         }
+        mac_layer.get()->setSendIP();
         mac_layer.get()->setSender();
         dev_manager.addAudioCallback(mac_layer.get());
         mac_layer.get()->StartMAClayer();
@@ -147,12 +148,6 @@ int main(int argc, char* argv[])
 
         return 0;
     }
-
-
-
-
-
-
     int num_bits_per_frame = 840;
 
     std::unique_ptr<MAClayer> mac_layer;
