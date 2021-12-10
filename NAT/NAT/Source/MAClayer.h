@@ -57,6 +57,8 @@ public:
     void callStop(bool identifier);
 
     int getSentframeNum() { return frame_sent_num; }
+    void setReceiver() { is_receiver = true; is_sender = false; }
+    void setSender() { is_receiver = false; is_sender = true; }
 private:
     Receiver Mac_receiver;
     Sender Mac_sender;
@@ -135,6 +137,12 @@ private:
     int window_size;
     bool receive_end = false;
     bool send_end = false;
+
+    //ip and port for atherNode
+    bool if_send_ip = false;
+    string ip;
+    int port;
+
     std::chrono::system_clock::time_point test_time;
 };
 

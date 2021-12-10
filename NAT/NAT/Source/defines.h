@@ -36,8 +36,10 @@
 #define ZYB 0x10
 #define NODE1_ADDR 0xc0a80102
 #define NODE1_PORt 23334
-#define MODE_UDP_NODE1 0x0b
-#define MODE_UDP_NODE2 0x0a
+#define MODE_UDP_NODE1_RECEIVE 0x0b
+#define MODE_UDP_NODE2_SEND 0x0a
+#define MODE_UDP_NODE1_SEND 0x0c
+#define MODE_UDP_NODE2_RECEIVE 0x0d
 constexpr size_t QUEUE_SIZE = 256;
 enum STATE {
 	FrameDetection = 1, Tx, Rx, TxACK

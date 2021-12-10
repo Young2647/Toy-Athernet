@@ -182,16 +182,16 @@ void
 MAClayer::send() {
     //init parameters
     int id = 0;
-    /*if (macperf_on)
+    if (macperf_on)
         requestSend();
     else if (macping_on)
         requestSend(0, TYPE_MACPING_REQUEST);
     else if (icmp_on)
         requestSend(0, TYPE_ICMP_REQUEST);
-    else {
+    else if (is_sender){
         readFromFile(Mac_num_frame);
         requestSend(data_frames[0]);
-    }*/
+    }
     while (!Mac_stop)
     {
         for (int i = 0; i < min(send_id_array.size(), window_size); i++)
