@@ -78,10 +78,18 @@ int main(int argc, char* argv[])
         }
         dev_manager.addAudioCallback(mac_layer.get());
         mac_layer.get()->StartMAClayer();
+        auto start_time = std::chrono::system_clock::now();
         while (!mac_layer.get()->getStop())
         {
             if (kbhit()) mac_layer.get()->callStop(1);
         }
+        mac_layer.get()->StopMAClayer();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_time).count();
+        std::cout << "Transmit time : " << duration << "ms.\n";
+        dev_manager.removeAudioCallback(mac_layer.get());
+        DeletedAtShutdown::deleteAll();
+        juce::MessageManager::deleteInstance();
+        return 0;
     }
 
     int num_bits_per_frame = 840;

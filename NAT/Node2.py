@@ -1,13 +1,15 @@
 import socket
 from Client import Client
+from Client import Getch
 from Server import Server
 import os
-import msvcrt
+
+
 
 class Node2 :
-    def __init__(self, debug_on = False, ip = "10.20.225.5", port = 23333):
-        #self.client = Client(ip, port)  #client sending data to Node 3, so Node 3 ip and port needed here
-        self.server = Server(port) # server receiving data from Node 3
+    def __init__(self, debug_on = False):
+        self.client = Client("10.20.225.5", 23333)  #client sending data to Node 3, so Node 3 ip and port needed here
+        self.server = Server(23333) # server receiving data from Node 3
         self.node1data = []
         self.debug_on = debug_on
 
@@ -26,7 +28,7 @@ class Node2 :
     
     def receiveFromNode1(self) :
         while True :
-            if msvcrt.kbhit() : break
+            if Getch() : break
             if os.path.exists("NOTIFY_DONE.txt") :
                 os.remove("NOTIFY_DONE.txt")
                 break
@@ -35,22 +37,17 @@ class Node2 :
                 data = f.read()
                 self.decodeByte(data)
 
-    def checkNotify(self) :
-        if os.path.exists("WRITE_DOWN.txt") :
-            os.remove("WRITE_DOWN.txt")
-
     def receiveFromNode3(self) :
-        self.checkNotify()
         with open("input.bin", "wb") as inputfile : 
             while True :
-                if msvcrt.kbhit() : break
+                if Getch : break
                 data, address = self.server.receiveData()
                 if data == "Exit" :
                     break
                 else :
                     if (self.debug_on) :
                         print("address is : ", address, "data is : ", data)
-                    self.writeToFile(inputfile, data.encode('utf8'), address)
+                        self.writeToFile(inputfile, data.encode('utf8'), address)
             if (self.debug_on) :
                 print("All data received.")
             self.server.stopServer()
@@ -70,7 +67,7 @@ SEND = 0
 RECEIVE = 1
 
 if __name__ == "__main__" :
-    node2 = Node2(True,"10.20.220.107")
+    node2 = Node2(True)
     if input("If send to node3, press s. If receive from node3, press r\n") == "r" :
         mode = RECEIVE
     else :

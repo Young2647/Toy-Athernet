@@ -30,7 +30,7 @@
 #define MAX_BYTE_NUM 1200
 #define DEAFULT_WINDOW_SIZE 63
 
-#define DEFAULT_RECEIVE_NUM 50
+#define DEFAULT_RECEIVE_NUM 30
 // address
 #define YHD 0x01
 #define ZYB 0x10
