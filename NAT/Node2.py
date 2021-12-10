@@ -45,14 +45,14 @@ class Node2 :
                 else :
                     if (self.debug_on) :
                         print("address is : ", address, "data is : ", data)
-                        self.wirteToFile(inputfile, data, address)
+                        self.writeToFile(inputfile, data.encode(), address)
             if (self.debug_on) :
                 print("All data received.")
             self.server.stopServer()
     
-    def wirteToFile(self, inputfile, data, address) :
+    def writeToFile(self, inputfile, data, address) :
         inputfile.write(socket.inet_aton(address[0]))
-        inputfile.write(bytes(address[1],'utf8'))
+        inputfile.write(address[1].to_bytes(2, byteorder = 'little'))
         inputfile.write(data)
     
     def notifyAther(self) :
@@ -73,6 +73,6 @@ if __name__ == "__main__" :
     if mode == SEND :
         node2.receiveFromNode1()
         node2.sendToNode3()
-    if mode == RECEIVE :
+    elif mode == RECEIVE :
         node2.receiveFromNode3()
         node2.notifyAther()
