@@ -45,14 +45,14 @@ class Node2 :
                 else :
                     if (self.debug_on) :
                         print("address is : ", address, "data is : ", data)
-                        self.writeToFile(inputfile, data.encode(), address)
+                        self.writeToFile(inputfile, data.encode('utf8'), address)
             if (self.debug_on) :
                 print("All data received.")
             self.server.stopServer()
     
     def writeToFile(self, inputfile, data, address) :
-        inputfile.write(socket.inet_aton(address[0]))
-        inputfile.write(address[1].to_bytes(2, byteorder = 'little'))
+        #inputfile.write(socket.inet_aton(address[0]))
+        #inputfile.write(address[1].to_bytes(2, byteorder = 'little'))
         inputfile.write(data)
     
     def notifyAther(self) :
