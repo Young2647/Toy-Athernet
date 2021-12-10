@@ -182,16 +182,16 @@ void
 MAClayer::send() {
     //init parameters
     int id = 0;
-    if (macperf_on)
+    /*if (macperf_on)
         requestSend();
     else if (macping_on)
         requestSend(0, TYPE_MACPING_REQUEST);
     else if (icmp_on)
-        requestSend(0, TYPE_ICMP);
+        requestSend(0, TYPE_ICMP_REQUEST);
     else {
         readFromFile(Mac_num_frame);
         requestSend(data_frames[0]);
-    }
+    }*/
     while (!Mac_stop)
     {
         for (int i = 0; i < min(send_id_array.size(), window_size); i++)
@@ -502,7 +502,7 @@ MAClayer::readFromFile(int num_frame) {
     vector<int8_t> vec;
     char tmp;
     for (int i = 0; i < num_frame; i++) {
-        for (int j = 0; j < (num_bits_per_frame - FRAME_OFFSET - CRC_LEN)/8; j++) {
+        for (int j = 0; j < (num_bits_per_frame - IP_PORT_LEN - FRAME_OFFSET - CRC_LEN)/8; j++) {
             f.get(tmp);
             data_frames[i].push_back(tmp);
             if (i == 0)
