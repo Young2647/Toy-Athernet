@@ -504,16 +504,14 @@ MAClayer::readFromFile(int num_frame) {
     int byte_num = (if_send_ip) ? (num_bits_per_frame - FRAME_OFFSET - IP_PORT_LEN - CRC_LEN) / 8 : (num_bits_per_frame - FRAME_OFFSET - CRC_LEN) / 8;
     for (int i = 0; i < num_frame; i++) {
         if (if_send_ip) {
-            for (int i = 0; i < 4; i++)
-                data_frames[i].push_back(node1_addr[i]);
-            for (int i = 0; i < 2; i++)
-                data_frames[i].push_back(node1_port[i]);
+            for (int j = 0; j < 4; j++)
+                data_frames[j].push_back(node1_addr[j]);
+            for (int j = 0; j < 2; j++)
+                data_frames[j].push_back(node1_port[j]);
         }
         for (int j = 0; j < byte_num; j++) {
             f.get(tmp);
             data_frames[i].push_back(tmp);
-            if (i == 0)
-                vec.push_back(tmp);
         }
 
     }
