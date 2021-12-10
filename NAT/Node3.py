@@ -4,13 +4,16 @@ from Server import Server
 import os
 import msvcrt
 import time
+
 class Node3 :
-    def __init__(self, debug_on = False, ip = "10.20.220.107", port = 23333):
-        self.client = Client(ip, port) # send data to node2, node2 address needed 
-        #self.server = Server(port)
+    def __init__(self, debug_on = False, ip = "10.20.220.107", port = 23333, isClient = False):
+        if isClient :
+            self.client = Client(ip, port) # send data to node2, node2 address needed 
+        else :
+            self.server = Server(port)
         self.debug_on = debug_on
     def receiveFromNode2(self) :
-        with open("output.bin", "w") as outputfile : 
+        with open("output.txt", "w") as outputfile : 
             while True :
                 if msvcrt.kbhit() : break
                 data, address = self.server.receiveData()
@@ -43,12 +46,13 @@ SEND = 0
 RECEIVE = 1
 
 if __name__ == "__main__" :
-    node3 = Node3(True)
     if input("If send to node2, press s. If receive from node2, press r\n") == "r" :
         mode = RECEIVE
     else :
         mode = SEND
     if mode == SEND :
+        node3 = Node3(True, isClient=True)
         node3.sendToNode2()
     elif mode == RECEIVE :
+        node3 = Node3(True, isClient=False)
         node3.receiveFromNode2()
