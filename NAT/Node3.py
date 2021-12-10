@@ -31,7 +31,7 @@ class Node3 :
                     if self.debug_on :
                         print(line_data)
                     self.client.sendData(line_data.encode('utf8'))
-                    time.sleep(0.1)
+                    time.sleep(0.04)
                 if self.debug_on :
                     print("All Data Sent.")
             self.client.StopClient()
