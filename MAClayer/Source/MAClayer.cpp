@@ -119,6 +119,7 @@ MAClayer::receive()
                     cout << " CRC check pass!\n";
                 if (!macperf_on)
                     if (frame_to_receive_list[receive_id]) {
+                        receive_frame.printFrame();
                         file_output.push_back(receive_frame.getData());
                         frame_to_receive_list[receive_id] = 0;
                         frame_receive_increase = 1;
@@ -182,15 +183,15 @@ MAClayer::send() {
     //init parameters
     int id = 0;
     if (macperf_on)
-    {
         requestSend();
-    }
-    if (macping_on) 
-    {
+    else if (macping_on)
         requestSend(0, TYPE_MACPING_REQUEST);
-    } 
-    readFromFile(Mac_num_frame);
-    requestSend(data_frames[0]);
+    else if (icmp_on)
+        requestSend(0, TYPE_ICMP);
+    else {
+        readFromFile(Mac_num_frame);
+        requestSend(data_frames[0]);
+    }
     while (!Mac_stop)
     {
         for (int i = 0; i < min(send_id_array.size(), window_size); i++)

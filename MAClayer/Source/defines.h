@@ -7,6 +7,7 @@
 #define TYPE_DATA 1
 #define TYPE_MACPING_REQUEST 2
 #define TYPE_MACPING_REPLY 3
+#define TYPE_ICMP 4
 
 #define NO_HEADER -1
 #define SYNC 0
@@ -32,6 +33,8 @@
 // address
 #define YHD 0x01
 #define ZYB 0x10
+#define NODE1_ADDR 0xc0a80102
+#define NODE1_PORt 23334
 constexpr size_t QUEUE_SIZE = 256;
 enum STATE {
 	FrameDetection = 1, Tx, Rx, TxACK

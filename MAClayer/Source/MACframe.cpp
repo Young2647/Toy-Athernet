@@ -23,9 +23,13 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
     if (type == TYPE_DATA) {
         int8_t frame_crc = all_data[all_data.size() - 1];
         for (int i = 4; i < all_data.size() - 1; i++) {
-            data.add(all_data[i]);
+            if (i < 10)
+                ip_port.add(all_data[i]);
+            else
+                data.add(all_data[i]);
             crc.updateCRC(all_data[i]);
         }
+        translateAddrPort();
         if (frame_crc != crc.getCRC())
             bad_crc = 1;
     }
@@ -125,4 +129,22 @@ MACframe::toBitStream() {
     /*byteToBits(ret_array, frame_id);
     byteToBits(ret_array, type);*/
     return ret_array;
+}
+
+void
+MACframe::translateAddrPort() {
+    ip_address = "";
+    for (int i = 0; i < 4; i++) {
+        ip_address += std::to_string((int)(unsigned char)ip_port[i]);
+        if (i != 3)
+            ip_address += ".";
+    }
+    port = (int)(unsigned char)ip_port[4] * 16 * 16 + (int)(unsigned char)ip_port[5];
+}
+
+void MACframe::printFrame() {
+    std::cout << "address: " << ip_address << ", port: " << port << ", data: ";
+    auto raw_data = (char*)data.getRawDataPointer();
+    for (int i = 0; i < 40; i++)
+        std::cout << raw_data[i];
 }
