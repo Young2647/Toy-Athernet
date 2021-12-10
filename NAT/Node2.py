@@ -1,5 +1,6 @@
 import socket
 from Client import Client
+from Client import Getch
 from Server import Server
 import os
 import msvcrt
@@ -30,7 +31,7 @@ class Node2 :
     
     def receiveFromNode1(self) :
         while True :
-            if msvcrt.kbhit() : break
+            if Getch() : break
             if os.path.exists("NOTIFY_DONE.txt") :
                 os.remove("NOTIFY_DONE.txt")
                 break
@@ -38,22 +39,17 @@ class Node2 :
             with open("OUTPUT.bin") as f :
                 self.decodeByte(f)
 
-    def checkNotify(self) :
-        if os.path.exists("WRITE_DOWN.txt") :
-            os.remove("WRITE_DOWN.txt")
-
     def receiveFromNode3(self) :
-        self.checkNotify()
         with open("input.bin", "wb") as inputfile : 
             while True :
-                if msvcrt.kbhit() : break
+                if Getch : break
                 data, address = self.server.receiveData()
                 if data == "Exit" :
                     break
                 else :
                     if (self.debug_on) :
                         print("address is : ", address, "data is : ", data)
-                    self.writeToFile(inputfile, data.encode('utf8'), address)
+                        self.writeToFile(inputfile, data.encode('utf8'), address)
             if (self.debug_on) :
                 print("All data received.")
             self.server.stopServer()

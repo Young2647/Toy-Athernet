@@ -1,5 +1,6 @@
 import socket
 from Client import Client
+from Client import Getch
 from Server import Server
 import os
 import msvcrt
@@ -15,7 +16,7 @@ class Node3 :
     def receiveFromNode2(self) :
         with open("output.txt", "w") as outputfile : 
             while True :
-                if msvcrt.kbhit() : break
+                if Getch() : break
                 data, address = self.server.receiveData()
                 if data == "Exit" :
                     break
@@ -34,7 +35,6 @@ class Node3 :
                     if self.debug_on :
                         print(line_data)
                     self.client.sendData(line_data.encode('utf8'))
-                    time.sleep(0.04)
                 if self.debug_on :
                     print("All Data Sent.")
             self.client.StopClient()
