@@ -17,6 +17,7 @@ public:
     MACframe(int8_t dst_address, int8_t src_address, std::vector<int8_t> frame_data); // constructor of data frame
     MACframe(int8_t type, int8_t reply_id, int8_t dst_address, int8_t src_address); //constructor of MACPING frame
 	MACframe(int8_t dst_address, int8_t src_address, int frame_bit_num); // constructor for macperf frame.
+    MACframe(int8_t dst_address, int8_t src_address); // constructor for icmp frame.
     int8_t getType() { return type; }
     int8_t getFrame_id() { return frame_id; }
     int8_t getAck_id() { return ack_id; }
@@ -39,6 +40,8 @@ public:
     int8_t getSrcAddr() { return src_address; }
     int8_t getDstAddr() { return dst_address; }
     Array<int8_t> toBitStream();
+    void translateAddrPort();
+    void printFrame();
 
 private:
     int8_t type;
@@ -47,6 +50,9 @@ private:
     int8_t src_address;
     int8_t ack_id;
     Array<int8_t> data;
+    Array<int8_t> ip_port;
+    std::string ip_address;
+    int port;
     std::chrono::system_clock::time_point send_time;
     std::chrono::system_clock::time_point receive_time;
     Status frame_status;

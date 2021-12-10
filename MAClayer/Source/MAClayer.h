@@ -28,6 +28,8 @@ public:
 
     void mac_ping(); // send macping request
 
+    void icmp(); // send icmp request
+
     void checkIdarray();
 
     void StartMAClayer();
@@ -104,6 +106,7 @@ private:
     Array<int> send_id_array;
     Array<int> id_controller_array;
     Array<int> mac_ping_array; // array that record the buffer for mac ping
+    Array<int> icmp_array; // array that record the buffer of icmp
     std::vector<thread> timers;
     STATE state;
     CriticalSection lock;
@@ -123,13 +126,13 @@ private:
 
     bool macperf_on = false;
     bool macping_on = false;
+    bool icmp_on = false;
     bool debug_on = true;
     int throughput;
     int acked_list;
     int window_size;
     bool receive_end = false;
     bool send_end = false;
-
     std::chrono::system_clock::time_point test_time;
 };
 

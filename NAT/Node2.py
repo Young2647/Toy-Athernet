@@ -5,9 +5,9 @@ import os
 import msvcrt
 
 class Node2 :
-    def __init__(self, debug_on = False):
-        self.client = Client("10.20.225.5", 23333)  #client sending data to Node 3, so Node 3 ip and port needed here
-        self.server = Server(23333) # server receiving data from Node 3
+    def __init__(self, debug_on = False, ip = "10.20.225.5", port = 23333):
+        #self.client = Client(ip, port)  #client sending data to Node 3, so Node 3 ip and port needed here
+        self.server = Server(port) # server receiving data from Node 3
         self.node1data = []
         self.debug_on = debug_on
 
@@ -45,14 +45,14 @@ class Node2 :
                 else :
                     if (self.debug_on) :
                         print("address is : ", address, "data is : ", data)
-                        self.writeToFile(inputfile, data.encode(), address)
+                    self.writeToFile(inputfile, data.encode('utf8'), address)
             if (self.debug_on) :
                 print("All data received.")
             self.server.stopServer()
     
     def writeToFile(self, inputfile, data, address) :
-        inputfile.write(socket.inet_aton(address[0]))
-        inputfile.write(address[1].to_bytes(2, byteorder = 'little'))
+        #inputfile.write(socket.inet_aton(address[0]))
+        #inputfile.write(address[1].to_bytes(2, byteorder = 'little'))
         inputfile.write(data)
     
     def notifyAther(self) :
@@ -65,7 +65,7 @@ SEND = 0
 RECEIVE = 1
 
 if __name__ == "__main__" :
-    node2 = Node2(True)
+    node2 = Node2(True,"10.20.220.107")
     if input("If send to node3, press s. If receive from node3, press r\n") == "r" :
         mode = RECEIVE
     else :
