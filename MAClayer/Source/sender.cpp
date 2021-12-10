@@ -11,7 +11,7 @@ Sender::Sender(int nbpf, int nspb) {
     carrier_phase = 0;
     carrier_amp = 1;
     len_zeros = 20;
-    num_frame = 100;
+    num_frame = 30;
     len_frame = header_len + num_samples_per_bit * num_bits_per_frame + len_zeros;
     GenerateCarrierWave();
     frame_wave = new float[num_bits_per_frame * num_samples_per_bit];

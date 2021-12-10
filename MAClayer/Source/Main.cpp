@@ -17,7 +17,6 @@
 #include "MAClayer.h"
 using namespace juce;
 using namespace std;
-#define MODE_UDP_NODE2 0x0a
 
 
 //====================================main func==========================================
@@ -32,7 +31,7 @@ int main(int argc, char* argv[])
     dev_info = dev_manager.getAudioDeviceSetup();
     dev_info.sampleRate = 48000; // Setup sample rate to 48000 Hz
     dev_manager.setAudioDeviceSetup(dev_info, false);
-    int mode = MODE_UDP_NODE2;
+    int mode = MODE_UDP_NODE1;
     if (mode == MODE_UDP_NODE2)
     {
         std::fstream notify_file;
@@ -65,6 +64,21 @@ int main(int argc, char* argv[])
         juce::MessageManager::deleteInstance();
 
         return 0;
+    }
+    else if (mode == MODE_UDP_NODE1) {
+        std::unique_ptr<MAClayer> mac_layer;
+        int num_bits_per_frame = 408; // 51 bytes
+        int num_frame = 30; //30 frames
+        if (mac_layer.get() == nullptr)
+        {
+            mac_layer.reset(new MAClayer(3, num_bits_per_frame, num_frame, ZYB, YHD, 20));
+        }
+        dev_manager.addAudioCallback(mac_layer.get());
+        mac_layer.get()->StartMAClayer();
+        while (!mac_layer.get()->getStop())
+        {
+
+        }
     }
 
     int num_bits_per_frame = 840;

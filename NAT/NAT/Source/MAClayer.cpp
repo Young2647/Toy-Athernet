@@ -19,7 +19,7 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     this->dst_addr = dst_addr;
     sender_LFS = 0;
     //sender_window.resize(sender_SWS);
-    
+
     // init receiver window
     receiver_LFR = 0;
     receiver_LFR = DEFAULT_RWS;
@@ -31,12 +31,12 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     frame_array.resize(256);
     trans_timeout = 500ms;
     //init sender and receiver
-    
+
     //init ack_array
     ack_array.resize(Mac_num_frame);
     ack_array.fill(false);
 
-    for (int i = 0; i < num_frame*3; i++)
+    for (int i = 0; i < num_frame * 3; i++)
         frame_to_receive_list.push_back(1);
 
     //init file output
@@ -69,8 +69,8 @@ MAClayer::audioDeviceIOCallback(const float** inputChannelData, int numInputChan
     Mac_sender.audioDeviceIOCallback(inputChannelData, numInputChannels, outputChannelData, numOutputChannels, numSamples);
 }
 
-void 
-MAClayer::receive() 
+void
+MAClayer::receive()
 {
     cout << "...receiving...\n";
     bool if_receive_done = false;
@@ -170,7 +170,7 @@ MAClayer::receive()
             mac_ping_array.removeFirstMatchingValue(reply_id);
             //requestSend(reply_id, TYPE_MACPING_REQUEST);
         }
-        else 
+        else
         {
             cerr << "what is this ?\n";
         }
@@ -182,16 +182,16 @@ void
 MAClayer::send() {
     //init parameters
     int id = 0;
-    if (macperf_on)
+    /*if (macperf_on)
         requestSend();
     else if (macping_on)
         requestSend(0, TYPE_MACPING_REQUEST);
     else if (icmp_on)
-        requestSend(0, TYPE_ICMP);
+        requestSend(0, TYPE_ICMP_REQUEST);
     else {
         readFromFile(Mac_num_frame);
         requestSend(data_frames[0]);
-    }
+    }*/
     while (!Mac_stop)
     {
         for (int i = 0; i < min(send_id_array.size(), window_size); i++)
@@ -210,7 +210,7 @@ MAClayer::send() {
                     }
                 }
                 Mac_sender.sendOnePacket(frame_array[id].get()->getFrame_size() + FRAME_OFFSET, frame_array[id].get()->toBitStream());
-                
+
                 frame_array[id].get()->setSendTime();
                 if (frame_array[id].get()->getType() == TYPE_DATA)
                 {
@@ -225,9 +225,9 @@ MAClayer::send() {
                     frame_array[id].get()->setStatus(Status_Acked);
                     if (frame_array[id].get()->getType() == TYPE_MACPING_REQUEST)
                     {
-                       /* while (!Mac_sender.isFinished()) {}
-                        frame_array[id].get()->setSendTime();*/
-                        //frame_array[id].get()->setStatus(Status_Sent);
+                        /* while (!Mac_sender.isFinished()) {}
+                         frame_array[id].get()->setSendTime();*/
+                         //frame_array[id].get()->setStatus(Status_Sent);
                         cout << "macping request " << id << " sent.\n";
                     }
                     else if (frame_array[id].get()->getType() == TYPE_MACPING_REPLY)
@@ -265,7 +265,7 @@ MAClayer::send() {
     }
 }
 
-void 
+void
 MAClayer::macperf_send() {
     const int perf_frame_len = 1024;
     MACframe perf_frame(dst_addr, src_addr, perf_frame_len);
@@ -462,7 +462,7 @@ MAClayer::sendAck()
 }
 
 
-void 
+void
 MAClayer::Write2File()
 {
     int bytecount = 0;
@@ -563,7 +563,7 @@ MAClayer::requestSend(std::vector<int8_t> frame_data) {
 }
 
 // requestSend for macping packet
-int 
+int
 MAClayer::requestSend(int8_t request_id, int8_t type)
 {
     const ScopedLock sl(lock);
@@ -580,13 +580,13 @@ MAClayer::requestSend(int8_t request_id, int8_t type)
     return id;
 }
 
-int 
+int
 MAClayer::requestSend() {
     const ScopedLock sl(lock);
     int id = id_controller_array.getFirst();
     id_controller_array.remove(0);
     unique_ptr<MACframe> macperf_frame;
-    macperf_frame.reset(new MACframe(dst_addr, src_addr, num_bits_per_frame-FRAME_OFFSET));
+    macperf_frame.reset(new MACframe(dst_addr, src_addr, num_bits_per_frame - FRAME_OFFSET));
     macperf_frame->setFrameId(id);
     send_id_array.insert(-1, id);
     frame_array[id] = std::move(macperf_frame);

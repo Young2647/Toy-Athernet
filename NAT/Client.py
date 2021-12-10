@@ -12,9 +12,14 @@ def randomString(n):
 
 
 class Client :
-    def __init__(self, ip, port) :
+    def __init__(self, ip, port, icmp_on = False) :
+        self.icmp_on = icmp_on
         self.ip_port = (ip, port)
-        self.clientsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        if icmp_on:
+            self.clientsocket = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
+        else:
+            self.clientsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
 
     def sendData(self, data) :
         self.clientsocket.sendto(data, self.ip_port)

@@ -7,7 +7,7 @@
 #define TYPE_DATA 1
 #define TYPE_MACPING_REQUEST 2
 #define TYPE_MACPING_REPLY 3
-#define TYPE_ICMP 4
+#define TYPE_ICMP_REQUEST 4
 
 #define NO_HEADER -1
 #define SYNC 0
@@ -25,8 +25,9 @@
 
 #define FRAME_OFFSET 32
 #define CRC_LEN 8
+#define IP_PORT_LEN 48
 
-#define MAX_BYTE_NUM 5000
+#define MAX_BYTE_NUM 1200
 #define DEAFULT_WINDOW_SIZE 63
 
 #define DEFAULT_RECEIVE_NUM 50
@@ -35,6 +36,8 @@
 #define ZYB 0x10
 #define NODE1_ADDR 0xc0a80102
 #define NODE1_PORt 23334
+#define MODE_UDP_NODE1 0x0b
+#define MODE_UDP_NODE2 0x0a
 constexpr size_t QUEUE_SIZE = 256;
 enum STATE {
 	FrameDetection = 1, Tx, Rx, TxACK
