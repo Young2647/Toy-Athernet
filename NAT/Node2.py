@@ -35,7 +35,12 @@ class Node2 :
                 data = f.read()
                 self.decodeByte(data)
 
+    def checkNotify(self) :
+        if os.path.exists("WRITE_DOWN.txt") :
+            os.remove("WRITE_DOWN.txt")
+
     def receiveFromNode3(self) :
+        self.checkNotify()
         with open("input.bin", "wb") as inputfile : 
             while True :
                 if msvcrt.kbhit() : break

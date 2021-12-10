@@ -20,7 +20,6 @@ using namespace std;
 #define MODE_UDP_NODE2 0x0a
 
 
-
 //====================================main func==========================================
 int main(int argc, char* argv[])
 {
@@ -43,7 +42,6 @@ int main(int argc, char* argv[])
         {
             notify_file.open("WRITE_DOWN.txt", ios::in);
         }
-        if (notify_file) remove("WRITE_DOWN.txt");
         int num_bits_per_frame = 408; // 51 bytes
         int num_frame = 30; //30 frames
         std::unique_ptr<MAClayer> mac_layer;
