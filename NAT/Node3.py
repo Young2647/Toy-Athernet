@@ -3,11 +3,11 @@ from Client import Client
 from Server import Server
 import os
 import msvcrt
-
+import time
 class Node3 :
-    def __init__(self, debug_on = False):
-        self.client = Client("10.19.78.34", 23333) # send data to node2, node2 address needed 
-        self.server = Server(23333)
+    def __init__(self, debug_on = False, ip = "10.20.220.107", port = 23333):
+        self.client = Client(ip, port) # send data to node2, node2 address needed 
+        #self.server = Server(port)
         self.debug_on = debug_on
     def receiveFromNode2(self) :
         with open("output.bin", "w") as outputfile : 
@@ -29,8 +29,9 @@ class Node3 :
             with open("input.txt") as inputfile :
                 for line_data in inputfile :
                     if self.debug_on :
-                        print(len(line_data))
+                        print(line_data)
                     self.client.sendData(line_data.encode('utf8'))
+                    time.sleep(0.1)
                 if self.debug_on :
                     print("All Data Sent.")
             self.client.StopClient()
