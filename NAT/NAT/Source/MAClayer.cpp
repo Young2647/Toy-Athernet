@@ -209,7 +209,7 @@ MAClayer::send() {
                         this_thread::sleep_for(back_off_time);
                     }
                 }
-                Mac_sender.sendOnePacket(frame_array[id].get()->getFrame_size() + FRAME_OFFSET, frame_array[id].get()->toBitStream());
+                Mac_sender.sendOnePacket(frame_array[id].get()->getFrame_size() + FRAME_OFFSET + IP_PORT_LEN, frame_array[id].get()->toBitStream());
 
                 frame_array[id].get()->setSendTime();
                 if (frame_array[id].get()->getType() == TYPE_DATA)

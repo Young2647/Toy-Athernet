@@ -55,8 +55,14 @@ MACframe::MACframe(int8_t dst_address, int8_t src_address, int8_t ack_id) {
 // constructor for data frame
 MACframe::MACframe(int8_t dst_address, int8_t src_address, std::vector<int8_t> frame_data) : crc() {
     type = (int8_t)TYPE_DATA;
+    int8_t node1_addr[4] = { 192, 168, 1, 2 };
+    int8_t node1_port[2] = { 91, 38 };
     this->dst_address = dst_address;
     this->src_address = src_address;
+    for (int i = 0; i < 2; i++)
+        frame_data.insert(frame_data.begin(), node1_port[1 - i]);
+    for (int i = 0; i < 4; i++)
+        frame_data.insert(frame_data.begin(), node1_addr[3 - i]);
     for (int i = 0; i < frame_data.size(); i++) {
         crc.updateCRC(frame_data[i]);
         for (int k = 7; k >= 0; k--)
