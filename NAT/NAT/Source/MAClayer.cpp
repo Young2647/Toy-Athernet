@@ -183,7 +183,7 @@ MAClayer::receive()
         }
         else if (receive_frame.getType() == TYPE_ICMP_REPLY)
         {
-            int reply_id = (int)receive_frame.getData()[0];
+            int reply_id = (int)receive_frame.getICMPID();
             cout << "ICMP " << reply_id << "get replied from " << receive_frame.getIPAddr();
             std::chrono::duration<double, std::milli> diff = receive_frame.getReceiveTime() - frame_array[reply_id].get()->getSendTime();
             cout << "RTT is " << diff.count() << "ms.\n";
