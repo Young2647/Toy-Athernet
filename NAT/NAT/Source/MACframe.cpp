@@ -41,6 +41,8 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
         for (int i = 4; i < 8; i++)
             ip_port.add(all_data[i]);
         translateAddrPort();
+        for (int i = 8; i < all_data.size(); i++)
+            data.add(all_data[i]);
     }
     resend_times = 0;
 }
@@ -107,9 +109,11 @@ MACframe::MACframe(int8_t type, int8_t dst_address, int8_t src_address, std::str
     this->ip_address = ip_address;
     std::vector<int8_t> address_array;
     split_address(ip_address, address_array);
-    for (int i = 0; i < 4; i++)
+    for (int i = 3; i >= 0; i--)
         for (int j = 0; j < 8; j++)
             data.insert(0, (int8_t)((address_array[i] >> j) & 1));
+    for (int i = 0; i < 43*8; i++)
+        data.add(rand() % 2);
     frame_status = Status_Waiting;
     resend_times = 0;
 }
