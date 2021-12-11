@@ -114,7 +114,7 @@ private:
     std::vector<unique_ptr<MACframe>> frame_array;
     std::vector<std::unique_ptr<MACframe>> ack_queue; //queue to send ack
     std::vector<std::vector<int8_t>> data_frames;
-    int cur_frame;
+    int cur_frame = 0;
     
     Array<bool> ack_array;//array that record if ack is received
     std::vector<Array<int8_t>> file_output;

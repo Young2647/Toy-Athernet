@@ -157,7 +157,13 @@ MAClayer::receive()
                     requestSend();
                 }
                 else
+                {
+                    while (cur_frame <= frame_sent_num)
+                    {
+
+                    }
                     requestSend(data_frames[frame_sent_num]);
+                }
             }
         }
         else if (receive_frame.getType() == TYPE_MACPING_REQUEST)

@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
     dev_info = dev_manager.getAudioDeviceSetup();
     dev_info.sampleRate = 48000; // Setup sample rate to 48000 Hz
     dev_manager.setAudioDeviceSetup(dev_info, false);
-    int mode = MODE_UDP_NODE2_SEND;
+    int mode = MODE_ICMP_NODE2;
     if (mode == MODE_UDP_NODE2_SEND)
     {
         std::cout << "Press any ENTER to start MAClayer.\n";
@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
         {
             std::fstream notify_file;
             notify_file.open("WRITE_DOWN.txt", ios::in);
-            while (!notify_file)
+            while (!notify_file && !mac_layer.get()->getStop())
             {
                 notify_file.open("WRITE_DOWN.txt", ios::in);
                 if (kbhit()) break;
@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
                 notify_num++;
                 cout << "Get notified by python\n";
             }
-            mac_layer.get()->readFromFile(notify_num, "input.bin");
+            mac_layer.get()->readFromFile("input.bin");
             if (notify_num == 1)
             {
                 mac_layer.get()->requestSend(0);
@@ -227,10 +227,20 @@ int main(int argc, char* argv[])
             std::fstream notify_file;
             notify_file.open("WRITE_DOWN.txt", ios::in);
             cout << "Waiting for python to notify...\n";
+            bool imm_stop = false;
             while (!notify_file)
             {
                 notify_file.open("WRITE_DOWN.txt", ios::in);
-                if (kbhit()) break;
+                if (kbhit())
+                {
+                    imm_stop = true;
+                    break;
+                }
+            }
+            if (imm_stop)
+            {
+                mac_layer.get()->callStop(1);
+                break;
             }
             if (notify_file)
             {
