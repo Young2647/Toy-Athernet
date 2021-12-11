@@ -38,10 +38,10 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
             data.add(all_data[i]);
     }
     else if (type == TYPE_ICMP_REQUEST || type == TYPE_ICMP_REPLY) {
-        for (int i = 4; i < 10; i++)
+        for (int i = 4; i < 9; i++)
             ip_port.add(all_data[i]);
         translateAddrPort(true);
-        for (int i = 10; i < all_data.size(); i++)
+        for (int i = 9; i < all_data.size(); i++)
             data.add(all_data[i]);
     }
     resend_times = 0;
@@ -162,10 +162,10 @@ void
 MACframe::translateAddrPort(bool icmp) {
     ip_address = "";
     if (icmp) {
-        icmp_id = (int)(unsigned char)ip_port[0] * 16 * 16 + (int)(unsigned char)ip_port[1];
-        for (int i = 2; i < 6; i++) {
+        icmp_id = (int)(unsigned char)ip_port[0];
+        for (int i = 1; i < 5; i++) {
             ip_address += std::to_string((int)(unsigned char)ip_port[i]);
-            if (i != 5)
+            if (i != 4)
                 ip_address += ".";
         }
     }
