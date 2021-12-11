@@ -208,7 +208,7 @@ MAClayer::send() {
    /* else if (icmp_on)
         requestSend(0, TYPE_ICMP_REQUEST);*/
     else if (is_sender){
-        readFromFile(Mac_num_frame, "input.in");
+        //readFromFile(Mac_num_frame, "input.txt");
         requestSend(data_frames[0]);
     }
     while (!Mac_stop)
@@ -248,7 +248,7 @@ MAClayer::send() {
                     }
                     else if (frame_array[id].get()->getType() == TYPE_ICMP_REPLY)
                     {
-                        cout << "icmp reply " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
+                        cout << "ICMP reply " << (int)frame_array[id].get()->getICMPID() << " sent.\n";
                     }
                     if (frame_array[id].get()->getType() == TYPE_MACPING_REQUEST)
                     {
@@ -582,6 +582,7 @@ MAClayer::sendICMPreply()
 
 bool
 MAClayer::readFromFile(int num_frame, const string file_name) {
+    data_frames.clear();
     data_frames.resize(num_frame);
     fstream test;
     test.open(getPath(file_name), ios::in | ios::binary);

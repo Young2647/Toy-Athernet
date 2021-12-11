@@ -9,7 +9,7 @@
 #include <JuceHeader.h>
 #include <fstream>
 #include <conio.h>
-#include <stdlib.h>
+#include <stdio.h>
 #include "sender.h"
 #include "receiver.h"
 #include "defines.h"
@@ -31,15 +31,22 @@ int main(int argc, char* argv[])
     dev_info = dev_manager.getAudioDeviceSetup();
     dev_info.sampleRate = 48000; // Setup sample rate to 48000 Hz
     dev_manager.setAudioDeviceSetup(dev_info, false);
-    int mode = MODE_ICMP_NODE2;
+    int mode = MODE_UDP_NODE2_RECEIVE;
     if (mode == MODE_UDP_NODE2_SEND)
     {
+        std::cout << "Press any ENTER to start MAClayer.\n";
+        getchar();
         std::fstream notify_file;
         notify_file.open("WRITE_DOWN.txt", ios::in);
         cout << "Waiting for python to notify...\n";
         while (!notify_file)
         {
             notify_file.open("WRITE_DOWN.txt", ios::in);
+        }
+        if (notify_file)
+        {
+            notify_file.close();
+            system("del WRITE_DOWN.txt");
         }
         int num_bits_per_frame = 408; // 51 bytes
         int num_frame = 30; //30 frames
@@ -67,6 +74,8 @@ int main(int argc, char* argv[])
         return 0;
     }
     else if (mode == MODE_UDP_NODE1_RECEIVE) {
+        std::cout << "Press any ENTER to start MAClayer.\n";
+        getchar();
         std::unique_ptr<MAClayer> mac_layer;
         int num_bits_per_frame = 408; // 51 bytes
         int num_frame = 30; //30 frames
@@ -94,6 +103,8 @@ int main(int argc, char* argv[])
     }
     else if (mode == MODE_UDP_NODE2_RECEIVE)
     {
+        std::cout << "Press any ENTER to start MAClayer.\n";
+        getchar();
         std::unique_ptr<MAClayer> mac_layer;
         int num_bits_per_frame = 408; // 51 bytes
         int num_frame = 30; //30 frames
@@ -111,7 +122,8 @@ int main(int argc, char* argv[])
             if (kbhit()) mac_layer.get()->callStop(1);
         }
         mac_layer.get()->StopMAClayer();
-        fstream notify_file("NOTIFY_DONE.txt"); //notify python node 
+        ofstream notify_file = std::ofstream("NOTIFY_DONE.txt"); //notify python node 
+        notify_file.close();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_time).count();
         std::cout << "Transmit time : " << duration << "ms.\n";
         dev_manager.removeAudioCallback(mac_layer.get());
@@ -122,6 +134,8 @@ int main(int argc, char* argv[])
     }
     else if (mode == MODE_UDP_NODE1_SEND)
     {
+        std::cout << "Press any ENTER to start MAClayer.\n";
+        getchar();
         std::unique_ptr<MAClayer> mac_layer;
         int num_bits_per_frame = 408; // 51 bytes
         int num_frame = 30; //30 frames
@@ -132,6 +146,7 @@ int main(int argc, char* argv[])
         mac_layer.get()->setSendIP();
         mac_layer.get()->setSender();
         dev_manager.addAudioCallback(mac_layer.get());
+        mac_layer.get()->readFromFile(num_frame, "input.txt");
         mac_layer.get()->StartMAClayer();
         auto start_time = std::chrono::system_clock::now();
         std::cout << "Press any ENTER to stop MAClayer.\n";
@@ -209,6 +224,11 @@ int main(int argc, char* argv[])
             {
                 notify_file.open("WRITE_DOWN.txt", ios::in);
                 if (kbhit()) break;
+            }
+            if (notify_file)
+            {
+                notify_file.close();
+                system("del WRITE_DOWN.txt");
             }
             //c++ get notified, send reply to node1
             if (mac_layer.get()->readFromFile(1, "reply.txt"))

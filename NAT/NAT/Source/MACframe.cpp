@@ -107,6 +107,7 @@ MACframe::MACframe(int8_t type, int8_t icmp_id, int8_t dst_address, int8_t src_a
     this->src_address = src_address;
     this->type = type;
     this->ip_address = ip_address;
+    this->icmp_id = icmp_id;
     std::vector<int8_t> address_array;
     split_address(ip_address, address_array);
     for (int i = 3; i >= 0; i--)
