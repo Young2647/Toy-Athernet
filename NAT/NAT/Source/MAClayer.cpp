@@ -119,7 +119,8 @@ MAClayer::receive()
                     cout << " CRC check pass!\n";
                 if (!macperf_on)
                     if (frame_to_receive_list[receive_id]) {
-                        receive_frame.printFrame();
+                        if (!is_icmp_receiver)
+                            receive_frame.printFrame();
                         file_output.push_back(receive_frame.getData());
                         frame_to_receive_list[receive_id] = 0;
                         frame_receive_increase = 1;
@@ -169,6 +170,12 @@ MAClayer::receive()
             cout << "RTT is " << diff.count() << "ms.\n";
             mac_ping_array.removeFirstMatchingValue(reply_id);
             //requestSend(reply_id, TYPE_MACPING_REQUEST);
+        }
+        else if (receive_frame.getType() == TYPE_ICMP_REQUEST)
+        {
+            cout << "ICMP request " << (int)receive_frame.getFrame_id() << " received.\n";
+            Write2File(receive_frame.getFrame_id(), receive_frame.getData(), "request.bin");
+            fstream notify_file("ICMP_NOTIFY.txt"); //notify python to work
         }
         else
         {
@@ -473,12 +480,18 @@ MAClayer::sendAck()
     }
 }
 
+void 
+MAClayer::Write2File(int8_t id, Array<int8_t> data, const string file_name)
+{
+    fstream tmp_writer(file_name);
+    tmp_writer.write((char*)&id, 1);
+    tmp_writer.write((char*)data.getRawDataPointer(), data.size());
+}
 
 void
 MAClayer::Write2File()
 {
     int bytecount = 0;
-    auto tmp = file_output.size();
     for (auto data : file_output)
     {
         if (bytecount + data.size() >= all_byte_num)

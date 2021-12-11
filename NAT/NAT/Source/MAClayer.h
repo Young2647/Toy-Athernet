@@ -17,7 +17,7 @@ public:
     ~MAClayer();
     
     void Write2File();
-
+    void Write2File(int8_t id, Array<int8_t> data, const string file_name);
     void receive(); //receiving datas
 
     void send(); //sending data
