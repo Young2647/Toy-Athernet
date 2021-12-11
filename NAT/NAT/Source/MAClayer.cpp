@@ -175,7 +175,7 @@ MAClayer::receive()
         {
             cout << "ICMP request " << (int)receive_frame.getFrame_id() << " received.\n";
             Write2File(receive_frame.getFrame_id(), receive_frame.getData(), "request.bin");
-            fstream notify_file("ICMP_NOTIFY.txt"); //notify python to work
+            ofstream notify_file = std::ofstream("ICMP_NOTIFY.txt"); //notify python to work
         }
         else if (receive_frame.getType() == TYPE_ICMP_REPLY)
         {
@@ -506,7 +506,7 @@ MAClayer::sendAck()
 void 
 MAClayer::Write2File(int8_t id, Array<int8_t> data, const string file_name)
 {
-    fstream tmp_writer(file_name);
+    ofstream tmp_writer = std::ofstream(file_name);
     tmp_writer.write((char*)&id, 1);
     tmp_writer.write((char*)data.getRawDataPointer(), data.size());
 }
@@ -542,9 +542,12 @@ std::string getPath(const std::string& target, int depth = 5) {
     return target;
 }
 
-void
+bool
 MAClayer::readFromFile(int num_frame, const string file_name) {
     data_frames.resize(num_frame);
+    fstream test;
+    test.open(getPath(file_name), ios::in | ios::binary);
+    if (!test) return false; //read file failed!
     ifstream f(getPath(file_name), ios::in | ios::binary);
     //ofstream f1("test.out");
     vector<int8_t> vec;
@@ -571,6 +574,7 @@ MAClayer::readFromFile(int num_frame, const string file_name) {
     }
     f1.close();*/
     f.close();
+    return true;
 }
 
 

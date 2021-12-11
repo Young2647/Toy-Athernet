@@ -181,12 +181,14 @@ int main(int argc, char* argv[])
     }
     else if (mode == MODE_ICMP_NODE2)
     {
+        std::cout << "Press any ENTER to start MAClayer.\n";
+        getchar();
         std::unique_ptr<MAClayer> mac_layer;
         int num_bits_per_frame = 408; // 51 bytes
         int num_frame = 30; //30 frames
         if (mac_layer.get() == nullptr)
         {
-            mac_layer.reset(new MAClayer(3, num_bits_per_frame, num_frame, ZYB, YHD, 20));
+            mac_layer.reset(new MAClayer(3, num_bits_per_frame, num_frame, YHD, ZYB, 20));
         }
         //mac_layer.get()->setSendIP();
         //mac_layer.get()->setSender();
@@ -207,8 +209,8 @@ int main(int argc, char* argv[])
                 if (kbhit()) break;
             }
             //c++ get notified, send reply to node1
-            mac_layer.get()->readFromFile(1, "reply.txt");
-            mac_layer.get()->requestSend(0);
+            if(mac_layer.get()->readFromFile(1, "reply.txt"))
+                mac_layer.get()->requestSend(0);
             if (kbhit()) mac_layer.get()->callStop(1);
         }
         mac_layer.get()->StopMAClayer();

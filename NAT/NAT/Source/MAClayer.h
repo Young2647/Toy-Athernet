@@ -36,7 +36,7 @@ public:
 
     void StopMAClayer();
 
-    void readFromFile(int num_frame, const string file_name);
+    bool readFromFile(int num_frame, const string file_name);
 
     void audioDeviceIOCallback(const float** inputChannelData, int numInputChannels,
         float** outputChannelData, int numOutputChannels, int numSamples);
