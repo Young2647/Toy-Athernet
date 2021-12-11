@@ -19,12 +19,7 @@ class Node2 :
         self.node1data = []
         self.debug_on = debug_on
 
-    def decodeByte(self, data) :
-        for line_data in data :
-            self.node1data.append(line_data.encode())
-    
-    def sendToNode3(self) :
-        for line_data in self.node1data :
+    def sendToNode3(self, line_data) :
             if self.debug_on :
                 print(line_data.decode())
             self.client.sendData(line_data)
@@ -38,7 +33,7 @@ class Node2 :
                 break
         if os.path.exists("output.txt") :
             with open("output.txt") as f :
-                self.decodeByte(f)
+                self.sendToNode3(f.read().encode())
 
     def receiveFromNode3(self) :
         with open("input.bin", "wb") as inputfile : 
@@ -193,11 +188,11 @@ if __name__ == "__main__" :
     if mode == SEND :
         node2 = Node2(True,"10.20.198.211", isClient=True)
         data_sent = 0
-        while data_sent < 30 :
+        while True:
             if msvcrt.kbhit() : break
             node2.receiveFromNode1()
-            node2.sendToNode3()
             data_sent += 1
+            if data_sent > 30 : break
         print("All data sent.")
         node2.client.StopClient()
     elif mode == RECEIVE :
