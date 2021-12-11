@@ -175,7 +175,9 @@ MAClayer::receive()
         {
             cout << "ICMP request " << (int)receive_frame.getFrame_id() << " received.\n";
             Array<int8_t> all_data = receive_frame.getData();
-            all_data.insert(-1, receive_frame.getFrame_id());
+            all_data.insert(0, receive_frame.getFrame_id());
+            std::vector<int8_t> vec;
+            for (int i = 0; i < all_data.size(); i++) vec.push_back(all_data[i]);
             Write2File(all_data, "request.bin");
             ofstream notify_file = std::ofstream("ICMP_NOTIFY.txt"); //notify python to work
         }
@@ -246,7 +248,7 @@ MAClayer::send() {
                     }
                     else if (frame_array[id].get()->getType() == TYPE_ICMP_REPLY)
                     {
-                        cout << "macping reply " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
+                        cout << "icmp reply " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
                     }
                     if (frame_array[id].get()->getType() == TYPE_MACPING_REQUEST)
                     {
@@ -520,7 +522,7 @@ MAClayer::sendAck()
 void 
 MAClayer::Write2File(Array<int8_t> data, const string file_name)
 {
-    ofstream tmp_writer = std::ofstream(file_name);
+    ofstream tmp_writer = std::ofstream(file_name, ios::out|ios::binary);
     tmp_writer.write((char*)data.getRawDataPointer(), data.size());
 }
 
