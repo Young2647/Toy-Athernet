@@ -29,9 +29,6 @@ class Node2 :
                 print(line_data.decode())
             self.client.sendData(line_data)
             time.sleep(0.04)
-        if self.debug_on :
-            print("All data sent.")
-        self.client.StopClient()
     
     def receiveFromNode1(self) :
         while True :
@@ -39,8 +36,8 @@ class Node2 :
             if os.path.exists("NOTIFY_DONE.txt") :
                 os.remove("NOTIFY_DONE.txt")
                 break
-        if os.path.exists("OUTPUT.bin") :
-            with open("OUTPUT.bin") as f :
+        if os.path.exists("output.txt") :
+            with open("output.txt") as f :
                 self.decodeByte(f)
 
     def receiveFromNode3(self) :
@@ -195,8 +192,14 @@ if __name__ == "__main__" :
         mode = ICMP
     if mode == SEND :
         node2 = Node2(True,"10.20.198.211", isClient=True)
-        node2.receiveFromNode1()
-        node2.sendToNode3()
+        data_sent = 0
+        while data_sent < 30 :
+            if msvcrt.kbhit() : break
+            node2.receiveFromNode1()
+            node2.sendToNode3()
+            data_sent += 1
+        print("All data sent.")
+        node2.client.StopClient()
     elif mode == RECEIVE :
         node2 = Node2(True,"10.20.220.107", isClient=False)
         node2.checkNotify()

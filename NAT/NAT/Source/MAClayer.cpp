@@ -124,6 +124,9 @@ MAClayer::receive()
                         file_output.push_back(receive_frame.getData());
                         frame_to_receive_list[receive_id] = 0;
                         frame_receive_increase = 1;
+                        Write2File(receive_frame.getData(), "output.txt");
+                        ofstream notify_file = std::ofstream("NOTIFY_DONE.txt"); //notify python node 
+                        notify_file.close();
                     }
                 requestSend(receive_id);
             }
@@ -180,6 +183,7 @@ MAClayer::receive()
             for (int i = 0; i < all_data.size(); i++) vec.push_back(all_data[i]);
             Write2File(all_data, "request.bin");
             ofstream notify_file = std::ofstream("ICMP_NOTIFY.txt"); //notify python to work
+            notify_file.close();
         }
         else if (receive_frame.getType() == TYPE_ICMP_REPLY)
         {

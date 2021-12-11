@@ -122,8 +122,6 @@ int main(int argc, char* argv[])
             if (kbhit()) mac_layer.get()->callStop(1);
         }
         mac_layer.get()->StopMAClayer();
-        ofstream notify_file = std::ofstream("NOTIFY_DONE.txt"); //notify python node 
-        notify_file.close();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_time).count();
         std::cout << "Transmit time : " << duration << "ms.\n";
         dev_manager.removeAudioCallback(mac_layer.get());
