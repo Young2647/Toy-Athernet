@@ -46,9 +46,6 @@ class Node2 :
                     if (self.debug_on) :
                         print("address is : ", address, "data is : ", data)
                         self.writeToFile(inputfile, data.encode('utf8'), address)
-            if (self.debug_on) :
-                print("All data received.")
-            self.server.stopServer()
     
     def writeToFile(self, inputfile, data, address) :
         inputfile.write(socket.inet_aton(address[0]))
@@ -197,9 +194,16 @@ if __name__ == "__main__" :
         node2.client.StopClient()
     elif mode == RECEIVE :
         node2 = Node2(True,"10.20.220.107", isClient=False)
-        node2.checkNotify()
-        node2.receiveFromNode3()
-        node2.notifyAther()
+        data_sent = 0
+        while True :
+            if msvcrt.kbhit() : break
+            node2.checkNotify()
+            node2.receiveFromNode3()
+            node2.notifyAther()
+            data_sent += 1
+            if data_sent > 30 : break
+        print("All data received")
+        node2.server.stopServer()
     elif mode == ICMP :
         node2 = Node2(True, isClient=True)
         while True :

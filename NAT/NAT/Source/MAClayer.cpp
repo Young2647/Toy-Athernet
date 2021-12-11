@@ -157,7 +157,8 @@ MAClayer::receive()
                     requestSend();
                 }
                 else
-                    requestSend(data_frames[frame_sent_num]);
+                    if (is_sender)
+                        requestSend(data_frames[frame_sent_num]);
             }
         }
         else if (receive_frame.getType() == TYPE_MACPING_REQUEST)
@@ -586,7 +587,8 @@ MAClayer::sendICMPreply()
 
 bool
 MAClayer::readFromFile(int num_frame, const string file_name) {
-    data_frames.clear();
+    if(num_frame == 1)
+        data_frames.clear();
     data_frames.resize(num_frame);
     fstream test;
     test.open(getPath(file_name), ios::in | ios::binary);

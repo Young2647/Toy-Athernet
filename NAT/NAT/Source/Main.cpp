@@ -31,23 +31,11 @@ int main(int argc, char* argv[])
     dev_info = dev_manager.getAudioDeviceSetup();
     dev_info.sampleRate = 48000; // Setup sample rate to 48000 Hz
     dev_manager.setAudioDeviceSetup(dev_info, false);
-    int mode = MODE_UDP_NODE2_RECEIVE;
+    int mode = MODE_UDP_NODE2_SEND;
     if (mode == MODE_UDP_NODE2_SEND)
     {
         std::cout << "Press any ENTER to start MAClayer.\n";
         getchar();
-        std::fstream notify_file;
-        notify_file.open("WRITE_DOWN.txt", ios::in);
-        cout << "Waiting for python to notify...\n";
-        while (!notify_file)
-        {
-            notify_file.open("WRITE_DOWN.txt", ios::in);
-        }
-        if (notify_file)
-        {
-            notify_file.close();
-            system("del WRITE_DOWN.txt");
-        }
         int num_bits_per_frame = 408; // 51 bytes
         int num_frame = 30; //30 frames
         std::unique_ptr<MAClayer> mac_layer;
@@ -55,13 +43,30 @@ int main(int argc, char* argv[])
         {
             mac_layer.reset(new MAClayer(3, num_bits_per_frame, num_frame, YHD, ZYB, 20));
         }
-        mac_layer.get()->setSender();
+        //mac_layer.get()->setSender();
         dev_manager.addAudioCallback(mac_layer.get());
         mac_layer.get()->StartMAClayer();
         auto start_time = std::chrono::system_clock::now();
+        int notify_num = 0;
         std::cout << "Press any ENTER to stop MAClayer.\n";
         while (!mac_layer.get()->getStop())
         {
+            std::fstream notify_file;
+            notify_file.open("WRITE_DOWN.txt", ios::in);
+            cout << "Waiting for python to notify...\n";
+            while (!notify_file)
+            {
+                notify_file.open("WRITE_DOWN.txt", ios::in);
+                if (kbhit()) break;
+            }
+            if (notify_file)
+            {
+                notify_file.close();
+                system("del WRITE_DOWN.txt");
+                notify_num++;
+            }
+            mac_layer.get()->readFromFile(notify_num, "input.bin");
+            mac_layer.get()->requestSend(notify_num - 1);
             if (kbhit()) mac_layer.get()->callStop(1);
         }
         mac_layer.get()->StopMAClayer();
