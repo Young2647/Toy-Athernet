@@ -29,7 +29,7 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
                 data.add(all_data[i]);
             crc.updateCRC(all_data[i]);
         }
-        translateAddrPort();
+        translateAddrPort(false);
         if (frame_crc != crc.getCRC())
             bad_crc = 1;
     }
@@ -38,10 +38,10 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
             data.add(all_data[i]);
     }
     else if (type == TYPE_ICMP_REQUEST || type == TYPE_ICMP_REPLY) {
-        for (int i = 4; i < 8; i++)
+        for (int i = 4; i < 10; i++)
             ip_port.add(all_data[i]);
-        translateAddrPort();
-        for (int i = 8; i < all_data.size(); i++)
+        translateAddrPort(true);
+        for (int i = 10; i < all_data.size(); i++)
             data.add(all_data[i]);
     }
     resend_times = 0;
@@ -101,7 +101,7 @@ MACframe::MACframe(int8_t dst_address, int8_t src_address, int frame_bit_num) {
 }
 
 //constructor for icmp frame
-MACframe::MACframe(int8_t type, int8_t dst_address, int8_t src_address, std::string ip_address)
+MACframe::MACframe(int8_t type, int8_t icmp_id, int8_t dst_address, int8_t src_address, std::string ip_address)
 {
     this->dst_address = dst_address;
     this->src_address = src_address;
@@ -112,7 +112,9 @@ MACframe::MACframe(int8_t type, int8_t dst_address, int8_t src_address, std::str
     for (int i = 3; i >= 0; i--)
         for (int j = 0; j < 8; j++)
             data.insert(0, (int8_t)((address_array[i] >> j) & 1));
-    for (int i = 0; i < 43*8; i++)
+    for (int i = 0; i < 8; i++)
+        data.insert(0, (int8_t)((icmp_id >> i) & 1));
+    for (int i = 0; i < 42*8; i++)
         data.add(rand() % 2);
     frame_status = Status_Waiting;
     resend_times = 0;
@@ -157,8 +159,16 @@ MACframe::toBitStream() {
 }
 
 void
-MACframe::translateAddrPort() {
+MACframe::translateAddrPort(bool icmp) {
     ip_address = "";
+    if (icmp) {
+        icmp_id = (int)(unsigned char)ip_port[0] * 16 * 16 + (int)(unsigned char)ip_port[1];
+        for (int i = 2; i < 6; i++) {
+            ip_address += std::to_string((int)(unsigned char)ip_port[i]);
+            if (i != 5)
+                ip_address += ".";
+        }
+    }
     for (int i = 0; i < 4; i++) {
         ip_address += std::to_string((int)(unsigned char)ip_port[i]);
         if (i != 3)
