@@ -36,7 +36,7 @@ public:
 
     void StopMAClayer();
 
-    void readFromFile(int num_frame);
+    void readFromFile(int num_frame, const string file_name);
 
     void audioDeviceIOCallback(const float** inputChannelData, int numInputChannels,
         float** outputChannelData, int numOutputChannels, int numSamples);
@@ -49,6 +49,7 @@ public:
     int requestSend(std::vector<int8_t> frame_data);
     int requestSend(int8_t request_id, int8_t type);
     int requestSend();
+    int requestSend(int i); //send the ith element in data_frame
     void startTimer(int8_t frame_data_id);
     void wait(int8_t data_frame_id);
     bool getIfPerfing() { return macperf_on; }
@@ -60,6 +61,8 @@ public:
     void setReceiver() { is_receiver = true; is_sender = false; }
     void setSender() { is_receiver = false; is_sender = true; }
     void setSendIP() { if_send_ip = true; }
+    void setICMPsender() { is_icmp_sender = true; }
+    void setICMPreceiver() { is_icmp_receiver = true; }
 private:
     Receiver Mac_receiver;
     Sender Mac_sender;
@@ -131,8 +134,10 @@ private:
     bool macping_on = false;
     bool icmp_on = false;
     bool debug_on = true;
-    bool is_receiver;
-    bool is_sender;
+    bool is_receiver = false;
+    bool is_sender = false;
+    bool is_icmp_sender = false;
+    bool is_icmp_receiver = false;
     int throughput;
     int acked_list;
     int window_size;

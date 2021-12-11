@@ -189,7 +189,7 @@ MAClayer::send() {
     else if (icmp_on)
         requestSend(0, TYPE_ICMP_REQUEST);
     else if (is_sender){
-        readFromFile(Mac_num_frame);
+        readFromFile(Mac_num_frame, "input.in");
         requestSend(data_frames[0]);
     }
     while (!Mac_stop)
@@ -495,9 +495,9 @@ std::string getPath(const std::string& target, int depth = 5) {
 }
 
 void
-MAClayer::readFromFile(int num_frame) {
+MAClayer::readFromFile(int num_frame, const string file_name) {
     data_frames.resize(num_frame);
-    ifstream f(getPath("input.bin"), ios::in | ios::binary);
+    ifstream f(getPath(file_name), ios::in | ios::binary);
     //ofstream f1("test.out");
     vector<int8_t> vec;
     char tmp;
@@ -585,6 +585,7 @@ MAClayer::requestSend(int8_t request_id, int8_t type)
     return id;
 }
 
+//requestSend for macperf packet
 int
 MAClayer::requestSend() {
     const ScopedLock sl(lock);
@@ -596,6 +597,11 @@ MAClayer::requestSend() {
     send_id_array.insert(-1, id);
     frame_array[id] = std::move(macperf_frame);
     return id;
+}
+
+int 
+MAClayer::requestSend(int data_id) {
+    return requestSend(data_frames[data_id]);
 }
 
 //void

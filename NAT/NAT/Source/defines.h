@@ -40,6 +40,8 @@
 #define MODE_UDP_NODE1_RECEIVE 0x0b
 #define MODE_UDP_NODE1_SEND 0x0c
 #define MODE_UDP_NODE2_RECEIVE 0x0d
+#define MODE_ICMP_NODE1 0x0e
+#define MODE_ICMP_NODE2 0x0f
 constexpr size_t QUEUE_SIZE = 256;
 enum STATE {
 	FrameDetection = 1, Tx, Rx, TxACK
