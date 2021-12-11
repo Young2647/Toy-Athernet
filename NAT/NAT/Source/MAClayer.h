@@ -17,7 +17,7 @@ public:
     ~MAClayer();
     
     void Write2File();
-
+    void Write2File(int8_t id, Array<int8_t> data, const string file_name);
     void receive(); //receiving datas
 
     void send(); //sending data
@@ -50,6 +50,7 @@ public:
     int requestSend(int8_t request_id, int8_t type);
     int requestSend();
     int requestSend(int i); //send the ith element in data_frame
+    int requestSend(int8_t request_id, int8_t type, std::string ip_address);
     void startTimer(int8_t frame_data_id);
     void wait(int8_t data_frame_id);
     bool getIfPerfing() { return macperf_on; }

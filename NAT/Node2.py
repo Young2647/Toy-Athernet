@@ -82,8 +82,9 @@ class Node2 :
             if os.path.exists("ICMP_NOTIFY.txt") :
                 os.remove("ICMP_NOTIFY.txt")
                 break
-        if os.path.exists("OUTPUT.bin") :
-            with open("OUTPUT.bin","rb") as f :
+        if os.path.exists("request.bin") :
+            with open("request.bin","rb") as f :
+                request_id = f.read(1)
                 ping_address = f.read(4)
                 data = f.read()
             ping_address = socket.inet_ntoa(ping_address) #bytes to address
@@ -99,6 +100,7 @@ class Node2 :
             else :
                 print("ICMP reply in ", reply_time, " s")
                 with open("reply.txt", 'wb') as f:
+                    f.write(request_id)
                     f.write(ping_address)
                     f.write(data)
                 self.notifyAther() #notify atherNode to work
