@@ -169,12 +169,14 @@ MACframe::translateAddrPort(bool icmp) {
                 ip_address += ".";
         }
     }
-    for (int i = 0; i < 4; i++) {
-        ip_address += std::to_string((int)(unsigned char)ip_port[i]);
-        if (i != 3)
-            ip_address += ".";
+    else {
+        for (int i = 0; i < 4; i++) {
+            ip_address += std::to_string((int)(unsigned char)ip_port[i]);
+            if (i != 3)
+                ip_address += ".";
+        }
+        port = (int)(unsigned char)ip_port[4] * 16 * 16 + (int)(unsigned char)ip_port[5];
     }
-    port = (int)(unsigned char)ip_port[4] * 16 * 16 + (int)(unsigned char)ip_port[5];
 }
 
 void 
