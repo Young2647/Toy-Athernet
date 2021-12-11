@@ -8,7 +8,7 @@ class Server :
         self.serversocket.bind(('', port))
 
     def receiveData(self) :
-        self.serversocket.settimeout(5)
+        # self.serversocket.settimeout(5)
         data, address = self.serversocket.recvfrom(1024)
         data = data.decode('utf8')
         return data, address
