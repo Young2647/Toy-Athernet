@@ -89,7 +89,7 @@ class Node2 :
             ping_address = socket.inet_ntoa(ping_address) #bytes to address
             if (self.debug_on) :
                 print("request ping from :", ping_address)    
-            packet = self.generateICMPpacket(ping_address,data)
+            packet = self.generateICMPpacket(data)
             self.ping_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP) #raw socket
             self.ping_socket.sendto(packet, (ping_address, 2333))
             self.req_time = time.time()
@@ -112,8 +112,8 @@ class Node2 :
             if result[0] == [] : break
             end_time = time.time()
             reply_packet, address = self.ping_socket.recvfrom(1024)
-            header = reply_packet[20:28]
-            icmp_type, code, check_sum, id, sequence = struct.unpack('bbHHh', reply_packet)
+            icmp_header = reply_packet[20:28]
+            icmp_type, code, check_sum, id, sequence = struct.unpack('bbHHh', icmp_header)
             dummy_header = struct.pack('bbHHh', icmp_type, code, 0, id, sequence)
             if id == self.ping_id and check_sum == self.calculateChecksum(dummy_header + data) :
                 final_time = end_time - self.req_time
@@ -122,15 +122,40 @@ class Node2 :
                 time_remain -= end_time - start_time
             if time_remain <= 0 : break
         return final_time
-    def calculateChecksum(self, data) :
-        s = 1 #waiting to be implemented
 
-    def generateICMPpacket(self,ping_address,data) :
-        self.ping_id = random(range(0,1000))
+    def calculateChecksum(self, data) :
+        checksum = 0
+        count = (len(data) / 2) * 2
+        i = 0
+
+        while i < count:
+            temp = data[i + 1] * 256 + data[i]
+            checksum = checksum + temp
+            checksum = checksum & 0xffffffff 
+            i = i + 2
+
+        if i < len(data):
+            checksum = checksum + data[len(data) - 1]
+            checksum = checksum & 0xffffffff
+
+        # 32-bit to 16-bit
+        checksum = (checksum >> 16) + (checksum & 0xffff)
+        checksum = checksum + (checksum >> 16)
+        checksum = ~checksum
+        checksum = checksum & 0xffff
+
+        checksum = checksum >> 8 | (checksum << 8 & 0xff00)
+        return checksum
+
+
+
+    def generateICMPpacket(self, data) :
+        self.ping_id = os.getpid() & 0xFFFF
         header = struct.pack('bbHHh', ICMP_ECHO_REQUEST, 0, 0, self.ping_id, 1) #dummy header without checksum
         check_sum = self.calculateChecksum(header + data)
-        header = struct.pack('bbHHh', ICMP_ECHO_REQUEST, 0, check_sum, id, 1) # real header
+        header = struct.pack('bbHHh', ICMP_ECHO_REQUEST, 0, socket.htons(check_sum), self.ping_id, 1) # real header
         return header + data
+
 SEND = 0
 RECEIVE = 1
 ICMP = 2
