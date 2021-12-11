@@ -40,6 +40,7 @@ public:
     int8_t getSrcAddr() { return src_address; }
     int8_t getDstAddr() { return dst_address; }
     std::string getIPAddr() { return ip_address; }
+    int8_t getICMPID() { return icmp_id; }
     Array<int8_t> toBitStream();
     void translateAddrPort(bool icmp);
     void split_address(const std::string& address_string, std::vector<int8_t>& address_array);
