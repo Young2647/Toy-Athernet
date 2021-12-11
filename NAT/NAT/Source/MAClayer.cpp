@@ -447,6 +447,15 @@ MAClayer::mac_ping()
 }
 
 void
+MAClayer::sendIcmpReq()
+{
+    int cnt = 0;
+    while (cnt < 10) {
+        requestSend(0, )
+    }
+}
+
+void
 MAClayer::sendAck()
 {
     while (!Mac_stop)
@@ -505,9 +514,9 @@ MAClayer::readFromFile(int num_frame, const string file_name) {
     for (int i = 0; i < num_frame; i++) {
         if (if_send_ip) {
             for (int j = 0; j < 4; j++)
-                data_frames[j].push_back(node1_addr[j]);
+                data_frames[i].push_back(node1_addr[j]);
             for (int j = 0; j < 2; j++)
-                data_frames[j].push_back(node1_port[j]);
+                data_frames[i].push_back(node1_port[j]);
         }
         for (int j = 0; j < byte_num; j++) {
             f.get(tmp);
@@ -599,10 +608,45 @@ MAClayer::requestSend() {
     return id;
 }
 
+// requestSend for icmp packet
+int
+MAClayer::requestSend(int8_t request_id, int8_t type, std::string ip_address)
+{
+    const ScopedLock sl(lock);
+    int id = id_controller_array.getFirst();
+    id_controller_array.remove(0);
+    unique_ptr<MACframe> icmp_frame;
+    icmp_frame.reset(new MACframe(type, request_id, dst_addr, src_addr, ip_address));
+    icmp_frame->setFrameId(id);
+    send_id_array.insert(-1, id);
+    icmp_array.add(id);
+    //temp_ack_array.insert(-1, id);
+    //ack_queue.push_back(std::move(ack_frame));
+    frame_array[id] = std::move(icmp_frame);
+    return id;
+}
+
+
+void
+MAClayer::callStop(bool identifier)
+{
+    if (!is_receiver) receive_end = true;
+    if (!is_sender) send_end = true;
+    if ((receive_end && send_end) || identifier == true) {
+        if (!all_stop)
+        {
+            all_stop = true;
+            if (!macperf_on)
+                Write2File();
+        }
+    }
+}
+
 int 
 MAClayer::requestSend(int data_id) {
     return requestSend(data_frames[data_id]);
 }
+
 
 //void
 //MAClayer::startTimer(int8_t data_frame_id) {
@@ -639,18 +683,3 @@ MAClayer::requestSend(int data_id) {
 //        }
 //    }
 //}
-
-void
-MAClayer::callStop(bool identifier)
-{
-    if (!is_receiver) receive_end = true;
-    if (!is_sender) send_end = true;
-    if ((receive_end && send_end) || identifier == true) {
-        if (!all_stop)
-        {
-            all_stop = true;
-            if (!macperf_on)
-                Write2File();
-        }
-    }
-}

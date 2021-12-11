@@ -19,3 +19,4 @@ MAClayer/MAClayer.jucer
 MAClayer/Source/macperf.cpp
 *.wav
 __pycache__/
+.DS_Store

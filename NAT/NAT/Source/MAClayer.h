@@ -28,7 +28,7 @@ public:
 
     void mac_ping(); // send macping request
 
-    void icmp(); // send icmp request
+    void sendIcmpReq(); // send icmp request
 
     void checkIdarray();
 

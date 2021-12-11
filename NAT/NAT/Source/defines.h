@@ -8,6 +8,7 @@
 #define TYPE_MACPING_REQUEST 2
 #define TYPE_MACPING_REPLY 3
 #define TYPE_ICMP_REQUEST 4
+#define TYPE_ICMP_REPLY 5
 
 #define NO_HEADER -1
 #define SYNC 0
