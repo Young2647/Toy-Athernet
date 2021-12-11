@@ -112,7 +112,7 @@ MACframe::MACframe(int8_t type, int8_t dst_address, int8_t src_address, std::str
     for (int i = 3; i >= 0; i--)
         for (int j = 0; j < 8; j++)
             data.insert(0, (int8_t)((address_array[i] >> j) & 1));
-    for (int i = 0; i < 80; i++)
+    for (int i = 0; i < 43*8; i++)
         data.add(rand() % 2);
     frame_status = Status_Waiting;
     resend_times = 0;
