@@ -124,6 +124,9 @@ MAClayer::receive()
                         file_output.push_back(receive_frame.getData());
                         frame_to_receive_list[receive_id] = 0;
                         frame_receive_increase = 1;
+                        Write2File(receive_frame.getData(), "output.txt");
+                        ofstream notify_file = std::ofstream("NOTIFY_DONE.txt"); //notify python node 
+                        notify_file.close();
                     }
                 requestSend(receive_id);
             }
@@ -175,9 +178,12 @@ MAClayer::receive()
         {
             cout << "ICMP request " << (int)receive_frame.getFrame_id() << " received.\n";
             Array<int8_t> all_data = receive_frame.getData();
-            all_data.insert(-1, receive_frame.getFrame_id());
+            all_data.insert(0, receive_frame.getFrame_id());
+            std::vector<int8_t> vec;
+            for (int i = 0; i < all_data.size(); i++) vec.push_back(all_data[i]);
             Write2File(all_data, "request.bin");
             ofstream notify_file = std::ofstream("ICMP_NOTIFY.txt"); //notify python to work
+            notify_file.close();
         }
         else if (receive_frame.getType() == TYPE_ICMP_REPLY)
         {
@@ -249,7 +255,7 @@ MAClayer::send() {
                     }
                     else if (frame_array[id].get()->getType() == TYPE_ICMP_REPLY)
                     {
-                        cout << "macping reply " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
+                        cout << "ICMP reply " << (int)frame_array[id].get()->getICMPID() << " sent.\n";
                     }
                     if (frame_array[id].get()->getType() == TYPE_MACPING_REQUEST)
                     {
@@ -523,7 +529,7 @@ MAClayer::sendAck()
 void 
 MAClayer::Write2File(Array<int8_t> data, const string file_name)
 {
-    ofstream tmp_writer = std::ofstream(file_name);
+    ofstream tmp_writer = std::ofstream(file_name, ios::out|ios::binary);
     tmp_writer.write((char*)data.getRawDataPointer(), data.size());
 }
 
@@ -583,6 +589,7 @@ MAClayer::sendICMPreply()
 
 bool
 MAClayer::readFromFile(int num_frame, const string file_name) {
+    data_frames.clear();
     data_frames.resize(num_frame);
     fstream test;
     test.open(getPath(file_name), ios::in | ios::binary);

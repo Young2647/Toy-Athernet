@@ -1,5 +1,4 @@
 import socket
-from typing_extensions import final
 from Client import Client
 from Server import Server
 import os
@@ -20,19 +19,11 @@ class Node2 :
         self.node1data = []
         self.debug_on = debug_on
 
-    def decodeByte(self, data) :
-        for line_data in data :
-            self.node1data.append(line_data.encode())
-    
-    def sendToNode3(self) :
-        for line_data in self.node1data :
+    def sendToNode3(self, line_data) :
             if self.debug_on :
                 print(line_data.decode())
             self.client.sendData(line_data)
             time.sleep(0.04)
-        if self.debug_on :
-            print("All data sent.")
-        self.client.StopClient()
     
     def receiveFromNode1(self) :
         while True :
@@ -40,24 +31,19 @@ class Node2 :
             if os.path.exists("NOTIFY_DONE.txt") :
                 os.remove("NOTIFY_DONE.txt")
                 break
-        if os.path.exists("OUTPUT.bin") :
-            with open("OUTPUT.bin") as f :
-                self.decodeByte(f)
+        if os.path.exists("output.txt") :
+            with open("output.txt") as f :
+                self.sendToNode3(f.read().encode())
 
     def receiveFromNode3(self) :
         with open("input.bin", "wb") as inputfile : 
-            while True :
-                if msvcrt.kbhit() : break
                 data, address = self.server.receiveData()
                 if data == "Exit" :
-                    break
+                    pass
                 else :
                     if (self.debug_on) :
                         print("address is : ", address, "data is : ", data)
                         self.writeToFile(inputfile, data.encode('utf8'), address)
-            if (self.debug_on) :
-                print("All data received.")
-            self.server.stopServer()
     
     def writeToFile(self, inputfile, data, address) :
         inputfile.write(socket.inet_aton(address[0]))
@@ -66,15 +52,20 @@ class Node2 :
     
     def checkNotify(self) :
         if os.path.exists("WRITE_DOWN.txt") :
-            os.remove("WRITE_DOWN.txt")
-
+            try :
+                os.remove("WRITE_DOWN.txt")
+            except :
+                pass
+    
     def notifyAther(self) :
         f = open ("WRITE_DOWN.txt","w")
         if (self.debug_on) :
             print("Notify the AtherNode to work.")
         f.close()
-        time.sleep(0.04)
-        os.remove("WRITE_DOWN.txt")
+        time.sleep(0.1)
+        try :
+            os.remove("WRITE_DOWN.txt")
+        except : pass
 
     def ICMPecho(self) :
         while True :
@@ -89,35 +80,38 @@ class Node2 :
                 data = f.read()
             ping_address = socket.inet_ntoa(ping_address) #bytes to address
             if (self.debug_on) :
-                print("request ping from :", ping_address)    
+                print("request ping for :", ping_address)    
             packet = self.generateICMPpacket(data)
-            self.ping_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP) #raw socket
-            self.ping_socket.sendto(packet, (ping_address, 2333))
+            icmp = socket.getprotobyname('icmp')
+            ping_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp) #raw socket
+            ping_socket.sendto(packet, (ping_address, 80))
             self.req_time = time.time()
-            reply_time = self.getReplypacket(data)
+            reply_time = self.getReplypacket(ping_socket,data)
             if reply_time == -1 :
                 print("ICMP ECHO failed!")
             else :
                 print("ICMP reply in ", reply_time, " s")
                 with open("reply.txt", 'wb') as f:
                     f.write(request_id)
-                    f.write(ping_address)
+                    f.write(socket.inet_aton(ping_address))
                     f.write(data)
                 self.notifyAther() #notify atherNode to work
+            ping_socket.close()
 
-    def getReplypacket(self,data) :
+    
+    def getReplypacket(self, socket, data) :
         time_remain = DEFALT_TIMEOUT
         final_time = -1
         while True :
             start_time = time.time()
-            result = select.select([self.ping_socket], [], [], time_remain)
+            result = select.select([socket], [], [], time_remain)
             if result[0] == [] : break
             end_time = time.time()
-            reply_packet, address = self.ping_socket.recvfrom(1024)
+            reply_packet, address = socket.recvfrom(1024)
             icmp_header = reply_packet[20:28]
             icmp_type, code, check_sum, id, sequence = struct.unpack('bbHHh', icmp_header)
             dummy_header = struct.pack('bbHHh', icmp_type, code, 0, id, sequence)
-            if id == self.ping_id and check_sum == self.calculateChecksum(dummy_header + data) :
+            if id == self.ping_id :
                 final_time = end_time - self.req_time
                 break
             else :
@@ -127,7 +121,7 @@ class Node2 :
 
     def calculateChecksum(self, data) :
         checksum = 0
-        count = (len(data) / 2) * 2
+        count = (len(data) // 2) * 2
         i = 0
 
         while i < count:
@@ -153,9 +147,9 @@ class Node2 :
 
     def generateICMPpacket(self, data) :
         self.ping_id = os.getpid() & 0xFFFF
-        header = struct.pack('bbHHh', ICMP_ECHO_REQUEST, 0, 0, self.ping_id, 1) #dummy header without checksum
+        header = struct.pack('bbHHH', ICMP_ECHO_REQUEST, 0, 0, self.ping_id, 1) #dummy header without checksum
         check_sum = self.calculateChecksum(header + data)
-        header = struct.pack('bbHHh', ICMP_ECHO_REQUEST, 0, socket.htons(check_sum), self.ping_id, 1) # real header
+        header = struct.pack('bbHHH', ICMP_ECHO_REQUEST, 0, socket.htons(check_sum), self.ping_id, 1) # real header
         return header + data
 
 SEND = 0
@@ -171,15 +165,30 @@ if __name__ == "__main__" :
     elif key == "p":
         mode = ICMP
     if mode == SEND :
-        node2 = Node2(True,"10.20.220.107", isClient=True)
-        node2.receiveFromNode1()
-        node2.sendToNode3()
+        node2 = Node2(True,"10.20.198.211", isClient=True)
+        data_sent = 0
+        while True:
+            if msvcrt.kbhit() : break
+            node2.receiveFromNode1()
+            data_sent += 1
+            if data_sent > 30 : break
+        print("All data sent.")
+        node2.client.StopClient()
     elif mode == RECEIVE :
         node2 = Node2(True,"10.20.220.107", isClient=False)
-        node2.checkNotify()
-        node2.receiveFromNode3()
-        node2.notifyAther()
+        data_sent = 0
+        while True :
+            if msvcrt.kbhit() : break
+            node2.checkNotify()
+            node2.receiveFromNode3()
+            node2.notifyAther()
+            data_sent += 1
+            if data_sent >= 30 : break
+        print("All data received")
+        node2.server.stopServer()
     elif mode == ICMP :
         node2 = Node2(True, isClient=True)
-        node2.checkNotify()
-        node2.ICMPecho()
+        while True :
+            if msvcrt.kbhit() : break
+            node2.checkNotify()
+            node2.ICMPecho()
