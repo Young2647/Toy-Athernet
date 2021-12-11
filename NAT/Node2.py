@@ -37,11 +37,9 @@ class Node2 :
 
     def receiveFromNode3(self) :
         with open("input.bin", "wb") as inputfile : 
-            while True :
-                if msvcrt.kbhit() : break
                 data, address = self.server.receiveData()
                 if data == "Exit" :
-                    break
+                    pass
                 else :
                     if (self.debug_on) :
                         print("address is : ", address, "data is : ", data)
@@ -89,7 +87,6 @@ class Node2 :
             ping_socket.sendto(packet, (ping_address, 80))
             self.req_time = time.time()
             reply_time = self.getReplypacket(ping_socket,data)
-            #reply_time = self.receive_ping(ping_socket, 11, 1)
             if reply_time == -1 :
                 print("ICMP ECHO failed!")
             else :
@@ -101,21 +98,6 @@ class Node2 :
                 self.notifyAther() #notify atherNode to work
             ping_socket.close()
 
-    def receive_ping(self,my_socket, ID, timeout):
-        """
-        receive the ping from the socket
-        """
-        start_time = timeout
-        while True:
-            start_select = time.perf_counter()
-            # select.select(rlist, wlist, xlist[, timeout])
-            # wait until ready for read / write / exceptional condition
-            # The return value is a triple of lists
-            what_ready = select.select([my_socket], [], [], start_time)
-            how_long = (time.perf_counter() - start_select)
-            if what_ready[0] == []: #timeout
-                return
-    
     
     def getReplypacket(self, socket, data) :
         time_remain = DEFALT_TIMEOUT
@@ -201,7 +183,7 @@ if __name__ == "__main__" :
             node2.receiveFromNode3()
             node2.notifyAther()
             data_sent += 1
-            if data_sent > 30 : break
+            if data_sent >= 30 : break
         print("All data received")
         node2.server.stopServer()
     elif mode == ICMP :

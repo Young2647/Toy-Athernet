@@ -53,7 +53,6 @@ int main(int argc, char* argv[])
         {
             std::fstream notify_file;
             notify_file.open("WRITE_DOWN.txt", ios::in);
-            cout << "Waiting for python to notify...\n";
             while (!notify_file)
             {
                 notify_file.open("WRITE_DOWN.txt", ios::in);
@@ -64,9 +63,14 @@ int main(int argc, char* argv[])
                 notify_file.close();
                 system("del WRITE_DOWN.txt");
                 notify_num++;
+                cout << "Get notified by python\n";
             }
             mac_layer.get()->readFromFile(notify_num, "input.bin");
-            mac_layer.get()->requestSend(notify_num - 1);
+            if (notify_num == 1)
+            {
+                mac_layer.get()->requestSend(0);
+                mac_layer.get()->setSender();
+            }
             if (kbhit()) mac_layer.get()->callStop(1);
         }
         mac_layer.get()->StopMAClayer();
