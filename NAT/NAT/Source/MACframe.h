@@ -39,6 +39,7 @@ public:
 
     int8_t getSrcAddr() { return src_address; }
     int8_t getDstAddr() { return dst_address; }
+    std::string getIPAddr() { return ip_address; }
     Array<int8_t> toBitStream();
     void translateAddrPort();
     void split_address(const std::string& address_string, std::vector<int8_t>& address_array);
