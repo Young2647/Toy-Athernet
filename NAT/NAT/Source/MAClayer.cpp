@@ -174,7 +174,9 @@ MAClayer::receive()
         else if (receive_frame.getType() == TYPE_ICMP_REQUEST)
         {
             cout << "ICMP request " << (int)receive_frame.getFrame_id() << " received.\n";
-            Write2File(receive_frame.getFrame_id(), receive_frame.getData(), "request.bin");
+            Array<int8_t> all_data = receive_frame.getData();
+            all_data.insert(-1, receive_frame.getFrame_id());
+            Write2File(all_data, "request.bin");
             ofstream notify_file = std::ofstream("ICMP_NOTIFY.txt"); //notify python to work
         }
         else if (receive_frame.getType() == TYPE_ICMP_REPLY)
@@ -514,10 +516,9 @@ MAClayer::sendAck()
 }
 
 void 
-MAClayer::Write2File(int8_t id, Array<int8_t> data, const string file_name)
+MAClayer::Write2File(Array<int8_t> data, const string file_name)
 {
     ofstream tmp_writer = std::ofstream(file_name);
-    tmp_writer.write((char*)&id, 1);
     tmp_writer.write((char*)data.getRawDataPointer(), data.size());
 }
 
@@ -550,6 +551,29 @@ std::string getPath(const std::string& target, int depth = 5) {
         path = "../" + path;
     }
     return target;
+}
+
+
+string
+MAClayer::translateAddrPort(std::vector<int8_t> ip_port) {
+    string ip_address = "";
+    for (int i = 0; i < 4; i++) {
+        ip_address += std::to_string((int)(unsigned char)ip_port[i]);
+        if (i != 3)
+            ip_address += ".";
+    }
+    return ip_address;
+}
+
+
+void
+MAClayer::sendICMPreply()
+{
+    int8_t id = data_frames[0][0];
+    std::vector<int8_t> data;
+    data.assign(data_frames[0].begin() + 1, data_frames[0].end());
+    string ip_address = translateAddrPort(data);
+    requestSend(TYPE_ICMP_REPLY, id, ip_address);
 }
 
 bool
@@ -679,6 +703,10 @@ MAClayer::requestSend(int8_t type, std::string ip_address)
     return id;
 }
 
+int
+MAClayer::requestSend(int data_id) {
+    return requestSend(data_frames[data_id]);
+}
 
 void
 MAClayer::callStop(bool identifier)
@@ -693,11 +721,6 @@ MAClayer::callStop(bool identifier)
                 Write2File();
         }
     }
-}
-
-int 
-MAClayer::requestSend(int data_id) {
-    return requestSend(data_frames[data_id]);
 }
 
 

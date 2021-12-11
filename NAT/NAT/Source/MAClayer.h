@@ -17,7 +17,7 @@ public:
     ~MAClayer();
     
     void Write2File();
-    void Write2File(int8_t id, Array<int8_t> data, const string file_name);
+    void Write2File(Array<int8_t> data, const string file_name);
     void receive(); //receiving datas
 
     void send(); //sending data
@@ -65,6 +65,10 @@ public:
     void setICMPsender() { is_icmp_sender = true; }
     void setICMPreceiver() { is_icmp_receiver = true; }
     void setDstIP(string dst_addr) { dst_ip = dst_addr; }
+
+    void sendICMPreply();
+    string translateAddrPort(std::vector<int8_t> ip_port);
+
 private:
     Receiver Mac_receiver;
     Sender Mac_sender;

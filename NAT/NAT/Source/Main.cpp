@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
     dev_info = dev_manager.getAudioDeviceSetup();
     dev_info.sampleRate = 48000; // Setup sample rate to 48000 Hz
     dev_manager.setAudioDeviceSetup(dev_info, false);
-    int mode = MODE_ICMP_NODE1;
+    int mode = MODE_ICMP_NODE2;
     if (mode == MODE_UDP_NODE2_SEND)
     {
         std::fstream notify_file;
@@ -211,8 +211,11 @@ int main(int argc, char* argv[])
                 if (kbhit()) break;
             }
             //c++ get notified, send reply to node1
-            if(mac_layer.get()->readFromFile(1, "reply.txt"))
-                mac_layer.get()->requestSend(0);
+            if (mac_layer.get()->readFromFile(1, "reply.txt"))
+            {
+                mac_layer.get()->sendICMPreply();
+            }
+            this_thread::sleep_for(200ms);
             if (kbhit()) mac_layer.get()->callStop(1);
         }
         mac_layer.get()->StopMAClayer();

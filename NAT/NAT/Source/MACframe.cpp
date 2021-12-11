@@ -41,7 +41,7 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
         for (int i = 4; i < 8; i++)
             ip_port.add(all_data[i]);
         translateAddrPort();
-        for (int i = 8; i < all_data.size(); i++)
+        for (int i = 4; i < all_data.size(); i++)
             data.add(all_data[i]);
     }
     resend_times = 0;
