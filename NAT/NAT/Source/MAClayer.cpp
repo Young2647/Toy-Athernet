@@ -177,6 +177,14 @@ MAClayer::receive()
             Write2File(receive_frame.getFrame_id(), receive_frame.getData(), "request.bin");
             fstream notify_file("ICMP_NOTIFY.txt"); //notify python to work
         }
+        else if (receive_frame.getType() == TYPE_ICMP_REPLY)
+        {
+            int reply_id = (int)receive_frame.getData()[0];
+            cout << "ICMP " << reply_id << "get replied from " << receive_frame.getIPAddr();
+            std::chrono::duration<double, std::milli> diff = receive_frame.getReceiveTime() - frame_array[reply_id].get()->getSendTime();
+            cout << "RTT is " << diff.count() << "ms.\n";
+            icmp_array.removeFirstMatchingValue(reply_id);
+        }
         else
         {
             cerr << "what is this ?\n";
@@ -461,7 +469,22 @@ MAClayer::sendIcmpReq()
 {
     int cnt = 0;
     while (cnt < 10) {
+        this_thread::sleep_for(1000ms);
         requestSend(TYPE_ICMP_REQUEST, dst_ip);
+    }
+    auto temp_icmp_array = icmp_array;
+    for (int i = 0; i < temp_icmp_array.size(); i++)
+    {
+        int id = temp_icmp_array[i];
+        if (frame_array[id])
+        {
+            std::chrono::duration<double, std::milli> diff = std::chrono::system_clock::now() - frame_array[id].get()->getSendTime();
+            if (diff.count() > 2000)
+            {
+                icmp_array.removeFirstMatchingValue(id);
+                cout << "time out for icmp " << id << "\n";
+            }
+        }
     }
 }
 
