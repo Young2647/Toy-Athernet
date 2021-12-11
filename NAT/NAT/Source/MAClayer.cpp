@@ -391,10 +391,13 @@ MAClayer::StartMAClayer()
     cout << "sending thread start.\n";
     //ack_sending_thread = thread(&MAClayer::sendAck, this);
     //cout << "ack sending thread start.\n";
-    if (macping_on)
-    {
+    if (macping_on) {
         macping_thread = thread(&MAClayer::mac_ping, this);
         cout << "macping thread start.\n";
+    }
+    else if (icmp_on) {
+        icmp_thread = thread(&MAClayer::sendIcmpReq, this);
+        cout << "icmp thread start.\n";
     }
     fout.open("OUTPUT.bin", ios::out | ios::binary);
 }
@@ -451,7 +454,7 @@ MAClayer::sendIcmpReq()
 {
     int cnt = 0;
     while (cnt < 10) {
-        requestSend(0, )
+        requestSend(TYPE_ICMP_REQUEST, dst_ip);
     }
 }
 
@@ -610,13 +613,13 @@ MAClayer::requestSend() {
 
 // requestSend for icmp packet
 int
-MAClayer::requestSend(int8_t request_id, int8_t type, std::string ip_address)
+MAClayer::requestSend(int8_t type, std::string ip_address)
 {
     const ScopedLock sl(lock);
     int id = id_controller_array.getFirst();
     id_controller_array.remove(0);
     unique_ptr<MACframe> icmp_frame;
-    icmp_frame.reset(new MACframe(type, request_id, dst_addr, src_addr, ip_address));
+    icmp_frame.reset(new MACframe(type, dst_addr, src_addr, ip_address));
     icmp_frame->setFrameId(id);
     send_id_array.insert(-1, id);
     icmp_array.add(id);

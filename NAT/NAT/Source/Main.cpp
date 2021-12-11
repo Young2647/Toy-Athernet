@@ -160,6 +160,8 @@ int main(int argc, char* argv[])
         //mac_layer.get()->setSendIP();
         //mac_layer.get()->setSender();
         mac_layer.get()->setICMPsender();
+        string dst_addr = "10.20.198.211";
+        mac_layer.get()->setDstIP(dst_addr);
         dev_manager.addAudioCallback(mac_layer.get());
         mac_layer.get()->StartMAClayer();
         auto start_time = std::chrono::system_clock::now();

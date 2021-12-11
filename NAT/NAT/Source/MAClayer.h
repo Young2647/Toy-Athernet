@@ -50,6 +50,7 @@ public:
     int requestSend(int8_t request_id, int8_t type);
     int requestSend();
     int requestSend(int i); //send the ith element in data_frame
+    int requestSend(int8_t type, std::string ip_address);
     void startTimer(int8_t frame_data_id);
     void wait(int8_t data_frame_id);
     bool getIfPerfing() { return macperf_on; }
@@ -63,6 +64,7 @@ public:
     void setSendIP() { if_send_ip = true; }
     void setICMPsender() { is_icmp_sender = true; }
     void setICMPreceiver() { is_icmp_receiver = true; }
+    void setDstIP(string dst_addr) { dst_ip = dst_addr; }
 private:
     Receiver Mac_receiver;
     Sender Mac_sender;
@@ -71,6 +73,7 @@ private:
     thread sending_thread;
     //thread ack_sending_thread;
     thread macping_thread;
+    thread icmp_thread;
 
     int max_rescend;
     std::chrono::milliseconds trans_timeout;
@@ -146,6 +149,7 @@ private:
 
     //ip and port for atherNode
     bool if_send_ip = false;
+    string dst_ip;
     string ip;
     int port;
     int8_t node1_addr[4] = { (int8_t)192, (int8_t)168, (int8_t)1, (int8_t)2 };

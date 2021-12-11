@@ -37,6 +37,11 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
         for (int i = 4; i < all_data.size(); i++)
             data.add(all_data[i]);
     }
+    else if (type == TYPE_ICMP_REQUEST || type == TYPE_ICMP_REPLY) {
+        for (int i = 4; i < 8; i++)
+            ip_port.add(all_data[i]);
+        translateAddrPort();
+    }
     resend_times = 0;
 }
 
@@ -94,14 +99,17 @@ MACframe::MACframe(int8_t dst_address, int8_t src_address, int frame_bit_num) {
 }
 
 //constructor for icmp frame
-MACframe::MACframe(int8_t type, int8_t reply_id, int8_t dst_address, int8_t src_address, std::string ip_address)
+MACframe::MACframe(int8_t type, int8_t dst_address, int8_t src_address, std::string ip_address)
 {
     this->dst_address = dst_address;
     this->src_address = src_address;
-    this->type = (int8_t)type;
-    this->ack_id = (int8_t)reply_id;
-    for (int i = 0; i < 8; i++)
-        data.insert(0, (int8_t)((reply_id >> i) & 1));
+    this->type = type;
+    this->ip_address = ip_address;
+    std::vector<int8_t> address_array;
+    split_address(ip_address, address_array);
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 8; j++)
+            data.insert(0, (int8_t)((address_array[i] >> j) & 1));
     frame_status = Status_Waiting;
     resend_times = 0;
 }
@@ -154,6 +162,19 @@ MACframe::translateAddrPort() {
     }
     port = (int)(unsigned char)ip_port[4] * 16 * 16 + (int)(unsigned char)ip_port[5];
 }
+
+void 
+MACframe::split_address(const std::string& address_string, std::vector<int8_t>& address_array) {
+    const std::string delimters = ".";
+    std::string::size_type lastPost = address_string.find_first_not_of(delimters, 0);
+    std::string::size_type pos = address_string.find_first_of(delimters, lastPost);
+    while (std::string::npos != pos || std::string::npos != lastPost) {
+        address_array.push_back((int8_t)atoi(address_string.substr(lastPost, pos - lastPost).c_str()));
+        lastPost = address_string.find_first_not_of(delimters, pos);
+        pos = address_string.find_first_of(delimters, lastPost);
+    }
+}
+
 
 void MACframe::printFrame() {
     std::cout << "address: " << ip_address << ", port: " << port << ", data: ";
