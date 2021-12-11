@@ -37,6 +37,7 @@ public:
     void StopMAClayer();
 
     bool readFromFile(int num_frame, const string file_name);
+    bool readFromFile(const string file_name);
 
     void audioDeviceIOCallback(const float** inputChannelData, int numInputChannels,
         float** outputChannelData, int numOutputChannels, int numSamples);
@@ -113,6 +114,7 @@ private:
     std::vector<unique_ptr<MACframe>> frame_array;
     std::vector<std::unique_ptr<MACframe>> ack_queue; //queue to send ack
     std::vector<std::vector<int8_t>> data_frames;
+    int cur_frame;
     
     Array<bool> ack_array;//array that record if ack is received
     std::vector<Array<int8_t>> file_output;

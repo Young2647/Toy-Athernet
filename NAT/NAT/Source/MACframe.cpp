@@ -194,7 +194,6 @@ MACframe::split_address(const std::string& address_string, std::vector<int8_t>& 
 
 void MACframe::printFrame() {
     std::cout << "address: " << ip_address << ", port: " << port << ", data: ";
-    auto raw_data = (char*)data.getRawDataPointer();
     for (int i = 0; i < 40; i++)
-        std::cout << raw_data[i];
+        std::cout << (char)data[i];
 }
