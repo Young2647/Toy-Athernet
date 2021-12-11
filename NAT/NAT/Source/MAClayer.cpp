@@ -201,8 +201,8 @@ MAClayer::send() {
         requestSend();
     else if (macping_on)
         requestSend(0, TYPE_MACPING_REQUEST);
-    else if (icmp_on)
-        requestSend(0, TYPE_ICMP_REQUEST);
+   /* else if (icmp_on)
+        requestSend(0, TYPE_ICMP_REQUEST);*/
     else if (is_sender){
         readFromFile(Mac_num_frame, "input.in");
         requestSend(data_frames[0]);
@@ -238,6 +238,14 @@ MAClayer::send() {
                 else // ACK is defualt set as acked
                 {
                     frame_array[id].get()->setStatus(Status_Acked);
+                    if (frame_array[id].get()->getType() == TYPE_ICMP_REQUEST)
+                    {
+                        cout << "ICMP request " << id << " sent.\n";
+                    }
+                    else if (frame_array[id].get()->getType() == TYPE_ICMP_REPLY)
+                    {
+                        cout << "macping reply " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
+                    }
                     if (frame_array[id].get()->getType() == TYPE_MACPING_REQUEST)
                     {
                         /* while (!Mac_sender.isFinished()) {}
@@ -410,7 +418,7 @@ MAClayer::StartMAClayer()
         macping_thread = thread(&MAClayer::mac_ping, this);
         cout << "macping thread start.\n";
     }
-    else if (icmp_on) {
+    else if (is_icmp_sender) {
         icmp_thread = thread(&MAClayer::sendIcmpReq, this);
         cout << "icmp thread start.\n";
     }
@@ -468,23 +476,25 @@ void
 MAClayer::sendIcmpReq()
 {
     int cnt = 0;
-    while (cnt < 10) {
+    while (cnt < 10 || frame_array.size() > 0) {
         this_thread::sleep_for(1000ms);
         requestSend(TYPE_ICMP_REQUEST, dst_ip);
-    }
-    auto temp_icmp_array = icmp_array;
-    for (int i = 0; i < temp_icmp_array.size(); i++)
-    {
-        int id = temp_icmp_array[i];
-        if (frame_array[id])
+    
+        auto temp_icmp_array = icmp_array;
+        for (int i = 0; i < temp_icmp_array.size(); i++)
         {
-            std::chrono::duration<double, std::milli> diff = std::chrono::system_clock::now() - frame_array[id].get()->getSendTime();
-            if (diff.count() > 2000)
+            int id = temp_icmp_array[i];
+            if (frame_array[id])
             {
-                icmp_array.removeFirstMatchingValue(id);
-                cout << "time out for icmp " << id << "\n";
+                std::chrono::duration<double, std::milli> diff = std::chrono::system_clock::now() - frame_array[id].get()->getSendTime();
+                if (diff.count() > 2000)
+                {
+                    icmp_array.removeFirstMatchingValue(id);
+                    cout << "time out for icmp " << id << "\n";
+                }
             }
         }
+        cnt++;
     }
 }
 

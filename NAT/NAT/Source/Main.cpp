@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
     dev_info = dev_manager.getAudioDeviceSetup();
     dev_info.sampleRate = 48000; // Setup sample rate to 48000 Hz
     dev_manager.setAudioDeviceSetup(dev_info, false);
-    int mode = MODE_ICMP_NODE2;
+    int mode = MODE_ICMP_NODE1;
     if (mode == MODE_UDP_NODE2_SEND)
     {
         std::fstream notify_file;
@@ -150,6 +150,8 @@ int main(int argc, char* argv[])
     }
     else if (mode == MODE_ICMP_NODE1)
     {
+        std::cout << "Press any ENTER to start MAClayer.\n";
+        getchar();
         std::unique_ptr<MAClayer> mac_layer;
         int num_bits_per_frame = 408; // 51 bytes
         int num_frame = 30; //30 frames
