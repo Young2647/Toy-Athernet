@@ -28,7 +28,7 @@ public:
 
     void mac_ping(); // send macping request
 
-    void icmp(); // send icmp request
+    void sendIcmpReq(); // send icmp request
 
     void checkIdarray();
 
@@ -49,8 +49,9 @@ public:
     int requestSend(std::vector<int8_t> frame_data);
     int requestSend(int8_t request_id, int8_t type);
     int requestSend();
-    void startTimer(int8_t frame_data_id);
-    void wait(int8_t data_frame_id);
+    int requestSend(int8_t request_id, int8_t type, std::string ip_address);
+    /*void startTimer(int8_t frame_data_id);
+    void wait(int8_t data_frame_id);*/
     bool getIfPerfing() { return macperf_on; }
 
     bool getStop() { return all_stop; }
