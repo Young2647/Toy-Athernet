@@ -14,7 +14,7 @@ class Receiver : public AudioIODeviceCallback, private HighResolutionTimer
 public:
     Receiver();
     
-    Receiver(int bitlen);
+    Receiver(int bitlen, int packlen);
 
     void GenerateCarrierWave();
 

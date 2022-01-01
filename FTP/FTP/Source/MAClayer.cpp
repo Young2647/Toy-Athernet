@@ -9,12 +9,12 @@
 */
 
 #include "MAClayer.h"
-MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame, int8_t src_addr, int8_t dst_addr, int window_size) : Mac_receiver(num_samples_per_bit), Mac_sender(num_samples_per_bit), crc() {
+MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame, int8_t src_addr, int8_t dst_addr, int window_size) : Mac_receiver(num_samples_per_bit, num_bits_per_frame), Mac_sender(num_bits_per_frame, num_samples_per_bit), crc() {
     this->Mac_num_frame = num_frame;
     this->num_bits_per_frame = num_bits_per_frame;
     this->num_samples_per_bit = num_samples_per_bit;
     this->Mac_num_receive_frame = DEFAULT_RECEIVE_NUM;
-    //this->all_byte_num = MAX_BYTE_NUM;
+    this->all_byte_num = MAX_BYTE_NUM;
     this->src_addr = src_addr;
     this->dst_addr = dst_addr;
     sender_LFS = 0;
@@ -542,8 +542,19 @@ MAClayer::Write2File(Array<int8_t> data, const string file_name)
 void
 MAClayer::Write2File()
 {
+    int bytecount = 0;
     for (auto data : file_output)
-        fout.write((char*)data.getRawDataPointer(), data.size());
+    {
+        if (bytecount + data.size() >= all_byte_num)
+        {
+            fout.write((char*)data.getRawDataPointer(), all_byte_num - bytecount);
+        }
+        else
+        {
+            fout.write((char*)data.getRawDataPointer(), data.size());
+            bytecount += data.size();
+        }
+    }
 }
 
 std::string getPath(const std::string& target, int depth = 5) {
@@ -592,6 +603,7 @@ MAClayer::readFromFile(int num_frame, const string file_name) {
     ifstream f(getPath(file_name), ios::in | ios::binary);
     //ofstream f1("test.out");
     char tmp;
+    int byte_num = (if_send_ip) ? (num_bits_per_frame - FRAME_OFFSET - IP_PORT_LEN - CRC_LEN) / 8 : (num_bits_per_frame - FRAME_OFFSET - CRC_LEN) / 8;
     for (int i = 0; i < num_frame; i++) {
         if (if_send_ip) {
             for (int j = 0; j < 4; j++)
@@ -599,11 +611,8 @@ MAClayer::readFromFile(int num_frame, const string file_name) {
             for (int j = 0; j < 2; j++)
                 data_frames[i].push_back(node1_port[j]);
         }
-        while (true)
-        {
+        for (int j = 0; j < byte_num; j++) {
             f.get(tmp);
-            if (tmp == '\n')
-                break;
             data_frames[i].push_back(tmp);
         }
 
@@ -628,16 +637,15 @@ MAClayer::readFromFile(const string file_name) {
     ifstream f(getPath(file_name), ios::in | ios::binary);
     //ofstream f1("test.out");
     char tmp;
+    int byte_num = (if_send_ip) ? (num_bits_per_frame - FRAME_OFFSET - IP_PORT_LEN - CRC_LEN) / 8 : (num_bits_per_frame - FRAME_OFFSET - CRC_LEN) / 8;
     if (if_send_ip) {
         for (int j = 0; j < 4; j++)
             data_frames[cur_frame].push_back(node1_addr[j]);
         for (int j = 0; j < 2; j++)
             data_frames[cur_frame].push_back(node1_port[j]);
     }
-    while (true) {
+    for (int j = 0; j < byte_num; j++) {
         f.get(tmp);
-        if (tmp == '\n')
-            break;
         data_frames[cur_frame].push_back(tmp);
     }
     cur_frame++;

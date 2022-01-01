@@ -24,7 +24,7 @@
 #define MAX_WAITING_TIME 1500
 #define MAX_RESEND_TIME 10
 
-#define FRAME_OFFSET 40
+#define FRAME_OFFSET 32
 #define CRC_LEN 8
 #define IP_PORT_LEN 48
 

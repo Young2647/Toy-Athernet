@@ -51,7 +51,6 @@ private:
     int8_t frame_id;
     int8_t dst_address;
     int8_t src_address;
-    int8_t frame_length;
     int8_t ack_id;
     int8_t icmp_id;
     Array<int8_t> data;
