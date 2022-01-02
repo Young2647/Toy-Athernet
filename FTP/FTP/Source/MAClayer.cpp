@@ -9,12 +9,12 @@
 */
 
 #include "MAClayer.h"
-MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame, int8_t src_addr, int8_t dst_addr, int window_size) : Mac_receiver(num_samples_per_bit, num_bits_per_frame), Mac_sender(num_bits_per_frame, num_samples_per_bit), crc() {
+MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame, int8_t src_addr, int8_t dst_addr, int window_size) : Mac_receiver(num_samples_per_bit), Mac_sender(num_samples_per_bit), crc() {
     this->Mac_num_frame = num_frame;
     this->num_bits_per_frame = num_bits_per_frame;
     this->num_samples_per_bit = num_samples_per_bit;
     this->Mac_num_receive_frame = DEFAULT_RECEIVE_NUM;
-    this->all_byte_num = MAX_BYTE_NUM;
+    //this->all_byte_num = MAX_BYTE_NUM;
     this->src_addr = src_addr;
     this->dst_addr = dst_addr;
     sender_LFS = 0;
@@ -215,9 +215,9 @@ MAClayer::send() {
         requestSend();
     else if (macping_on)
         requestSend(0, TYPE_MACPING_REQUEST);
-   /* else if (icmp_on)
-        requestSend(0, TYPE_ICMP_REQUEST);*/
-    else if (is_sender){
+    /* else if (icmp_on)
+         requestSend(0, TYPE_ICMP_REQUEST);*/
+    else if (is_sender) {
         if (if_send_ip)
             readFromFile(Mac_num_frame, "input.txt");
         else
@@ -272,8 +272,11 @@ MAClayer::send() {
                     }
                     else if (frame_array[id].get()->getType() == TYPE_MACPING_REPLY)
                     {
-
                         cout << "macping reply " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
+                    }
+                    else if (frame_array[id].get()->getType() == TYPE_FTP_RESPONSE)
+                    {
+                        cout << "ftp response " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
                     }
                     else if (frame_array[id].get()->getType() == TYPE_ACK) {
                         if (frame_receive_increase) {
@@ -532,29 +535,18 @@ MAClayer::sendAck()
     }
 }
 
-void 
+void
 MAClayer::Write2File(Array<int8_t> data, const string file_name)
 {
-    ofstream tmp_writer = std::ofstream(file_name, ios::out|ios::binary);
+    ofstream tmp_writer = std::ofstream(file_name, ios::out | ios::binary);
     tmp_writer.write((char*)data.getRawDataPointer(), data.size());
 }
 
 void
 MAClayer::Write2File()
 {
-    int bytecount = 0;
     for (auto data : file_output)
-    {
-        if (bytecount + data.size() >= all_byte_num)
-        {
-            fout.write((char*)data.getRawDataPointer(), all_byte_num - bytecount);
-        }
-        else
-        {
-            fout.write((char*)data.getRawDataPointer(), data.size());
-            bytecount += data.size();
-        }
-    }
+        fout.write((char*)data.getRawDataPointer(), data.size());
 }
 
 std::string getPath(const std::string& target, int depth = 5) {
@@ -593,6 +585,12 @@ MAClayer::sendICMPreply()
     requestSend(TYPE_ICMP_REPLY, id, ip_address);
 }
 
+void
+MAClayer::sendFTPresponse()
+{
+    requestSend(TYPE_FTP_RESPONSE, data_frames[0]);
+}
+
 bool
 MAClayer::readFromFile(int num_frame, const string file_name) {
     data_frames.clear();
@@ -603,7 +601,6 @@ MAClayer::readFromFile(int num_frame, const string file_name) {
     ifstream f(getPath(file_name), ios::in | ios::binary);
     //ofstream f1("test.out");
     char tmp;
-    int byte_num = (if_send_ip) ? (num_bits_per_frame - FRAME_OFFSET - IP_PORT_LEN - CRC_LEN) / 8 : (num_bits_per_frame - FRAME_OFFSET - CRC_LEN) / 8;
     for (int i = 0; i < num_frame; i++) {
         if (if_send_ip) {
             for (int j = 0; j < 4; j++)
@@ -611,8 +608,8 @@ MAClayer::readFromFile(int num_frame, const string file_name) {
             for (int j = 0; j < 2; j++)
                 data_frames[i].push_back(node1_port[j]);
         }
-        for (int j = 0; j < byte_num; j++) {
-            f.get(tmp);
+        while (f.get(tmp))
+        {
             data_frames[i].push_back(tmp);
         }
 
@@ -630,22 +627,21 @@ MAClayer::readFromFile(int num_frame, const string file_name) {
 
 bool
 MAClayer::readFromFile(const string file_name) {
-    data_frames.resize(cur_frame+1);
+    data_frames.resize(cur_frame + 1);
     fstream test;
     test.open(getPath(file_name), ios::in | ios::binary);
     if (!test) return false; //read file failed!
     ifstream f(getPath(file_name), ios::in | ios::binary);
     //ofstream f1("test.out");
     char tmp;
-    int byte_num = (if_send_ip) ? (num_bits_per_frame - FRAME_OFFSET - IP_PORT_LEN - CRC_LEN) / 8 : (num_bits_per_frame - FRAME_OFFSET - CRC_LEN) / 8;
     if (if_send_ip) {
         for (int j = 0; j < 4; j++)
             data_frames[cur_frame].push_back(node1_addr[j]);
         for (int j = 0; j < 2; j++)
             data_frames[cur_frame].push_back(node1_port[j]);
     }
-    for (int j = 0; j < byte_num; j++) {
-        f.get(tmp);
+    while (f.get(tmp))
+    {
         data_frames[cur_frame].push_back(tmp);
     }
     cur_frame++;
@@ -742,6 +738,23 @@ MAClayer::requestSend(int8_t type, int8_t icmp_id, std::string ip_address)
     frame_array[id] = std::move(icmp_frame);
     return id;
 }
+
+//requestSend for ftp response
+int
+MAClayer::requestSend(int8_t type, std::vector<int8_t> data)
+{
+    const ScopedLock sl(lock);
+    int id = id_controller_array.getFirst();
+    id_controller_array.remove(0);
+    unique_ptr<MACframe> ftp_frame;
+    ftp_frame.reset(new MACframe(type, dst_addr, src_addr, data));
+    ftp_frame->setFrameId(id);
+    send_id_array.insert(-1, id);
+    icmp_array.add(id);
+    frame_array[id] = std::move(ftp_frame);
+    return id;
+}
+
 
 int
 MAClayer::requestSend(int data_id) {

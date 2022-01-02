@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
     dev_info = dev_manager.getAudioDeviceSetup();
     dev_info.sampleRate = 48000; // Setup sample rate to 48000 Hz
     dev_manager.setAudioDeviceSetup(dev_info, false);
-    int mode = MODE_ICMP_NODE2;
+    int mode = MODE_FTP_NODE2;
     if (mode == MODE_UDP_NODE2_SEND)
     {
         std::cout << "Press any ENTER to start MAClayer.\n";
@@ -264,6 +264,57 @@ int main(int argc, char* argv[])
 
         return 0;
         
+    }
+    else if (mode == MODE_FTP_NODE2)
+    {
+        std::cout << "Press any ENTER to start MAClayer.\n";
+        getchar();
+        std::unique_ptr<MAClayer> mac_layer;
+        int num_bits_per_frame = 408; // 51 bytes
+        int num_frame = 30; //30 frames
+        if (mac_layer.get() == nullptr)
+        {
+            mac_layer.reset(new MAClayer(3, num_bits_per_frame, num_frame, YHD, ZYB, 20));
+        }
+        mac_layer.get()->setReceiver();
+        dev_manager.addAudioCallback(mac_layer.get());
+        mac_layer.get()->StartMAClayer();
+        auto start_time = std::chrono::system_clock::now();
+        std::cout << "Press any ENTER to stop MAClayer.\n";
+        while (!mac_layer.get()->getStop())
+        {
+            std::fstream notify_file;
+            notify_file.open("WRITE_DOWN.txt", ios::in);
+            cout << "Waiting for python to notify...\n";
+            bool imm_stop = false;
+            while (!notify_file)
+            {
+                notify_file.open("WRITE_DOWN.txt", ios::in);
+                if (kbhit())
+                {
+                    imm_stop = true;
+                    break;
+                }
+            }
+            if (imm_stop)
+            {
+                mac_layer.get()->callStop(1);
+                break;
+            }
+            if (notify_file)
+            {
+                notify_file.close();
+                system("del WRITE_DOWN.txt");
+            }
+            //c++ get notified, send reply to node1
+            if (mac_layer.get()->readFromFile(1,"response.txt"))
+            {
+                mac_layer.get()->sendFTPresponse();
+            }
+            this_thread::sleep_for(200ms);
+            if (kbhit()) mac_layer.get()->callStop(1);
+        }
+        mac_layer.get()->StopMAClayer();
     }
 
     int num_bits_per_frame = 840;

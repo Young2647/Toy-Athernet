@@ -9,6 +9,8 @@
 #define TYPE_MACPING_REPLY 3
 #define TYPE_ICMP_REQUEST 4
 #define TYPE_ICMP_REPLY 5
+#define TYPE_FTP_RESPONSE 6
+
 
 #define NO_HEADER -1
 #define SYNC 0
@@ -24,7 +26,7 @@
 #define MAX_WAITING_TIME 1500
 #define MAX_RESEND_TIME 10
 
-#define FRAME_OFFSET 32
+#define FRAME_OFFSET 40
 #define CRC_LEN 8
 #define IP_PORT_LEN 48
 
@@ -35,14 +37,19 @@
 // address
 #define YHD 0x01
 #define ZYB 0x10
+
 #define NODE1_ADDR 0xc0a80102
 #define NODE1_PORT 23334
+
 #define MODE_UDP_NODE2_SEND 0x0a
 #define MODE_UDP_NODE1_RECEIVE 0x0b
 #define MODE_UDP_NODE1_SEND 0x0c
 #define MODE_UDP_NODE2_RECEIVE 0x0d
 #define MODE_ICMP_NODE1 0x0e
 #define MODE_ICMP_NODE2 0x0f
+#define MODE_FTP_NODE1 0x10
+#define MODE_FTP_NODE2 0x11
+
 constexpr size_t QUEUE_SIZE = 256;
 enum STATE {
 	FrameDetection = 1, Tx, Rx, TxACK

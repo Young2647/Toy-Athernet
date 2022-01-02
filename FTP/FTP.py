@@ -4,7 +4,7 @@ class FTPClient:
     def __init__(self):
         self.ftpclient = FTP()
 
-    def CONT(self, host, port):
+    def CONT(self, host, port = 21):
         try:
             response = self.ftpclient.connect(host, port)
             #print(self.ftpclient.getwelcome())
@@ -50,9 +50,9 @@ class FTPClient:
         except all_errors as e:
             return str(e)
     
-    def RETR(self, dirpath):
+    def RETR(self, dirpath, localpath):
         try:
-            f = open(dirpath, "wb")
+            f = open(localpath, "wb")
             response = self.ftpclient.retrbinary("RETR " + dirpath, f.write, 1024)
             f.close()
             return response
@@ -67,8 +67,16 @@ class FTPClient:
 
 if __name__ == "__main__":
     ftp = FTPClient()
-    print(ftp.CONT("ftp.sjtu.edu.cn", 21))
-    print(ftp.USER())
-    print(ftp.PASS())
-    print(ftp.PWD())
-    print(ftp.CWD("csw/"))
+    #print(ftp.CONT("ftp.ncnu.edu.tw", 21))
+    with open("test.txt","w") as f:
+        f.write(ftp.CONT("ftp.ncnu.edu.tw", 21))
+    # print(ftp.USER())
+    # print(ftp.PASS())
+    # print(ftp.PWD())
+    # print(ftp.CWD("pub/"))
+    # print(ftp.PWD())
+    # print(ftp.PASV())
+    # print(ftp.LIST(""))
+    # print(ftp.RETR("robots.txt", "localrobots.txt"))
+    # print(ftp.QUIT())
+

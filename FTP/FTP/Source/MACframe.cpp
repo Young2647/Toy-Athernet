@@ -20,9 +20,12 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
     frame_id = all_data[1];
     dst_address = all_data[2];
     src_address = all_data[3];
+    frame_length = all_data[4];
     if (type == TYPE_DATA) {
         int8_t frame_crc = all_data[all_data.size() - 1];
-        for (int i = 4; i < all_data.size() - 1; i++) {
+        for (int i = 0; i < 5; i++)
+            crc.updateCRC(all_data[i]);
+        for (int i = 5; i < all_data.size() - 1; i++) {
             if (i < 10)
                 ip_port.add(all_data[i]);
             else
@@ -64,6 +67,11 @@ MACframe::MACframe(int8_t dst_address, int8_t src_address, std::vector<int8_t> f
     type = (int8_t)TYPE_DATA;
     this->dst_address = dst_address;
     this->src_address = src_address;
+    this->frame_length = frame_data.size();
+    crc.updateCRC(type);
+    crc.updateCRC(dst_address);
+    crc.updateCRC(src_address);
+    crc.updateCRC(this->frame_length);
     for (int i = 0; i < frame_data.size(); i++) {
         crc.updateCRC(frame_data[i]);
         for (int k = 7; k >= 0; k--)
@@ -121,10 +129,26 @@ MACframe::MACframe(int8_t type, int8_t icmp_id, int8_t dst_address, int8_t src_a
     resend_times = 0;
 }
 
+//constructor for ftp frame
+MACframe::MACframe(int8_t type, int8_t dst_address, int8_t src_address, std::vector<int8_t> data)
+{
+    this->dst_address = dst_address;
+    this->src_address = src_address;
+    this->type = type;
+    for (int i = 0; i < data.size(); i++)
+    {
+        for (int k = 7; k >= 0; k--)
+            this->data.add((int8_t)((data[i] >> k) & 1));
+    }
+    frame_status = Status_Waiting;
+    resend_times = 0;
+}
+
 void
 MACframe::setSendTime() {
     send_time = std::chrono::system_clock::now();
 }
+
 void
 MACframe::setReceiveTime()
 {
@@ -146,6 +170,8 @@ MACframe::getTimeDuration() {
 Array<int8_t>
 MACframe::toBitStream() {
     Array<int8_t> ret_array = Array<int8_t>(data);
+    for (int i = 0; i < 8; i++)
+        ret_array.insert(0, (int8_t)((frame_length >> i) & 1));
     for (int i = 0; i < 8; i++)
         ret_array.insert(0, (int8_t)((src_address >> i) & 1));
     for (int i = 0; i < 8; i++)

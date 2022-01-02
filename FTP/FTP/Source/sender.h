@@ -13,7 +13,7 @@ using namespace juce;
 
 class Sender : public AudioIODeviceCallback, private HighResolutionTimer {
 public:
-    Sender(int nbpf, int nspb);
+    Sender(int nspb);
 
     void setHeaderLen(int len);
 

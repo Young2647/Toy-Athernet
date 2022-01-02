@@ -18,6 +18,8 @@ public:
     MACframe(int8_t type, int8_t reply_id, int8_t dst_address, int8_t src_address); //constructor of MACPING frame
 	MACframe(int8_t dst_address, int8_t src_address, int frame_bit_num); // constructor for macperf frame.
     MACframe(int8_t type, int8_t icmp_id, int8_t dst_address, int8_t src_address, std::string ip_address); // constructor for icmp frame.
+    MACframe(int8_t type, int8_t dst_address, int8_t src_address, std::vector<int8_t> data); //constructor for ftp frame.
+
     int8_t getType() { return type; }
     int8_t getFrame_id() { return frame_id; }
     int8_t getAck_id() { return ack_id; }
@@ -51,6 +53,7 @@ private:
     int8_t frame_id;
     int8_t dst_address;
     int8_t src_address;
+    int8_t frame_length;
     int8_t ack_id;
     int8_t icmp_id;
     Array<int8_t> data;

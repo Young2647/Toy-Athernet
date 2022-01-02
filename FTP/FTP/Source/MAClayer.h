@@ -52,6 +52,9 @@ public:
     int requestSend();
     int requestSend(int i); //send the ith element in data_frame
     int requestSend(int8_t type, int8_t icmp_id, std::string ip_address);
+    int requestSend(int8_t type, std::vector<int8_t> data); //request send ftp response
+
+
     void startTimer(int8_t frame_data_id);
     void wait(int8_t data_frame_id);
     bool getIfPerfing() { return macperf_on; }
@@ -68,6 +71,7 @@ public:
     void setDstIP(string dst_addr) { dst_ip = dst_addr; }
 
     void sendICMPreply();
+    void sendFTPresponse();
     string translateAddrPort(std::vector<int8_t> ip_port);
 
 private:

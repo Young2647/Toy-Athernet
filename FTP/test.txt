@@ -1,0 +1,11 @@
+220-#############################################################
+220-#   WELCOME TO TWAREN Public FTP service                    #
+220-#                                                           #
+220-#   F T P . T W A R E N . N E T                             #
+220-#                                                           #
+220-#############################################################
+220-Our server is working with 20 TB disk and 10Gbps network.
+220-This server is certified as one of the official download servers
+220-by many projects. If you have problems, please contact to
+220-ftpadmin@twaren.net.
+220 
