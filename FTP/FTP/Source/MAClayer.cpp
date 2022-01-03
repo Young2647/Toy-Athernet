@@ -265,14 +265,15 @@ MAClayer::send() {
                     }
                     if (frame_array[id].get()->getType() == TYPE_MACPING_REQUEST)
                     {
-                        /* while (!Mac_sender.isFinished()) {}
-                         frame_array[id].get()->setSendTime();*/
-                         //frame_array[id].get()->setStatus(Status_Sent);
                         cout << "macping request " << id << " sent.\n";
                     }
                     else if (frame_array[id].get()->getType() == TYPE_MACPING_REPLY)
                     {
                         cout << "macping reply " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
+                    }
+                    else if (frame_array[id].get()->getType() == TYPE_FTP_COMMAND)
+                    {
+                        cout << "ftp command " << id << " sent.\n";
                     }
                     else if (frame_array[id].get()->getType() == TYPE_FTP_RESPONSE)
                     {
