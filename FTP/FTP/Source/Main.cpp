@@ -15,6 +15,7 @@
 #include "defines.h"
 #include "MACframe.h"
 #include "MAClayer.h"
+#include "FTP.h"
 using namespace juce;
 using namespace std;
 
@@ -31,7 +32,7 @@ int main(int argc, char* argv[])
     dev_info = dev_manager.getAudioDeviceSetup();
     dev_info.sampleRate = 48000; // Setup sample rate to 48000 Hz
     dev_manager.setAudioDeviceSetup(dev_info, false);
-    int mode = MODE_FTP_NODE2;
+    int mode = MODE_FTP_NODE1;
     if (mode == MODE_UDP_NODE2_SEND)
     {
         std::cout << "Press any ENTER to start MAClayer.\n";
@@ -265,6 +266,50 @@ int main(int argc, char* argv[])
         return 0;
         
     }
+    else if (mode == MODE_FTP_NODE1)
+    {
+        std::cout << "Press any ENTER to start MAClayer.\n";
+        getchar();
+        std::unique_ptr<MAClayer> mac_layer;
+        int num_bits_per_frame = 408; // 51 bytes
+        int num_frame = 30; //30 frames
+        if (mac_layer.get() == nullptr)
+        {
+            mac_layer.reset(new MAClayer(3, num_bits_per_frame, num_frame, YHD, ZYB, 20));
+        }
+        mac_layer.get()->setSendIP();
+        dev_manager.addAudioCallback(mac_layer.get());
+        mac_layer.get()->StartMAClayer();
+        auto start_time = std::chrono::system_clock::now();
+        std::cout << "Press any ENTER to stop MAClayer.\n";
+        string dst_addr = "ftp.ncnu.edu.tw";
+
+        //mac_layer.get()->requestSend(TYPE_FTP_COMMAND, CONT, StringtoVector(dst_addr));
+        while (!mac_layer.get()->getStop())
+        {
+            //input command
+            std::string cmd;
+            getline(cin, cmd);
+            std::vector<int8_t> cmd_data;
+            COMMMAND instruct_cmd = ParseCmd(cmd, cmd_data);
+            if (instruct_cmd != WRNG) // valid command
+            {
+                mac_layer.get()->requestSend(TYPE_FTP_COMMAND, instruct_cmd, cmd_data); // send command to NAT node
+            }
+
+            
+            this_thread::sleep_for(200ms);
+            if (kbhit()) mac_layer.get()->callStop(1);
+        }
+        mac_layer.get()->StopMAClayer();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_time).count();
+        std::cout << "Transmit time : " << duration << "ms.\n";
+        dev_manager.removeAudioCallback(mac_layer.get());
+        DeletedAtShutdown::deleteAll();
+        juce::MessageManager::deleteInstance();
+
+        return 0;
+    }
     else if (mode == MODE_FTP_NODE2)
     {
         std::cout << "Press any ENTER to start MAClayer.\n";
@@ -315,6 +360,13 @@ int main(int argc, char* argv[])
             if (kbhit()) mac_layer.get()->callStop(1);
         }
         mac_layer.get()->StopMAClayer();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_time).count();
+        std::cout << "Transmit time : " << duration << "ms.\n";
+        dev_manager.removeAudioCallback(mac_layer.get());
+        DeletedAtShutdown::deleteAll();
+        juce::MessageManager::deleteInstance();
+
+        return 0;
     }
 
     int num_bits_per_frame = 840;

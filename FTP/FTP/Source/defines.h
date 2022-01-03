@@ -9,7 +9,8 @@
 #define TYPE_MACPING_REPLY 3
 #define TYPE_ICMP_REQUEST 4
 #define TYPE_ICMP_REPLY 5
-#define TYPE_FTP_RESPONSE 6
+#define TYPE_FTP_COMMAND 6
+#define TYPE_FTP_RESPONSE 7
 
 
 #define NO_HEADER -1
@@ -26,7 +27,7 @@
 #define MAX_WAITING_TIME 1500
 #define MAX_RESEND_TIME 10
 
-#define FRAME_OFFSET 40
+#define FRAME_OFFSET 40 // type(8) + id(8) + dst address(8) + src address(8) + length_field(8) 
 #define CRC_LEN 8
 #define IP_PORT_LEN 48
 
@@ -61,5 +62,18 @@ enum Status {
 	Status_Acked
 };
 
+enum COMMMAND {
+	CONT,
+	USER,
+	PASS,
+	PWD,
+	CWD,
+	PASV,
+	LIST,
+	RETR,
+	QUIT,
+	RESP, // response
+	WRNG // wrong command
+};
 
 #endif // !_DEFINES_H_

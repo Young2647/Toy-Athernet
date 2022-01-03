@@ -130,11 +130,17 @@ MACframe::MACframe(int8_t type, int8_t icmp_id, int8_t dst_address, int8_t src_a
 }
 
 //constructor for ftp frame
-MACframe::MACframe(int8_t type, int8_t dst_address, int8_t src_address, std::vector<int8_t> data)
+MACframe::MACframe(int8_t type, int8_t dst_address, int8_t src_address, int8_t cmd_type, std::vector<int8_t> data)
 {
     this->dst_address = dst_address;
     this->src_address = src_address;
     this->type = type;
+    this->frame_length = data.size() + 2; // cmd(1) + " "(1) + information(size)
+
+    for (int k = 7; k >= 0; k--)
+        this->data.add((int8_t)((cmd_type >> k) & 1));
+    for (int k = 7; k >= 0; k--)
+        this->data.add((int8_t)(((int8_t)" " >> k) & 1));
     for (int i = 0; i < data.size(); i++)
     {
         for (int k = 7; k >= 0; k--)

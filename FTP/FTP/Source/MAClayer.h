@@ -52,7 +52,7 @@ public:
     int requestSend();
     int requestSend(int i); //send the ith element in data_frame
     int requestSend(int8_t type, int8_t icmp_id, std::string ip_address);
-    int requestSend(int8_t type, std::vector<int8_t> data); //request send ftp response
+    int requestSend(int8_t type, int8_t cmd_type, std::vector<int8_t> data); //request send ftp response
 
 
     void startTimer(int8_t frame_data_id);
@@ -146,7 +146,7 @@ private:
     bool macperf_on = false;
     bool macping_on = false;
     bool icmp_on = false;
-    bool debug_on = true;
+    bool debug_on = false;
     bool is_receiver = false;
     bool is_sender = false;
     bool is_icmp_sender = false;

@@ -11,6 +11,7 @@ PASV = 5
 LIST = 6
 RETR = 7
 QUIT = 8
+RESP = 9
 
 class Node2:
     def __init__(self, debug_on = False):

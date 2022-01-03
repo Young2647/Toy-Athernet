@@ -588,7 +588,7 @@ MAClayer::sendICMPreply()
 void
 MAClayer::sendFTPresponse()
 {
-    requestSend(TYPE_FTP_RESPONSE, data_frames[0]);
+    requestSend(TYPE_FTP_RESPONSE, RESP, data_frames[0]);
 }
 
 bool
@@ -652,16 +652,6 @@ MAClayer::readFromFile(const string file_name) {
 // requestSend for ack packet
 int
 MAClayer::requestSend(int8_t data_frame_id) {
-    //// No action if ack_id is not in sender's sliding window
-    //if (ack_id <= sender_LAR || ack_id > sender_LFS)
-    //    return;
-
-    //sender_LAR = ack_id;
-    //// slide window to sender_LAR + 1
-    //while (sender_window.begin()->getFrame_id() <= sender_LAR) {
-    //    sender_window.remove(sender_window.begin());
-    //    sender_window.add()
-    //}
     const ScopedLock sl(lock);
     int id = id_controller_array.getFirst();
     id_controller_array.remove(0);
@@ -739,15 +729,15 @@ MAClayer::requestSend(int8_t type, int8_t icmp_id, std::string ip_address)
     return id;
 }
 
-//requestSend for ftp response
+//requestSend for ftp data
 int
-MAClayer::requestSend(int8_t type, std::vector<int8_t> data)
+MAClayer::requestSend(int8_t type, int8_t cmd_type, std::vector<int8_t> data)
 {
     const ScopedLock sl(lock);
     int id = id_controller_array.getFirst();
     id_controller_array.remove(0);
     unique_ptr<MACframe> ftp_frame;
-    ftp_frame.reset(new MACframe(type, dst_addr, src_addr, data));
+    ftp_frame.reset(new MACframe(type, dst_addr, src_addr, cmd_type, data));
     ftp_frame->setFrameId(id);
     send_id_array.insert(-1, id);
     icmp_array.add(id);

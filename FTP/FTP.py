@@ -30,7 +30,7 @@ class FTPClient:
         except all_errors as e:
             return str(e)
 
-    def CWD(self, dirpath):
+    def CWD(self, dirpath = ""):
         try:
             return self.ftpclient.cwd(dirpath)
         except all_errors as e:
@@ -67,16 +67,16 @@ class FTPClient:
 
 if __name__ == "__main__":
     ftp = FTPClient()
-    #print(ftp.CONT("ftp.ncnu.edu.tw", 21))
-    with open("test.txt","w") as f:
-        f.write(ftp.CONT("ftp.ncnu.edu.tw", 21))
-    # print(ftp.USER())
-    # print(ftp.PASS())
-    # print(ftp.PWD())
-    # print(ftp.CWD("pub/"))
-    # print(ftp.PWD())
-    # print(ftp.PASV())
-    # print(ftp.LIST(""))
-    # print(ftp.RETR("robots.txt", "localrobots.txt"))
-    # print(ftp.QUIT())
+    print(ftp.CONT("ftp.ncnu.edu.tw", 21))
+    # with open("test.txt","w") as f:
+    #     f.write(ftp.CONT("ftp.ncnu.edu.tw", 21))
+    print(ftp.USER())
+    print(ftp.PASS())
+    print(ftp.PWD())
+    print(ftp.CWD("/"))
+    print(ftp.PWD())
+    print(ftp.PASV())
+    print(ftp.LIST(""))
+    print(ftp.RETR("robots.txt", "localrobots.txt"))
+    print(ftp.QUIT())
 

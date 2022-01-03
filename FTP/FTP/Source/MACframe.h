@@ -7,7 +7,7 @@
 #include "CRC8.h"
 using namespace juce;
 /// <summary>
-/// A frame contains a header, a type, a frame_id, dst_address, src_address, data
+/// A frame contains a header, a type, a frame_id, dst_address, src_address, length field, data
 /// </summary>
 class MACframe {
 public:
@@ -18,7 +18,7 @@ public:
     MACframe(int8_t type, int8_t reply_id, int8_t dst_address, int8_t src_address); //constructor of MACPING frame
 	MACframe(int8_t dst_address, int8_t src_address, int frame_bit_num); // constructor for macperf frame.
     MACframe(int8_t type, int8_t icmp_id, int8_t dst_address, int8_t src_address, std::string ip_address); // constructor for icmp frame.
-    MACframe(int8_t type, int8_t dst_address, int8_t src_address, std::vector<int8_t> data); //constructor for ftp frame.
+    MACframe(int8_t type, int8_t dst_address, int8_t src_address, int8_t cmd_type, std::vector<int8_t> data); //constructor for ftp frame.
 
     int8_t getType() { return type; }
     int8_t getFrame_id() { return frame_id; }

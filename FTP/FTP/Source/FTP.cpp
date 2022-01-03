@@ -9,3 +9,108 @@
 */
 
 #include "FTP.h"
+
+using namespace std;
+COMMMAND ParseCmd(std::string cmd, std::vector<int8_t>& cmd_data)
+{
+    istringstream in(cmd);
+    vector<string> temp;
+    string t;
+    while (getline(in, t, ' '))
+    {
+        temp.push_back(t);
+    }
+    
+    if (temp.empty()) return WRNG; // the input is wrong
+
+    string instruct_cmd = temp[0];
+    transform(instruct_cmd.begin(), instruct_cmd.end(), instruct_cmd.begin(), ::toupper);
+
+    string information_cmd = "";
+    if (temp.size() > 1)
+    {
+        information_cmd = temp[1];
+    }
+
+
+    if (instruct_cmd == "USER")
+    {
+        if (information_cmd != "")
+            cmd_data = StringtoVector(information_cmd);
+        else
+            cmd_data = StringtoVector("anonymous");
+        return USER;
+    }
+    else if (instruct_cmd == "PASS")
+    {
+        if (information_cmd != "")
+            cmd_data = StringtoVector(information_cmd);
+        else
+            cmd_data = StringtoVector("");
+        return PASS;
+    }
+    else if (instruct_cmd == "PWD")
+    {
+        cmd_data = StringtoVector("");
+        return PWD;
+    }
+    else if (instruct_cmd == "CWD")
+    {
+        if (information_cmd != "")
+            cmd_data = StringtoVector(information_cmd);
+        else
+        {
+            printf("Missing argument for directory path.\n");
+            return WRNG;
+        }
+        return CWD;
+    }
+    else if (instruct_cmd == "PASV")
+    {
+        cmd_data = StringtoVector("");
+        return PASV;
+    }
+    else if (instruct_cmd == "LIST")
+    {
+        if (information_cmd != "")
+            cmd_data = StringtoVector(information_cmd);
+        else
+            cmd_data = StringtoVector("");
+        return LIST;
+    }
+    else if (instruct_cmd == "RETR")
+    {
+        if (temp.size() > 2)
+        {
+            cmd_data = StringtoVector(information_cmd);
+            cmd_data.push_back((int8_t)' ');
+            vector<int8_t> local_path = StringtoVector(temp[2]);
+            cmd_data.insert(cmd_data.end(), local_path.begin(), local_path.end());
+        }
+        if (information_cmd != "")
+            cmd_data = StringtoVector(information_cmd);
+        else
+        {
+            printf("Missing argument for directory path.\n");
+            return WRNG;
+        }
+        return RETR;
+    }
+    else if (instruct_cmd == "QUIT")
+    {
+        cmd_data = StringtoVector("");
+        return QUIT;
+    }
+    else
+    {
+        printf("Invalid Command.\n");
+        return WRNG;
+    }
+}
+
+std::vector<int8_t> StringtoVector(std::string cmd)
+{
+    vector<int8_t> temp;
+    for (auto data : cmd) temp.push_back(data);
+    return temp;
+}
