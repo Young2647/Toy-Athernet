@@ -265,6 +265,62 @@ int main(int argc, char* argv[])
         return 0;
         
     }
+    else if (mode == MODE_ICMP_NODE1_REPLY) {
+        std::cout << "Press any ENTER to start MAClayer.\n";
+        getchar();
+        std::unique_ptr<MAClayer> mac_layer;
+        int num_bits_per_frame = 408; // 51 bytes
+        int num_frame = 30; //30 frames
+        if (mac_layer.get() == nullptr)
+        {
+            mac_layer.reset(new MAClayer(3, num_bits_per_frame, num_frame, ZYB, YHD, 20));
+        }
+        mac_layer.get()->setICMPreceiver();
+        dev_manager.addAudioCallback(mac_layer.get());
+        mac_layer.get()->StartMAClayer();
+        auto start_time = std::chrono::system_clock::now();
+        std::cout << "Press any ENTER to stop MAClayer.\n";
+        while (!mac_layer.get()->getStop())
+        {
+            this_thread::sleep_for(200ms);
+            if (kbhit()) mac_layer.get()->callStop(1);
+        }
+        mac_layer.get()->StopMAClayer();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_time).count();
+        std::cout << "Transmit time : " << duration << "ms.\n";
+        dev_manager.removeAudioCallback(mac_layer.get());
+        DeletedAtShutdown::deleteAll();
+        juce::MessageManager::deleteInstance();
+        return 0;
+    }
+    else if (mode == MODE_ICMP_NODE2_REQUEST) {
+        std::cout << "Press any ENTER to start MAClayer.\n";
+        getchar();
+        std::unique_ptr<MAClayer> mac_layer;
+        int num_bits_per_frame = 408; // 51 bytes
+        int num_frame = 30; //30 frames
+        if (mac_layer.get() == nullptr)
+        {
+            mac_layer.reset(new MAClayer(3, num_bits_per_frame, num_frame, ZYB, YHD, 20));
+        }
+        mac_layer.get()->setICMPreceiver();
+        dev_manager.addAudioCallback(mac_layer.get());
+        mac_layer.get()->StartMAClayer();
+        auto start_time = std::chrono::system_clock::now();
+        std::cout << "Press any ENTER to stop MAClayer.\n";
+        while (!mac_layer.get()->getStop())
+        {
+            this_thread::sleep_for(200ms);
+            if (kbhit()) mac_layer.get()->callStop(1);
+        }
+        mac_layer.get()->StopMAClayer();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_time).count();
+        std::cout << "Transmit time : " << duration << "ms.\n";
+        dev_manager.removeAudioCallback(mac_layer.get());
+        DeletedAtShutdown::deleteAll();
+        juce::MessageManager::deleteInstance();
+        return 0;
+    }
 
     int num_bits_per_frame = 840;
 

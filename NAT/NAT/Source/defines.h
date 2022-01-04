@@ -24,7 +24,7 @@
 #define MAX_WAITING_TIME 1500
 #define MAX_RESEND_TIME 10
 
-#define FRAME_OFFSET 40
+#define FRAME_OFFSET 32
 #define CRC_LEN 8
 #define IP_PORT_LEN 48
 
@@ -43,6 +43,8 @@
 #define MODE_UDP_NODE2_RECEIVE 0x0d
 #define MODE_ICMP_NODE1 0x0e
 #define MODE_ICMP_NODE2 0x0f
+#define MODE_ICMP_NODE1_REPLY 0x1a
+#define MODE_ICMP_NODE2_REQUEST 0x1b
 constexpr size_t QUEUE_SIZE = 256;
 enum STATE {
 	FrameDetection = 1, Tx, Rx, TxACK

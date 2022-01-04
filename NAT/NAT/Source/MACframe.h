@@ -19,6 +19,7 @@ public:
 	MACframe(int8_t dst_address, int8_t src_address, int frame_bit_num); // constructor for macperf frame.
     MACframe(int8_t type, int8_t icmp_id, int8_t dst_address, int8_t src_address, std::string ip_address); // constructor for icmp frame.
     int8_t getType() { return type; }
+    std::string getIP() { return ip_address; }
     int8_t getFrame_id() { return frame_id; }
     int8_t getAck_id() { return ack_id; }
     int getFrame_size() { return data.size(); }
@@ -51,7 +52,6 @@ private:
     int8_t frame_id;
     int8_t dst_address;
     int8_t src_address;
-    int8_t frame_length;
     int8_t ack_id;
     int8_t icmp_id;
     Array<int8_t> data;
