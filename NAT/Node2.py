@@ -79,8 +79,8 @@ class Node2 :
         ping_reply.sendto(bytes(icmp_raw), (dst_ip, 80))
 
     def sendIptoNode1(self,ip_addr) :
-        with open("reply.txt", 'wb') as f:
-            f.write(ip_addr)
+        with open("request.txt", 'wb') as f:
+            f.write(ip_addr.encode('utf8'))
         self.notifyAther()
 
     def waitNode1apply(self, ip_addr, ip_payload) :

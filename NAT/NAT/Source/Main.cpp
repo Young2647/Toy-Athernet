@@ -251,11 +251,14 @@ int main(int argc, char* argv[])
             if (mac_layer.get()->readFromFile(1, "reply.txt"))
             {
                 mac_layer.get()->sendICMPreply();
+                system("del reply.txt");
             }
+
             //or send request to node1
             if (mac_layer.get()->readFromFile(1, "request.txt"))
             {
                 mac_layer.get()->sendIcmpReqOnce();
+                system("del request.txt");
             }
             this_thread::sleep_for(200ms);
             if (kbhit()) mac_layer.get()->callStop(1);

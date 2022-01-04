@@ -543,6 +543,7 @@ MAClayer::readFromFile(int num_frame, const string file_name) {
     ifstream f(getPath(file_name), ios::in | ios::binary);
     //ofstream f1("test.out");
     char tmp;
+    int byte_num = (if_send_ip) ? (num_bits_per_frame - FRAME_OFFSET - IP_PORT_LEN - CRC_LEN) / 8 : (num_bits_per_frame - FRAME_OFFSET - CRC_LEN) / 8;
     for (int i = 0; i < num_frame; i++) {
         if (if_send_ip) {
             for (int j = 0; j < 4; j++)
@@ -550,11 +551,8 @@ MAClayer::readFromFile(int num_frame, const string file_name) {
             for (int j = 0; j < 2; j++)
                 data_frames[i].push_back(node1_port[j]);
         }
-        while (true)
-        {
+        for (int j = 0; j < byte_num; j++) {
             f.get(tmp);
-            if (tmp == '\n')
-                break;
             data_frames[i].push_back(tmp);
         }
 
@@ -572,29 +570,29 @@ MAClayer::readFromFile(int num_frame, const string file_name) {
 
 bool
 MAClayer::readFromFile(const string file_name) {
-    data_frames.resize(cur_frame+1);
+    data_frames.resize(cur_frame + 1);
     fstream test;
     test.open(getPath(file_name), ios::in | ios::binary);
     if (!test) return false; //read file failed!
     ifstream f(getPath(file_name), ios::in | ios::binary);
     //ofstream f1("test.out");
     char tmp;
+    int byte_num = (if_send_ip) ? (num_bits_per_frame - FRAME_OFFSET - IP_PORT_LEN - CRC_LEN) / 8 : (num_bits_per_frame - FRAME_OFFSET - CRC_LEN) / 8;
     if (if_send_ip) {
         for (int j = 0; j < 4; j++)
             data_frames[cur_frame].push_back(node1_addr[j]);
         for (int j = 0; j < 2; j++)
             data_frames[cur_frame].push_back(node1_port[j]);
     }
-    while (true) {
+    for (int j = 0; j < byte_num; j++) {
         f.get(tmp);
-        if (tmp == '\n')
-            break;
         data_frames[cur_frame].push_back(tmp);
     }
     cur_frame++;
     f.close();
     return true;
 }
+
 
 // requestSend for ack packet
 int
