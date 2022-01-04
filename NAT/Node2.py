@@ -7,6 +7,7 @@ import time
 import struct
 import random
 import select
+import pyshark
 
 ICMP_ECHO_REQUEST = 8
 DEFALT_TIMEOUT = 1
@@ -67,8 +68,42 @@ class Node2 :
             os.remove("WRITE_DOWN.txt")
         except : pass
 
-    def ICMPecho(self) :
+    def send_ip_packet(self, dst_ip, icmp_raw):
+        icmp = socket.getprotobyname('icmp')
+        ping_reply = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
+        icmp_raw = bytearray(icmp_raw)
+        icmp_raw[0:1] = b'\x00'
+        icmp_raw[2:4] = b'\x00\x00'
+        checksum = int(self.calculateChecksum(icmp_raw)).to_bytes(length=2, byteorder='big')
+        icmp_raw[2:4] = checksum
+        ping_reply.sendto(bytes(icmp_raw), (dst_ip, 80))
+
+    def sendIptoNode1(self,ip_addr) :
+        with open("reply.txt", 'wb') as f:
+            f.write(ip_addr)
+        self.notifyAther()
+
+    def waitNode1apply(self, ip_addr, ip_payload) :
         while True :
+            if msvcrt.kbhit() : break
+            if os.path.exists("NOTIFY_DONE.txt") :
+                os.remove("NOTIFY_DONE.txt")
+                break
+        if os.path.exists("reply.bin") :
+            with open("reply.bin") as f :
+                print(f.read())
+                self.send_ip_packet(ip_addr, ip_payload)
+
+    def ICMPecho(self) :
+        cap = pyshark.LiveCapture('WLAN', bpf_filter='icmp', use_json=True, include_raw=True)
+        while True :
+            for pkt in cap.sniff_continuously(packet_count=1):
+                ip_payload = pkt.get_raw_packet()[34:]
+                ip_addr = str(pkt.ip.src)
+                self.sendIptoNode1(ip_addr)
+                self.waitNode1apply(ip_addr, ip_payload)
+                #send_ip_packet(ip_addr, ip_payload)
+                print('sent')
             if msvcrt.kbhit() : break
             if os.path.exists("ICMP_NOTIFY.txt") :
                 os.remove("ICMP_NOTIFY.txt")
@@ -97,6 +132,7 @@ class Node2 :
                     f.write(data)
                 self.notifyAther() #notify atherNode to work
             ping_socket.close()
+
 
     
     def getReplypacket(self, socket, data) :

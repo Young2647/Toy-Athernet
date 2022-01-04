@@ -4,7 +4,8 @@ import struct
 import logging.config
 import sys
 import binascii
-
+import os
+import msvcrt
 
 def calculateChecksum(data) :
         checksum = 0
@@ -44,13 +45,36 @@ def send_ip_packet(dst_ip, icmp_raw):
     icmp_raw[2:4] = checksum
     ping_reply.sendto(bytes(icmp_raw), (dst_ip, 80))
 
-cap = pyshark.LiveCapture('WLAN', bpf_filter='icmp', use_json=True, include_raw=True)
-while(True):
-    for pkt in cap.sniff_continuously(packet_count=1):
-        ip_payload = pkt.get_raw_packet()[34:]
-        ip_addr = str(pkt.ip.src)
-        dst_ip = str(ip_addr)
-        send_ip_packet(dst_ip, ip_payload)
-        print('sent')
+
+def notifyAther() :
+    f = open ("WRITE_DOWN.txt","w")
+    print("Notify the AtherNode to work.")
+    f.close()
+
+def sendIptoNode1(ip_addr) :
+    with open("reply.txt", 'wb') as f:
+        f.write(ip_addr)
+    notifyAther()
+
+def waitNode1apply() :
+    while True :
+        if msvcrt.kbhit() : break
+        if os.path.exists("NOTIFY_DONE.txt") :
+            os.remove("NOTIFY_DONE.txt")
+            break
+    if os.path.exists("output.txt") :
+        with open("output.txt") as f :
+            send_ip_packet(f.read())
+
+if __name__ == "__main__":
+    cap = pyshark.LiveCapture('WLAN', bpf_filter='icmp', use_json=True, include_raw=True)
+    while(True):
+        for pkt in cap.sniff_continuously(packet_count=1):
+            ip_payload = pkt.get_raw_packet()[34:]
+            ip_addr = str(pkt.ip.src)
+            sendIptoNode1(ip_addr)
+            waitNode1apply()
+            #send_ip_packet(ip_addr, ip_payload)
+            print('sent')
 
 

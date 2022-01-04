@@ -195,11 +195,21 @@ MAClayer::receive()
         }
         else if (receive_frame.getType() == TYPE_ICMP_REPLY)
         {
-            int reply_id = (int)receive_frame.getICMPID();
-            cout << "ICMP " << reply_id << "get replied from " << receive_frame.getIPAddr();
-            std::chrono::duration<double, std::milli> diff = receive_frame.getReceiveTime() - frame_array[reply_id].get()->getSendTime();
-            cout << "RTT is " << diff.count() << "ms.\n";
-            icmp_array.removeFirstMatchingValue(reply_id);
+            if (src_addr == YHD)
+            {
+                Array<int8_t> all_data = receive_frame.getData();
+                Write2File(all_data, "reply.bin");
+                ofstream notify_file = std::ofstream("ICMP_NOTIFY.txt"); //notify python to work
+                notify_file.close();
+            }
+            else
+            {
+                int reply_id = (int)receive_frame.getICMPID();
+                cout << "ICMP " << reply_id << "get replied from " << receive_frame.getIPAddr();
+                std::chrono::duration<double, std::milli> diff = receive_frame.getReceiveTime() - frame_array[reply_id].get()->getSendTime();
+                cout << "RTT is " << diff.count() << "ms.\n";
+                icmp_array.removeFirstMatchingValue(reply_id);
+            }
         }
         else
         {
@@ -512,6 +522,15 @@ MAClayer::sendICMPreply()
     data.assign(data_frames[0].begin() + 1, data_frames[0].end());
     string ip_address = translateAddrPort(data);
     requestSend(TYPE_ICMP_REPLY, id, ip_address);
+}
+
+void
+MAClayer::sendIcmpReqOnce()
+{
+    std::vector<int8_t> data;
+    data.assign(data_frames[0].begin(), data_frames[0].end());
+    string ip_address = translateAddrPort(data);
+    requestSend(TYPE_ICMP_REQUEST, 0, ip_address);
 }
 
 bool

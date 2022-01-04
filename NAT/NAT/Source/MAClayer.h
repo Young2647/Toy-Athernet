@@ -68,6 +68,7 @@ public:
     void setDstIP(string dst_addr) { dst_ip = dst_addr; }
 
     void sendICMPreply();
+    void sendIcmpReqOnce();
     string translateAddrPort(std::vector<int8_t> ip_port);
 
 private:

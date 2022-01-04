@@ -252,6 +252,11 @@ int main(int argc, char* argv[])
             {
                 mac_layer.get()->sendICMPreply();
             }
+            //or send request to node1
+            if (mac_layer.get()->readFromFile(1, "request.txt"))
+            {
+                mac_layer.get()->sendIcmpReqOnce();
+            }
             this_thread::sleep_for(200ms);
             if (kbhit()) mac_layer.get()->callStop(1);
         }
@@ -310,6 +315,33 @@ int main(int argc, char* argv[])
         std::cout << "Press any ENTER to stop MAClayer.\n";
         while (!mac_layer.get()->getStop())
         {
+            std::fstream notify_file;
+            notify_file.open("WRITE_DOWN.txt", ios::in);
+            bool imm_stop = false;
+            while (!notify_file)
+            {
+                notify_file.open("WRITE_DOWN.txt", ios::in);
+                if (kbhit())
+                {
+                    imm_stop = true;
+                    break;
+                }
+            }
+            if (imm_stop)
+            {
+                mac_layer.get()->callStop(1);
+                break;
+            }
+            if (notify_file)
+            {
+                notify_file.close();
+                system("del WRITE_DOWN.txt");
+            }
+
+            if (mac_layer.get()->readFromFile(1, "reply.txt"))
+            {
+                mac_layer.get()->sendICMPreply();
+            }
             this_thread::sleep_for(200ms);
             if (kbhit()) mac_layer.get()->callStop(1);
         }
