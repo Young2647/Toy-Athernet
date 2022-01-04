@@ -80,7 +80,7 @@ class Node2 :
 
     def sendIptoNode1(self,ip_addr) :
         with open("request.txt", 'wb') as f:
-            f.write(ip_addr.encode('utf8'))
+            f.write(socket.inet_aton(ip_addr))
         self.notifyAther()
 
     def waitNode1apply(self, ip_addr, ip_payload) :
@@ -100,6 +100,7 @@ class Node2 :
             for pkt in cap.sniff_continuously(packet_count=1):
                 ip_payload = pkt.get_raw_packet()[34:]
                 ip_addr = str(pkt.ip.src)
+                print(ip_addr)
                 self.sendIptoNode1(ip_addr)
                 self.waitNode1apply(ip_addr, ip_payload)
                 #send_ip_packet(ip_addr, ip_payload)

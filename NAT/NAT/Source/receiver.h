@@ -13,8 +13,8 @@ class Receiver : public AudioIODeviceCallback, private HighResolutionTimer
 {
 public:
     Receiver();
-    
-    Receiver(int bitlen);
+
+    Receiver(int bitlen, int packlen);
 
     void GenerateCarrierWave();
 
@@ -53,12 +53,12 @@ private:
     Array<float> syncHeader;
     Array<float> carrierWave;
     Array<int8_t> frame_data;
-    
+
     Array<float> recordedSound;
     Array<float> demodulate_buffer;
 
     CriticalSection lock;
-    
+
     int recordedSampleNum = -1;
     int bitLen = 48; //the length of one bit
     int packLen = 100; // how many bits per frame

@@ -13,7 +13,7 @@ using namespace juce;
 
 class Sender : public AudioIODeviceCallback, private HighResolutionTimer {
 public:
-    Sender(int nspb);
+    Sender(int nbpf, int nspb);
 
     void setHeaderLen(int len);
 
@@ -24,7 +24,7 @@ public:
     void generateHeader();
 
     void Modulation(Array<int8_t> cur_frame_data, int frame_len);
-    
+
     void audioDeviceIOCallback(const float** inputChannelData, int numInputChannels,
         float** outputChannelData, int numOutputChannels, int numSamples);
 
@@ -44,7 +44,7 @@ public:
 
     void hiResTimerCallback() override;
 
-    
+
 
 private:
     int header_len;

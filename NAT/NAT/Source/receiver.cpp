@@ -15,9 +15,11 @@ Receiver::Receiver() {
     GenerateHeader();
 }
 
-Receiver::Receiver(int bitlen)
+Receiver::Receiver(int bitlen, int packlen)
 {
     bitLen = bitlen;
+    packLen = packlen;
+
     syncPower_localMax = 0;
     isRecording = false;
     data_state = -1;
@@ -32,7 +34,7 @@ Receiver::Receiver(int bitlen)
     GenerateHeader();
 }
 
-void 
+void
 Receiver::GenerateCarrierWave()
 {
     int carrierAmp = 1;
@@ -45,7 +47,7 @@ Receiver::GenerateCarrierWave()
 
 }
 
-void 
+void
 Receiver::GenerateHeader() {
     int start_freq = 2000;
     int end_freq = 10000;
@@ -72,15 +74,15 @@ Receiver::GenerateHeader() {
     syncHeader = Array<float>(header_stack, headerLength);
 }
 
-void 
-Receiver::audioDeviceAboutToStart(AudioIODevice* device) 
+void
+Receiver::audioDeviceAboutToStart(AudioIODevice* device)
 {
 
 }
 
-void 
+void
 Receiver::audioDeviceIOCallback(const float** inputChannelData, int numInputChannels,
-    float** outputChannelData, int numOutputChannels, int numSamples) 
+    float** outputChannelData, int numOutputChannels, int numSamples)
 {
     const ScopedLock sl(lock);
     if (isRecording)
@@ -107,7 +109,7 @@ Receiver::audioDeviceIOCallback(const float** inputChannelData, int numInputChan
             zeromem(outputChannelData[i], (size_t)numSamples * sizeof(float));
 }
 
-void 
+void
 Receiver::startRecording()
 {
 
@@ -120,7 +122,7 @@ Receiver::startRecording()
     startTimer(10);
 }
 
-void 
+void
 Receiver::stopRecording()
 {
     if (isRecording)
@@ -130,16 +132,16 @@ Receiver::stopRecording()
     }
 }
 
-Array<int8_t> 
+Array<int8_t>
 Receiver::Int2Byte(Array<int>& int_data)
 {
-    /*std::vector<int8_t> vec;
+    std::vector<int8_t> vec;
     for (auto i : int_data)
-        vec.push_back(i);*/
-    /*if (int_data.size() / 8 * 8 != int_data.size())
+        vec.push_back(i);
+    if (int_data.size() / 8 * 8 != int_data.size())
     {
-        std::cout << "data length wrong!\n";
-    }*/
+        //std::cout << "data length wrong!\n";
+    }
     Array<int8_t> byte_data;
 
     for (int i = 0; i < int_data.size(); i += 8)
@@ -215,11 +217,11 @@ Receiver::Demodulate(float sample)
                         if (j + 1 == FRAME_OFFSET + 8)
                         {
                             frame_data = Int2Byte(int_data);
-                            if (frame_data[0] == TYPE_ACK || frame_data[0] == TYPE_MACPING_REPLY || frame_data[0] == TYPE_MACPING_REQUEST )
+                            if (frame_data[0] == TYPE_ACK || frame_data[0] == TYPE_MACPING_REPLY || frame_data[0] == TYPE_MACPING_REQUEST)
                             {
                                 is_short_packet = true;
                             }
-                        }                    
+                        }
                     }
                     int_data.clear();
                 }
@@ -241,54 +243,42 @@ Receiver::Demodulate(float sample)
             return DATA_RECEIVED;
         }
 
-        processingData.add(sample);  
-
-        Array<int> frame_len_parser;
-        for (int j = 0; j < FRAME_OFFSET; j++) {
-            float sum = 0;
-            for (int k = 0; k < bitLen; k++)
-            {
-                sum += processingData[j * bitLen + k] * carrierWave[k];
-                //sum +=  carrierWave[j];
-            }
-            if (sum > 0)
-                int_data.add(1);
-            else if (sum < 0)
-                int_data.add(0);
-            if (j >= FRAME_OFFSET - 8)
-                frame_len_parser.add(0);
-        }
-        Array<int8_t> tmp_stack = Int2Byte(frame_len_parser);
-        int8_t dataLen = tmp_stack[0];
-        for (int j = 0; j < dataLen; j++)
+        processingData.add(sample);
+        if (processingData.size() == bitLen * packLen)
         {
-            float sum = 0;
-            for (int k = 0; k < bitLen; k++)
+            for (int j = 0; j < packLen; j++)
             {
-                sum += processingData[j * bitLen + k] * carrierWave[k];
-                //sum +=  carrierWave[j];
+                float sum = 0;
+                for (int k = 0; k < bitLen; k++)
+                {
+                    sum += processingData[j * bitLen + k] * carrierWave[k];
+                    //sum +=  carrierWave[j];
+                }
+                if (sum > 0)
+                    int_data.add(1);
+                else if (sum < 0)
+                    int_data.add(0);
             }
-            if (sum > 0)
-                int_data.add(1);
-            else if (sum < 0)
-                int_data.add(0);
+            processingData.clear();
+            processingHeader.clear();
+            state = SYNC;
+            _ifheadercheck = false;
+            /*for (int j = 0; j < int_data.size(); j++) {
+                fout << int_data[j];
+                if ((j+1)%8 == 0)
+                    fout << std::endl;
+            }*/
+
+            frame_data = Int2Byte(int_data);
+            int_data.clear();
+            tempBuffer.clear();
+            return DATA_RECEIVED;
         }
-        processingData.clear();
-        processingHeader.clear();
-        state = SYNC;
-        _ifheadercheck = false;
-        /*for (int j = 0; j < int_data.size(); j++) {
-            fout << int_data[j];
-            if ((j+1)%8 == 0) 
-                fout << std::endl;
-        }*/
-                
-        frame_data = Int2Byte(int_data);
-        int_data.clear();
-        tempBuffer.clear();
-        return DATA_RECEIVED;
+        else
+        {
+            return DATA_PROCESS;
+        }
     }
-    return DATA_PROCESS;
 }
 
 void

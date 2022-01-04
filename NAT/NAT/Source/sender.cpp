@@ -1,7 +1,8 @@
 #include "sender.h"
 
 
-Sender::Sender(int nspb) {
+Sender::Sender(int nbpf, int nspb) {
+    num_bits_per_frame = nbpf;
     num_samples_per_bit = nspb;
     len_warm_up = 480;
     header_len = 120;
@@ -12,7 +13,8 @@ Sender::Sender(int nspb) {
     len_zeros = 20;
     num_frame = 100;
     output_buffer_idx = 0;
-    len_frame = header_len + num_samples_per_bit * 408 + len_zeros; // suppose 400 is the max bits a frame contains.
+    len_frame = header_len + num_samples_per_bit * num_bits_per_frame + len_zeros;
+    frame_wave.resize(num_bits_per_frame * num_samples_per_bit);
     GenerateCarrierWave();
     header_wave.resize(header_len);
     generateHeader();
@@ -26,6 +28,23 @@ void Sender::setHeaderLen(int len) {
 
 void Sender::setCarrierFreq(int freq) {
     carrier_freq = freq;
+}
+
+int** Sender::getBitStream() {
+    int** frame_bit = new int* [num_frame];
+    ifstream f;
+    char tmp;
+    f.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021-main\\input.in");
+    for (int i = 0; i < num_frame; i++) {
+        frame_bit[i] = new int[num_bits_per_frame];
+        for (int j = 0; j < num_bits_per_frame; j++) {
+            f >> tmp;
+            frame_bit[i][j] = (int)tmp - 48;
+            //frame_bit[i][j] = 1;
+        }
+    }
+    f.close();
+    return frame_bit;
 }
 
 
@@ -64,7 +83,6 @@ void Sender::generateHeader() {
 
 
 void Sender::Modulation(Array<int8_t> cur_frame_data, int frame_len) {
-    frame_wave.resize(frame_len * num_samples_per_bit);
     frame_wave.fill(0);
     for (int i = 0; i < frame_len; i++) {
         for (int j = 0; j < num_samples_per_bit; j++) {
@@ -152,8 +170,8 @@ void Sender::audioDeviceIOCallback(const float** inputChannelData, int numInputC
             }
         }
     }
-   
-    
+
+
     //for (int i = 0; i < numSamples; i++)
     //{
     //    for (auto j = numOutputChannels; --j >= 0;)
