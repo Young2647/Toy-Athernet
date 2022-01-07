@@ -301,10 +301,6 @@ MAClayer::send() {
                     {
                         cout << "ftp command " << id << " sent.\n";
                     }
-                    else if (frame_array[id].get()->getType() == TYPE_FTP_RESPONSE)
-                    {
-                        cout << "ftp response " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
-                    }
                     else if (frame_array[id].get()->getType() == TYPE_FILE_END)
                     {
                         cout << "file end notify sent.\n";
