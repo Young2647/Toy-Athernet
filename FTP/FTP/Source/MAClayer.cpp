@@ -203,8 +203,10 @@ MAClayer::receive()
         {
             cout << "FTP command " << (int)receive_frame.getFrame_id() << " received.\n";
             Array<int8_t> all_data = receive_frame.getData();
+            std::vector<int8_t> vec;
+            for (int i = 0; i < all_data.size(); i++) vec.push_back(all_data[i]);
             Write2File(all_data, "command.bin");
-            ofstream notify_file = std::ofstream("ICMP_NOTIFY.txt"); //notify python to work
+            ofstream notify_file = std::ofstream("NOTIFY_DONE.txt"); //notify python to work
             notify_file.close();
         }
         else
