@@ -77,7 +77,7 @@ MAClayer::receive()
     while (!Mac_stop)
     {
         lock.enter();
-        if (frame_receive_num == Mac_num_receive_frame) if_receive_done = true;
+        //if (frame_receive_num == Mac_num_receive_frame) if_receive_done = true;
         lock.exit();
         if (if_receive_done && !getStop())
         {
