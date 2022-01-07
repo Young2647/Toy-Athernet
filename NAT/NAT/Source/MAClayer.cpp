@@ -197,6 +197,7 @@ MAClayer::receive()
         {
             if (src_addr == YHD)
             {
+                cout << "ICMP get replied from node1.\n";
                 Array<int8_t> all_data = receive_frame.getData();
                 Write2File(all_data, "reply.bin");
                 ofstream notify_file = std::ofstream("ICMP_NOTIFY.txt"); //notify python to work
