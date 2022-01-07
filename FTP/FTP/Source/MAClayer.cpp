@@ -574,6 +574,7 @@ MAClayer::Write2File(const string file_name)
     ofstream fout = std::ofstream(file_name, ios::out | ios::binary);
     for (auto data : file_output)
         fout.write((char*)data.getRawDataPointer(), data.size());
+    file_output.clear();
 }
 
 std::string getPath(const std::string& target, int depth = 5) {
