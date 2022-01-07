@@ -149,6 +149,7 @@ MAClayer::receive()
                 frame_sent_num = 0;
                 Mac_num_frame = 0;
                 SendFileEnd(TYPE_FILE_END);
+                data_frames.clear();
                 //send_end = true;
                 //cout << "All data sent.\n";
                 //callStop(0);
