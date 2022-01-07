@@ -12,9 +12,9 @@ class FTPClient:
         except all_errors as e:
             return str(e)
 
-    def USER(self):
+    def USER(self, username = "anonymous"):
         try:
-            return self.ftpclient.sendcmd("USER anonymous")
+            return self.ftpclient.sendcmd("USER " + username)
         except all_errors as e:
             return str(e)
     
