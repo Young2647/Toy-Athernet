@@ -16,7 +16,7 @@ public:
     
     ~MAClayer();
     
-    void Write2File();
+    void Write2File(const string file_name);
     void Write2File(Array<int8_t> data, const string file_name);
     void receive(); //receiving datas
 
@@ -53,7 +53,7 @@ public:
     int requestSend(int i); //send the ith element in data_frame
     int requestSend(int8_t type, int8_t icmp_id, std::string ip_address);
     int requestSend(int8_t type, int8_t cmd_type, std::vector<int8_t> data); //request send ftp response
-
+    int SendFileEnd(int8_t type);
 
     void startTimer(int8_t frame_data_id);
     void wait(int8_t data_frame_id);
@@ -113,7 +113,6 @@ private:
 
     bool Mac_stop;
     bool keep_timer;
-    std::ofstream fout;
     std::condition_variable cv;
     std::vector<unique_ptr<MACframe>> frame_array;
     std::vector<std::unique_ptr<MACframe>> ack_queue; //queue to send ack
@@ -146,7 +145,7 @@ private:
     bool macperf_on = false;
     bool macping_on = false;
     bool icmp_on = false;
-    bool debug_on = true;
+    bool debug_on = false;
     bool is_receiver = false;
     bool is_sender = false;
     bool is_icmp_sender = false;

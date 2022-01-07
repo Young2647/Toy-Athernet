@@ -120,7 +120,7 @@ MAClayer::receive()
                 if (!macperf_on)
                     if (frame_to_receive_list[receive_id]) {
                         if (!is_icmp_receiver)
-                            receive_frame.printFrame();
+                            //receive_frame.printFrame();
                         file_output.push_back(receive_frame.getData());
                         frame_to_receive_list[receive_id] = 0;
                         frame_receive_increase = 1;
@@ -148,6 +148,7 @@ MAClayer::receive()
             {
                 frame_sent_num = 0;
                 Mac_num_frame = 0;
+                SendFileEnd(TYPE_FILE_END);
                 //send_end = true;
                 //cout << "All data sent.\n";
                 //callStop(0);
@@ -210,6 +211,18 @@ MAClayer::receive()
             Write2File(all_data, "command.bin");
             ofstream notify_file = std::ofstream("NOTIFY_DONE.txt"); //notify python to work
             notify_file.close();
+        }
+        else if (receive_frame.getType() == TYPE_FILE_END)
+        {
+            for (auto data : file_output)
+            {
+                for (auto word : data)
+                {
+                    cout << (char)word; //print response
+                }
+            }
+            Write2File("command_out.txt");
+            cout << "\nReady for next command.\n";
         }
         else
         {
@@ -290,6 +303,10 @@ MAClayer::send() {
                     else if (frame_array[id].get()->getType() == TYPE_FTP_RESPONSE)
                     {
                         cout << "ftp response " << (int)frame_array[id].get()->getAck_id() << " sent.\n";
+                    }
+                    else if (frame_array[id].get()->getType() == TYPE_FILE_END)
+                    {
+                        cout << "file end notify sent.\n";
                     }
                     else if (frame_array[id].get()->getType() == TYPE_ACK) {
                         if (frame_receive_increase) {
@@ -455,7 +472,7 @@ MAClayer::StartMAClayer()
         icmp_thread = thread(&MAClayer::sendIcmpReq, this);
         cout << "icmp thread start.\n";
     }
-    fout.open("OUTPUT.bin", ios::out | ios::binary);
+    
 }
 
 void
@@ -477,7 +494,6 @@ MAClayer::StopMAClayer()
         if (macping_thread.joinable()) macping_thread.join();
         if (icmp_thread.joinable()) icmp_thread.join();
         cout << "macping thread stop,\n";
-        fout.close();
     }
 }
 
@@ -556,8 +572,9 @@ MAClayer::Write2File(Array<int8_t> data, const string file_name)
 }
 
 void
-MAClayer::Write2File()
+MAClayer::Write2File(const string file_name)
 {
+    ofstream fout = std::ofstream(file_name, ios::out | ios::binary);
     for (auto data : file_output)
         fout.write((char*)data.getRawDataPointer(), data.size());
 }
@@ -792,6 +809,21 @@ MAClayer::requestSend(int8_t type, int8_t cmd_type, std::vector<int8_t> data)
     return id;
 }
 
+int
+MAClayer::SendFileEnd(int8_t type)
+{
+    const ScopedLock sl(lock);
+    int id = id_controller_array.getFirst();
+    id_controller_array.remove(0);
+    unique_ptr<MACframe> file_end_frame;
+    file_end_frame.reset(new MACframe(dst_addr, src_addr));
+    file_end_frame->setFrameId(id);
+    send_id_array.insert(-1, id);
+    icmp_array.add(id);
+    frame_array[id] = std::move(file_end_frame);
+    return id;
+}
+
 
 int
 MAClayer::requestSend(int data_id) {
@@ -808,7 +840,7 @@ MAClayer::callStop(bool identifier)
         {
             all_stop = true;
             if (!macperf_on)
-                Write2File();
+                Write2File("OUTPUT.bin");
         }
     }
 }

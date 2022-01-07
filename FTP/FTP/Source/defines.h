@@ -11,7 +11,7 @@
 #define TYPE_ICMP_REPLY 5
 #define TYPE_FTP_COMMAND 6
 #define TYPE_FTP_RESPONSE 7
-
+#define TYPE_FILE_END 8
 
 #define NO_HEADER -1
 #define SYNC 0

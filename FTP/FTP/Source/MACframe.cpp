@@ -160,6 +160,19 @@ MACframe::MACframe(int8_t type, int8_t dst_address, int8_t src_address, int8_t c
     resend_times = 0;
 }
 
+//constructor for file_end frame
+MACframe::MACframe(int8_t dst_address, int8_t src_address)
+{
+    this->dst_address = dst_address;
+    this->src_address = src_address;
+    this->type = TYPE_FILE_END;
+    this->frame_length = 1; //one meanning less data
+    for (int k = 7; k >= 0; k--)
+        this->data.add((int8_t)(((int8_t)0x20 >> k) & 1));
+    frame_status = Status_Waiting;
+    resend_times = 0;
+}
+
 void
 MACframe::setSendTime() {
     send_time = std::chrono::system_clock::now();
