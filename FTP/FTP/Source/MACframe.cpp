@@ -147,7 +147,7 @@ MACframe::MACframe(int8_t type, int8_t dst_address, int8_t src_address, int8_t c
     for (int k = 7; k >= 0; k--)
         this->data.add((int8_t)((cmd_type >> k) & 1));
     for (int k = 7; k >= 0; k--)
-        this->data.add((int8_t)(((int8_t)" " >> k) & 1));
+        this->data.add((int8_t)(((int8_t)0x20 >> k) & 1));
     for (int i = 0; i < data.size(); i++)
     {
         for (int k = 7; k >= 0; k--)
