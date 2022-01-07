@@ -62,6 +62,7 @@ MACframe::MACframe(int8_t dst_address, int8_t src_address, int8_t ack_id) {
     type = (int8_t)TYPE_ACK;
     this->dst_address = dst_address;
     this->src_address = src_address;
+    this->frame_length = 1;//only one byte for ack_id
     this->ack_id = ack_id;
     for (int i = 0; i < 8; i++)
         data.insert(0, (int8_t)((ack_id >> i) & 1));

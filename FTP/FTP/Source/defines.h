@@ -51,6 +51,7 @@
 #define MODE_FTP_NODE1 0x10
 #define MODE_FTP_NODE2 0x11
 
+#define DEFAULT_HOST "ftp.ncnu.edu.tw"
 constexpr size_t QUEUE_SIZE = 256;
 enum STATE {
 	FrameDetection = 1, Tx, Rx, TxACK

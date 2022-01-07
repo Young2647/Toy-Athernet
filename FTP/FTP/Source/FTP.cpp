@@ -38,8 +38,7 @@ COMMMAND ParseCmd(std::string cmd, std::vector<int8_t>& cmd_data)
             cmd_data = StringtoVector(information_cmd);
         else
         {
-            printf("Missing argument for ftp host.\n");
-            return WRNG;
+            cmd_data = StringtoVector(DEFAULT_HOST);
         }
         return CONT;
     }
