@@ -18,9 +18,9 @@ class FTPClient:
         except all_errors as e:
             return str(e)
     
-    def PASS(self):
+    def PASS(self, password = ""):
         try:
-            return self.ftpclient.sendcmd("PASS ")
+            return self.ftpclient.sendcmd("PASS " + password)
         except all_errors as e:
             return str(e)
 

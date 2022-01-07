@@ -36,7 +36,8 @@ class Node2:
         if len(data) > 1:
             ftp_data = data[1:]
         else:
-            ftp_data = ""
+            ftp_data = []
+            ftp_data.append("")
         return ftp_cmd, ftp_data
 
     def sendCmd(self, cmd, data):
@@ -80,6 +81,11 @@ class Node2:
             if len(data) == 2:
                 response = self.ftp.RETR(data[0], data[1])
                 localpath = data[1]    
+        elif cmd == QUIT:
+            if self.connect_state == True:
+                response = self.ftp.QUIT()
+            else:
+                response = "ERR: NO FTP connection yet!" 
         else:
             response = "Invalid Command."
         print(response)
