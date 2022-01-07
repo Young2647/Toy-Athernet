@@ -26,9 +26,9 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
         for (int i = 0; i < 5; i++)
             crc.updateCRC(all_data[i]);
         for (int i = 5; i < all_data.size() - 1; i++) {
-            if (i < 10)
-                ip_port.add(all_data[i]);
-            else
+            //if (i < 11)
+            //    ip_port.add(all_data[i]);
+            //else
                 data.add(all_data[i]);
             crc.updateCRC(all_data[i]);
         }
@@ -46,6 +46,13 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
         translateAddrPort(true);
         for (int i = 5; i < all_data.size(); i++)
             data.add(all_data[i]);
+    }
+    else if (type == TYPE_FTP_COMMAND)
+    {
+        for (int i = 5; i < frame_length; i++)
+        {
+            data.add(all_data[i]);
+        }
     }
     resend_times = 0;
 }
@@ -226,7 +233,7 @@ MACframe::split_address(const std::string& address_string, std::vector<int8_t>& 
 
 
 void MACframe::printFrame() {
-    std::cout << "address: " << ip_address << ", port: " << port << ", data: ";
+    //std::cout << "address: " << ip_address << ", port: " << port << ", data: ";
     for (int i = 0; i < 40; i++)
         std::cout << (char)data[i];
 }

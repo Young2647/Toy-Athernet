@@ -199,6 +199,14 @@ MAClayer::receive()
             cout << "RTT is " << diff.count() << "ms.\n";
             icmp_array.removeFirstMatchingValue(reply_id);
         }
+        else if (receive_frame.getType() == TYPE_FTP_COMMAND)
+        {
+            cout << "FTP command " << (int)receive_frame.getFrame_id() << " received.\n";
+            Array<int8_t> all_data = receive_frame.getData();
+            Write2File(all_data, "command.bin");
+            ofstream notify_file = std::ofstream("ICMP_NOTIFY.txt"); //notify python to work
+            notify_file.close();
+        }
         else
         {
             cerr << "what is this ?\n";
@@ -589,7 +597,7 @@ MAClayer::sendICMPreply()
 void
 MAClayer::sendFTPresponse()
 {
-    requestSend(TYPE_FTP_RESPONSE, RESP, data_frames[0]);
+    requestSend(TYPE_DATA, RESP, data_frames[0]);
 }
 
 bool
