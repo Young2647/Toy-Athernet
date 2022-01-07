@@ -33,10 +33,10 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     //init sender and receiver
 
     //init ack_array
-    ack_array.resize(Mac_num_frame);
+    ack_array.resize(256);
     ack_array.fill(false);
 
-    for (int i = 0; i < num_frame * 3; i++)
+    for (int i = 0; i < 256; i++)
         frame_to_receive_list.push_back(1);
 
     //init file output
@@ -122,6 +122,11 @@ MAClayer::receive()
                         if (!is_icmp_receiver)
                             //receive_frame.printFrame();
                         file_output.push_back(receive_frame.getData());
+                        if (receive_id == 0)
+                        {
+                            for (int i = 0; i < frame_to_receive_list.size(); i++)
+                                frame_to_receive_list[i] = 1; // reset frame to receive list
+                        }
                         frame_to_receive_list[receive_id] = 0;
                         frame_receive_increase = 1;
                         Write2File(receive_frame.getData(), "output.txt");

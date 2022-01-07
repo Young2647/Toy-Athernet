@@ -60,8 +60,16 @@ COMMMAND ParseCmd(std::string cmd, std::vector<int8_t>& cmd_data)
     }
     else if (instruct_cmd == "PWD")
     {
-        cmd_data = StringtoVector("");
-        return PWD;
+        if (information_cmd != "")
+        {
+            printf("Too many arguments for PWD command.\n");
+            return WRNG;
+        }
+        else
+        {
+            cmd_data = StringtoVector("");
+            return PWD;
+        }
     }
     else if (instruct_cmd == "CWD")
     {
@@ -76,8 +84,16 @@ COMMMAND ParseCmd(std::string cmd, std::vector<int8_t>& cmd_data)
     }
     else if (instruct_cmd == "PASV")
     {
-        cmd_data = StringtoVector("");
-        return PASV;
+        if (information_cmd != "")
+        {
+            printf("Too many arguments for PASV command.\n");
+            return WRNG;
+        }
+        else
+        {
+            cmd_data = StringtoVector("");
+            return PASV;
+        }
     }
     else if (instruct_cmd == "LIST")
     {
@@ -107,8 +123,16 @@ COMMMAND ParseCmd(std::string cmd, std::vector<int8_t>& cmd_data)
     }
     else if (instruct_cmd == "QUIT")
     {
-        cmd_data = StringtoVector("");
-        return QUIT;
+        if (information_cmd != "")
+        {
+            printf("Too many arguments for QUIT command.\n");
+            return WRNG;
+        }
+        else
+        {
+            cmd_data = StringtoVector("");
+            return QUIT;
+        }
     }
     else
     {
