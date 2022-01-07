@@ -146,9 +146,11 @@ MAClayer::receive()
             }
             if (frame_sent_num >= Mac_num_frame)
             {
-                send_end = true;
-                cout << "All data sent.\n";
-                callStop(0);
+                frame_sent_num = 0;
+                Mac_num_frame = 0;
+                //send_end = true;
+                //cout << "All data sent.\n";
+                //callStop(0);
             }
             else
             {
@@ -158,10 +160,10 @@ MAClayer::receive()
                 }
                 else
                 {
-                    while (cur_frame <= frame_sent_num)
-                    {
+                    //while (cur_frame <= frame_sent_num)
+                    //{
 
-                    }
+                    //}
                     requestSend(data_frames[frame_sent_num]);
                 }
             }
