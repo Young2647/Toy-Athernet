@@ -112,7 +112,7 @@ COMMMAND ParseCmd(std::string cmd, std::vector<int8_t>& cmd_data)
             vector<int8_t> local_path = StringtoVector(temp[2]);
             cmd_data.insert(cmd_data.end(), local_path.begin(), local_path.end());
         }
-        if (information_cmd != "")
+        else if (information_cmd != "")
             cmd_data = StringtoVector(information_cmd);
         else
         {
