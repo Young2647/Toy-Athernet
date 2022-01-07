@@ -8,7 +8,25 @@
   ==============================================================================
 */
 
+
+
+
+
 #include "MAClayer.h"
+
+std::string getPath(const std::string& target, int depth = 5) {
+    std::string path = target;
+    for (int i = 0; i < depth; ++i) {
+        FILE* file = fopen(path.c_str(), "r");
+        if (file) {
+            fclose(file);
+            return path;
+        }
+        path = "../" + path;
+    }
+    return target;
+}
+
 MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame, int8_t src_addr, int8_t dst_addr, int window_size) : Mac_receiver(num_samples_per_bit), Mac_sender(num_samples_per_bit), crc() {
     this->Mac_num_frame = num_frame;
     this->num_bits_per_frame = num_bits_per_frame;
@@ -166,7 +184,7 @@ MAClayer::receive()
                     if (readFromFile(real_file_name, true))
                     {
                         requestSend(0);
-                        this->local_file_name = real_file_name;
+                        this->retr_file_name = real_file_name;
                     }
                 }
                 //send_end = true;
@@ -616,18 +634,7 @@ MAClayer::Write2File(const string file_name)
     file_output.clear();
 }
 
-std::string getPath(const std::string& target, int depth = 5) {
-    std::string path = target;
-    for (int i = 0; i < depth; ++i) {
-        FILE* file = fopen(path.c_str(), "r");
-        if (file) {
-            fclose(file);
-            return path;
-        }
-        path = "../" + path;
-    }
-    return target;
-}
+
 
 
 string
