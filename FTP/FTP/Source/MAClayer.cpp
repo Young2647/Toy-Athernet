@@ -171,8 +171,6 @@ MAClayer::receive()
             {
                 frame_sent_num = 0;
                 Mac_num_frame = 0;
-
-                bool if_show_file = !checkifFiletoSend("filename.txt");
                 SendFileEnd(if_show_file);
                 data_frames.clear();
                 if (checkifFiletoSend("filename.txt"))
@@ -186,6 +184,13 @@ MAClayer::receive()
                         requestSend(0);
                         this->retr_file_name = real_file_name;
                     }
+                    if_show_file = false;
+                    in.close();
+                    system("del filename.txt");
+                }
+                else
+                {
+                    if_show_file = true;
                 }
                 //send_end = true;
                 //cout << "All data sent.\n";

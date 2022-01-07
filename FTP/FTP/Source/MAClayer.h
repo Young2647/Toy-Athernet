@@ -146,7 +146,7 @@ private:
     bool macperf_on = false;
     bool macping_on = false;
     bool icmp_on = false;
-    bool debug_on = false;
+    bool debug_on = true;
     bool is_receiver = false;
     bool is_sender = false;
     bool is_icmp_sender = false;
@@ -158,7 +158,7 @@ private:
     bool send_end = false;
     
     string retr_file_name; // the file_name that retr should download
-
+    bool if_show_file = true;
     //ip and port for atherNode
     bool if_send_ip = false;
     string dst_ip;
