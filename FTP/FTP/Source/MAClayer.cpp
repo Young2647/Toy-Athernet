@@ -173,25 +173,7 @@ MAClayer::receive()
                 Mac_num_frame = 0;
                 SendFileEnd(if_show_file);
                 data_frames.clear();
-                if (checkifFiletoSend("filename.txt"))
-                {
-                    ifstream in(getPath("filename.txt"));
-                    istreambuf_iterator<char> begin(in);
-                    istreambuf_iterator<char> end;
-                    string real_file_name(begin, end);
-                    if (readFromFile(real_file_name, true))
-                    {
-                        requestSend(0);
-                        this->retr_file_name = real_file_name;
-                    }
-                    if_show_file = false;
-                    in.close();
-                    system("del filename.txt");
-                }
-                else
-                {
-                    if_show_file = true;
-                }
+                
                 //send_end = true;
                 //cout << "All data sent.\n";
                 //callStop(0);
@@ -366,6 +348,25 @@ MAClayer::send() {
                     else if (frame_array[id].get()->getType() == TYPE_FILE_END)
                     {
                         cout << "file end notify sent.\n";
+                        if (checkifFiletoSend("filename.txt"))
+                        {
+                            ifstream in(getPath("filename.txt"));
+                            istreambuf_iterator<char> begin(in);
+                            istreambuf_iterator<char> end;
+                            string real_file_name(begin, end);
+                            if (readFromFile(real_file_name, true))
+                            {
+                                requestSend(0);
+                                this->retr_file_name = real_file_name;
+                            }
+                            if_show_file = false;
+                            in.close();
+                            system("del filename.txt");
+                        }
+                        else
+                        {
+                            if_show_file = true;
+                        }
                     }
                     else if (frame_array[id].get()->getType() == TYPE_ACK) {
                         if (frame_receive_increase) {
