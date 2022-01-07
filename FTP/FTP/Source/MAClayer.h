@@ -74,6 +74,7 @@ public:
     string translateAddrPort(std::vector<int8_t> ip_port);
 
     bool checkifFiletoSend(const string filename);
+    void setRETRfilename(const string filename) { this->retr_file_name = filename; }
 private:
     Receiver Mac_receiver;
     Sender Mac_sender;

@@ -47,7 +47,7 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
         for (int i = 5; i < all_data.size(); i++)
             data.add(all_data[i]);
     }
-    else if (type == TYPE_FTP_COMMAND)
+    else if (type == TYPE_FTP_COMMAND || type == TYPE_FILE_END)
     {
         for (int i = 5; i < 5 + frame_length; i++)
         {
