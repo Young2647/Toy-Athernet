@@ -32,7 +32,7 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
                 data.add(all_data[i]);
             crc.updateCRC(all_data[i]);
         }
-        translateAddrPort(false);
+        //translateAddrPort(false);
         if (frame_crc != crc.getCRC())
             bad_crc = 1;
     }
@@ -70,12 +70,14 @@ MACframe::MACframe(int8_t dst_address, int8_t src_address, int8_t ack_id) {
 }
 
 // constructor for data frame
-MACframe::MACframe(int8_t dst_address, int8_t src_address, std::vector<int8_t> frame_data) : crc() {
+MACframe::MACframe(int8_t frame_id, int8_t dst_address, int8_t src_address, std::vector<int8_t> frame_data) : crc() {
     type = (int8_t)TYPE_DATA;
+    this->frame_id = frame_id;
     this->dst_address = dst_address;
     this->src_address = src_address;
     this->frame_length = frame_data.size();
     crc.updateCRC(type);
+    crc.updateCRC(this->frame_id);
     crc.updateCRC(dst_address);
     crc.updateCRC(src_address);
     crc.updateCRC(this->frame_length);

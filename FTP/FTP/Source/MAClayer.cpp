@@ -717,8 +717,8 @@ MAClayer::requestSend(std::vector<int8_t> frame_data) {
     int id = id_controller_array.getFirst();
     id_controller_array.remove(0);
     unique_ptr<MACframe> data_frame;
-    data_frame.reset(new MACframe(dst_addr, src_addr, frame_data));
-    data_frame->setFrameId(id);
+    data_frame.reset(new MACframe(id, dst_addr, src_addr, frame_data));
+    //data_frame->setFrameId(id);
     send_id_array.insert(-1, id);
     frame_array[id] = std::move(data_frame);
     return id;
