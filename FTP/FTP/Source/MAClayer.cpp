@@ -637,28 +637,62 @@ MAClayer::readFromFile(int num_frame, const string file_name) {
 }
 
 bool
-MAClayer::readFromFile(const string file_name) {
-    data_frames.resize(cur_frame + 1);
+MAClayer::readFromFile(const string file_name, bool if_read_all) {
     fstream test;
     test.open(getPath(file_name), ios::in | ios::binary);
-    if (!test) return false; //read file failed!
-    ifstream f(getPath(file_name), ios::in | ios::binary);
-    //ofstream f1("test.out");
-    char tmp;
-    if (if_send_ip) {
-        for (int j = 0; j < 4; j++)
-            data_frames[cur_frame].push_back(node1_addr[j]);
-        for (int j = 0; j < 2; j++)
-            data_frames[cur_frame].push_back(node1_port[j]);
-    }
-    while (f.get(tmp))
+    if (!test) return false; //read file failed!    
+    if (if_read_all)
     {
-        data_frames[cur_frame].push_back(tmp);
+        ifstream f(getPath(file_name), ios::in | ios::binary);
+        f.seekg(0, ios::end);
+        int file_length = f.tellg();
+        f.seekg(0, ios::beg);
+        int byte_num = (if_send_ip) ? (num_bits_per_frame - FRAME_OFFSET - IP_PORT_LEN - CRC_LEN) / 8 : (num_bits_per_frame - FRAME_OFFSET - CRC_LEN) / 8;
+        Mac_num_frame = (int)(file_length / byte_num);
+        data_frames.resize(Mac_num_frame + 1);
+        for (int i = 0; i < Mac_num_frame; i++)
+        {
+            char tmp;
+            for (int j = 0; j < byte_num; j++) {
+                f.get(tmp);
+                data_frames[i].push_back(tmp);
+            }
+        }
+        if (file_length - Mac_num_frame * byte_num != 0)
+        {
+            char tmp;
+            while (f.get(tmp))
+            {
+                data_frames[Mac_num_frame].push_back(tmp);
+            }
+            Mac_num_frame++;
+        }
+        return true;
     }
-    cur_frame++;
-    f.close();
-    return true;
+    else
+    {
+        data_frames.resize(cur_frame + 1);
+        ifstream f(getPath(file_name), ios::in | ios::binary);
+        //ofstream f1("test.out");
+        char tmp;
+        if (if_send_ip) {
+            for (int j = 0; j < 4; j++)
+                data_frames[cur_frame].push_back(node1_addr[j]);
+            for (int j = 0; j < 2; j++)
+                data_frames[cur_frame].push_back(node1_port[j]);
+        }
+        while (f.get(tmp))
+        {
+            data_frames[cur_frame].push_back(tmp);
+        }
+        cur_frame++;
+        f.close();
+        return true;
+    }
+
 }
+
+
 
 // requestSend for ack packet
 int

@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
     dev_info = dev_manager.getAudioDeviceSetup();
     dev_info.sampleRate = 48000; // Setup sample rate to 48000 Hz
     dev_manager.setAudioDeviceSetup(dev_info, false);
-    int mode = MODE_FTP_NODE1;
+    int mode = MODE_FTP_NODE2;
     if (mode == MODE_UDP_NODE2_SEND)
     {
         std::cout << "Press any ENTER to start MAClayer.\n";
@@ -275,7 +275,7 @@ int main(int argc, char* argv[])
         int num_frame = 30; //30 frames
         if (mac_layer.get() == nullptr)
         {
-            mac_layer.reset(new MAClayer(3, num_bits_per_frame, num_frame, YHD, ZYB, 20));
+            mac_layer.reset(new MAClayer(3, num_bits_per_frame, num_frame, ZYB, YHD, 20));
         }
         mac_layer.get()->setSendIP();
         dev_manager.addAudioCallback(mac_layer.get());
@@ -284,7 +284,6 @@ int main(int argc, char* argv[])
         std::cout << "Press any ENTER to stop MAClayer.\n";
         string dst_addr = "ftp.ncnu.edu.tw";
 
-        //mac_layer.get()->requestSend(TYPE_FTP_COMMAND, CONT, StringtoVector(dst_addr));
         while (!mac_layer.get()->getStop())
         {
             //input command
@@ -315,7 +314,7 @@ int main(int argc, char* argv[])
         std::cout << "Press any ENTER to start MAClayer.\n";
         getchar();
         std::unique_ptr<MAClayer> mac_layer;
-        int num_bits_per_frame = 408; // 51 bytes
+        int num_bits_per_frame = 368; // 46 bytes
         int num_frame = 30; //30 frames
         if (mac_layer.get() == nullptr)
         {
@@ -352,9 +351,11 @@ int main(int argc, char* argv[])
                 system("del WRITE_DOWN.txt");
             }
             //c++ get notified, send reply to node1
-            if (mac_layer.get()->readFromFile(1,"response.txt"))
+            if (mac_layer.get()->readFromFile("response.bin", true))
             {
-                mac_layer.get()->sendFTPresponse();
+                mac_layer.get()->requestSend(0);
+                //mac_layer.get()->setSender();
+
             }
             this_thread::sleep_for(200ms);
             if (kbhit()) mac_layer.get()->callStop(1);

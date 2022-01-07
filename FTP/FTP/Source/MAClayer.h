@@ -37,7 +37,7 @@ public:
     void StopMAClayer();
 
     bool readFromFile(int num_frame, const string file_name);
-    bool readFromFile(const string file_name);
+    bool readFromFile(const string file_name, bool if_read_all = false);
 
     void audioDeviceIOCallback(const float** inputChannelData, int numInputChannels,
         float** outputChannelData, int numOutputChannels, int numSamples);
@@ -69,7 +69,6 @@ public:
     void setICMPsender() { is_icmp_sender = true; }
     void setICMPreceiver() { is_icmp_receiver = true; }
     void setDstIP(string dst_addr) { dst_ip = dst_addr; }
-
     void sendICMPreply();
     void sendFTPresponse();
     string translateAddrPort(std::vector<int8_t> ip_port);
@@ -111,6 +110,7 @@ private:
     int Mac_num_receive_frame; // total frame num to receive
     int num_bits_per_frame; // every frame bits num
     int num_samples_per_bit; // every bit sample num
+
     bool Mac_stop;
     bool keep_timer;
     std::ofstream fout;
