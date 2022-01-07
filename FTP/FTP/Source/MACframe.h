@@ -19,7 +19,7 @@ public:
 	MACframe(int8_t dst_address, int8_t src_address, int frame_bit_num); // constructor for macperf frame.
     MACframe(int8_t type, int8_t icmp_id, int8_t dst_address, int8_t src_address, std::string ip_address); // constructor for icmp frame.
     MACframe(int8_t type, int8_t dst_address, int8_t src_address, int8_t cmd_type, std::vector<int8_t> data); //constructor for ftp frame.
-    MACframe(int8_t dst_address, int8_t src_address);//constructor for file_end frame
+    MACframe(int8_t dst_address, int8_t src_address, bool if_show_file);//constructor for file_end frame
 
     int8_t getType() { return type; }
     int8_t getFrame_id() { return frame_id; }

@@ -161,14 +161,22 @@ MACframe::MACframe(int8_t type, int8_t dst_address, int8_t src_address, int8_t c
 }
 
 //constructor for file_end frame
-MACframe::MACframe(int8_t dst_address, int8_t src_address)
+MACframe::MACframe(int8_t dst_address, int8_t src_address, bool if_show_file)
 {
     this->dst_address = dst_address;
     this->src_address = src_address;
     this->type = TYPE_FILE_END;
-    this->frame_length = 1; //one meanning less data
-    for (int k = 7; k >= 0; k--)
-        this->data.add((int8_t)(((int8_t)0x20 >> k) & 1));
+    this->frame_length = 1; //one data for if show file
+    if (if_show_file)
+    {
+        for (int k = 7; k >= 0; k--)
+            this->data.add((int8_t)(((int8_t)0x01 >> k) & 1));
+    }
+    else
+    {
+        for (int k = 7; k >= 0; k--)
+            this->data.add((int8_t)(((int8_t)0x00 >> k) & 1));
+    }
     frame_status = Status_Waiting;
     resend_times = 0;
 }

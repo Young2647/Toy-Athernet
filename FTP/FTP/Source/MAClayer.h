@@ -53,7 +53,7 @@ public:
     int requestSend(int i); //send the ith element in data_frame
     int requestSend(int8_t type, int8_t icmp_id, std::string ip_address);
     int requestSend(int8_t type, int8_t cmd_type, std::vector<int8_t> data); //request send ftp response
-    int SendFileEnd(int8_t type);
+    int SendFileEnd(bool if_show_file);
 
     void startTimer(int8_t frame_data_id);
     void wait(int8_t data_frame_id);
@@ -73,6 +73,7 @@ public:
     void sendFTPresponse();
     string translateAddrPort(std::vector<int8_t> ip_port);
 
+    bool checkifFiletoSend(const string filename);
 private:
     Receiver Mac_receiver;
     Sender Mac_sender;
@@ -145,7 +146,7 @@ private:
     bool macperf_on = false;
     bool macping_on = false;
     bool icmp_on = false;
-    bool debug_on = true;
+    bool debug_on = false;
     bool is_receiver = false;
     bool is_sender = false;
     bool is_icmp_sender = false;
@@ -155,6 +156,8 @@ private:
     int window_size;
     bool receive_end = false;
     bool send_end = false;
+    
+    string retr_file_name; // the file_name that retr should download
 
     //ip and port for atherNode
     bool if_send_ip = false;

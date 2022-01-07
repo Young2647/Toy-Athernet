@@ -153,8 +153,22 @@ MAClayer::receive()
             {
                 frame_sent_num = 0;
                 Mac_num_frame = 0;
-                SendFileEnd(TYPE_FILE_END);
+
+                bool if_show_file = !checkifFiletoSend("filename.txt");
+                SendFileEnd(if_show_file);
                 data_frames.clear();
+                if (checkifFiletoSend("filename.txt"))
+                {
+                    ifstream in(getPath("filename.txt"));
+                    istreambuf_iterator<char> begin(in);
+                    istreambuf_iterator<char> end;
+                    string real_file_name(begin, end);
+                    if (readFromFile(real_file_name, true))
+                    {
+                        requestSend(0);
+                        this->local_file_name = real_file_name;
+                    }
+                }
                 //send_end = true;
                 //cout << "All data sent.\n";
                 //callStop(0);
@@ -220,14 +234,23 @@ MAClayer::receive()
         }
         else if (receive_frame.getType() == TYPE_FILE_END)
         {
-            for (auto data : file_output)
+            int if_show_file = (int)receive_frame.getData()[0];
+            if (if_show_file)
             {
-                for (auto word : data)
+                for (auto data : file_output)
                 {
-                    cout << (char)word; //print response
+                    for (auto word : data)
+                    {
+                        cout << (char)word; //print response
+                    }
                 }
+                Write2File("command_out.txt");
             }
-            Write2File("command_out.txt");
+            else
+            {
+                cout << "File written.\n";
+                Write2File(this->retr_file_name);
+            }
             cout << "\nReady for next command.\n";
         }
         else
@@ -237,6 +260,17 @@ MAClayer::receive()
         Mac_receiver.clearFrameData();
     }
 }
+
+bool
+MAClayer::checkifFiletoSend(const string file_name)
+{
+    fstream test;
+    test.open(getPath(file_name), ios::in | ios::binary);
+    if (!test) return false; //read file failed!   
+    return true;
+}
+
+
 
 void
 MAClayer::send() {
@@ -813,13 +847,13 @@ MAClayer::requestSend(int8_t type, int8_t cmd_type, std::vector<int8_t> data)
 }
 
 int
-MAClayer::SendFileEnd(int8_t type)
+MAClayer::SendFileEnd(bool if_show_file)
 {
     const ScopedLock sl(lock);
     int id = id_controller_array.getFirst();
     id_controller_array.remove(0);
     unique_ptr<MACframe> file_end_frame;
-    file_end_frame.reset(new MACframe(dst_addr, src_addr));
+    file_end_frame.reset(new MACframe(dst_addr, src_addr, if_show_file));
     file_end_frame->setFrameId(id);
     send_id_array.insert(-1, id);
     icmp_array.add(id);
