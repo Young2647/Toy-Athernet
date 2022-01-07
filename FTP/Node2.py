@@ -54,6 +54,7 @@ class Node2:
         else:
             response = "Invalid Command."
         print(response)
+        #print(len(response))
         self.WritetoFile(response)
 
         if cmd == RETR and response[0:3] == "226": # file transfer complete
@@ -62,17 +63,18 @@ class Node2:
             self.NotifyCpp()
     
     def NotifyCpp(self,localpath = ""):
-        with open("WRITE_DOWN.txt","w") as f:
-            if (self.debug_on) :
-                print("Notify the AtherNode to work.")
-            if localpath != "":
-                with open("filename.txt","w") as f1:
-                    f1.write(localpath)
+        f = open("WRITE_DOWN.txt","w")
+        if (self.debug_on) :
+            print("Notify the AtherNode to work.")
+        f.close()
+        if localpath != "":
+            with open("filename.txt","w") as f1:
+                f1.write(localpath)
     
     def checkNotify(self):
-        if os.path.exists("WRITE_DOWN.txt"):
+        if os.path.exists("NOTIFY_DONE.txt"):
             try:
-                os.remove("WRITE_DOWN.txt")
+                os.remove("NOTIFY_DOWN.txt")
             except:
                 pass
     def WritetoFile(self, response):
