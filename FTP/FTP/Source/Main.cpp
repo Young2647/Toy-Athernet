@@ -315,7 +315,7 @@ int main(int argc, char* argv[])
         std::cout << "Press any ENTER to start MAClayer.\n";
         getchar();
         std::unique_ptr<MAClayer> mac_layer;
-        int num_bits_per_frame = 448; // 56 bytes
+        int num_bits_per_frame = 688; // 86 bytes
         int num_frame = 30; //30 frames
         if (mac_layer.get() == nullptr)
         {
