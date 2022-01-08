@@ -7,7 +7,6 @@
 #include <fstream>
 #include <JuceHeader.h>
 #include "defines.h"
-#include "ringbuffer.hpp"
 
 using namespace std;
 using namespace juce;
@@ -25,7 +24,7 @@ public:
     void generateHeader();
 
     void Modulation(Array<uint8_t> cur_frame_data, int frame_len);
-    
+
     void audioDeviceIOCallback(const float** inputChannelData, int numInputChannels,
         float** outputChannelData, int numOutputChannels, int numSamples);
 
@@ -45,7 +44,7 @@ public:
 
     void hiResTimerCallback() override;
 
-    
+
 
 private:
     int header_len;
@@ -62,11 +61,10 @@ private:
     int num_bits_per_frame;
     int num_samples_per_bit;
     CriticalSection lock;
-    RingBuffer<float> output_buffer;
+    Array<float> frame_wave;
+    AudioBuffer<float> output_buffer;
     Array<float> carrier_wave;
-    float* header_wave;
-    float* frame_wave;
-    float* zeros;
+    Array<float> header_wave;
     bool isPlaying;
     ofstream fout;
     std::atomic<int> finish_prev_send{ 0 };
