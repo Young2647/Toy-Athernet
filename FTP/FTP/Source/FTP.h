@@ -9,5 +9,5 @@ public:
 
 };
 
-COMMMAND ParseCmd(std::string cmd, std::vector<int8_t> & cmd_data);
-std::vector<int8_t> StringtoVector(std::string cmd);
+COMMMAND ParseCmd(std::string cmd, std::vector<uint8_t> & cmd_data);
+std::vector<uint8_t> StringtoVector(std::string cmd);

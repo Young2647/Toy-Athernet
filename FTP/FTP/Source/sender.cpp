@@ -63,7 +63,7 @@ void Sender::generateHeader() {
 }
 
 
-void Sender::Modulation(Array<int8_t> cur_frame_data, int frame_len) {
+void Sender::Modulation(Array<uint8_t> cur_frame_data, int frame_len) {
     frame_wave.resize(frame_len * num_samples_per_bit);
     frame_wave.fill(0);
     for (int i = 0; i < frame_len; i++) {
@@ -76,8 +76,8 @@ void Sender::Modulation(Array<int8_t> cur_frame_data, int frame_len) {
     }
 }
 
-void Sender::sendOnePacket(int frame_len, Array<int8_t> cur_frame_data) {
-    /*vector<int8_t> vec;
+void Sender::sendOnePacket(int frame_len, Array<uint8_t> cur_frame_data) {
+    /*vector<uint8_t> vec;
     for (int i = 0; i < cur_frame_data.size(); i++) {
         vec.push_back(cur_frame_data[i]);
     }*/

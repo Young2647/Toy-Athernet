@@ -11,9 +11,9 @@
 #include "MACframe.h"
 
 // constructor for receive
-MACframe::MACframe(Array<int8_t> all_data) : crc() {
+MACframe::MACframe(Array<uint8_t> all_data) : crc() {
     this->receive_time = std::chrono::system_clock::now();
-    std::vector<int8_t> vec;
+    std::vector<uint8_t> vec;
     for (int i = 0; i < all_data.size(); i++)
         vec.push_back(all_data[i]);
     type = all_data[0];
@@ -22,7 +22,7 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
     src_address = all_data[3];
     frame_length = all_data[4];
     if (type == TYPE_DATA) {
-        int8_t frame_crc = all_data[all_data.size() - 1];
+        uint8_t frame_crc = all_data[all_data.size() - 1];
         for (int i = 0; i < 5; i++)
             crc.updateCRC(all_data[i]);
         for (int i = 5; i < all_data.size() - 1; i++) {
@@ -58,21 +58,21 @@ MACframe::MACframe(Array<int8_t> all_data) : crc() {
 }
 
 // constructor for ack frame
-MACframe::MACframe(int8_t dst_address, int8_t src_address, int8_t ack_id) {
-    type = (int8_t)TYPE_ACK;
+MACframe::MACframe(uint8_t dst_address, uint8_t src_address, uint8_t ack_id) {
+    type = (uint8_t)TYPE_ACK;
     this->dst_address = dst_address;
     this->src_address = src_address;
     this->frame_length = 1;//only one byte for ack_id
     this->ack_id = ack_id;
     for (int i = 0; i < 8; i++)
-        data.insert(0, (int8_t)((ack_id >> i) & 1));
+        data.insert(0, (uint8_t)((ack_id >> i) & 1));
     frame_status = Status_Waiting;
     resend_times = 0;
 }
 
 // constructor for data frame
-MACframe::MACframe(int8_t frame_id, int8_t dst_address, int8_t src_address, std::vector<int8_t> frame_data) : crc() {
-    type = (int8_t)TYPE_DATA;
+MACframe::MACframe(uint8_t frame_id, uint8_t dst_address, uint8_t src_address, std::vector<uint8_t> frame_data) : crc() {
+    type = (uint8_t)TYPE_DATA;
     this->frame_id = frame_id;
     this->dst_address = dst_address;
     this->src_address = src_address;
@@ -85,31 +85,31 @@ MACframe::MACframe(int8_t frame_id, int8_t dst_address, int8_t src_address, std:
     for (int i = 0; i < frame_data.size(); i++) {
         crc.updateCRC(frame_data[i]);
         for (int k = 7; k >= 0; k--)
-            data.add((int8_t)((frame_data[i] >> k) & 1));
+            data.add((uint8_t)((frame_data[i] >> k) & 1));
     }
     auto tmp = crc.getCRC();
     for (int k = 7; k >= 0; k--)
-        data.add((int8_t)(tmp >> k) & 1);
+        data.add((uint8_t)(tmp >> k) & 1);
     frame_status = Status_Waiting;
     resend_times = 0;
 }
 
 //construct a MACPING frame
-MACframe::MACframe(int8_t type, int8_t reply_id, int8_t dst_address, int8_t src_address)
+MACframe::MACframe(uint8_t type, uint8_t reply_id, uint8_t dst_address, uint8_t src_address)
 {
     this->dst_address = dst_address;
     this->src_address = src_address;
-    this->type = (int8_t)type;
-    this->ack_id = (int8_t)reply_id;
+    this->type = (uint8_t)type;
+    this->ack_id = (uint8_t)reply_id;
     for (int i = 0; i < 8; i++)
-        data.insert(0, (int8_t)((reply_id >> i) & 1));
+        data.insert(0, (uint8_t)((reply_id >> i) & 1));
     frame_status = Status_Waiting;
     resend_times = 0;
 }
 
 // constructor for macperf frame
-MACframe::MACframe(int8_t dst_address, int8_t src_address, int frame_bit_num) {
-    type = (int8_t)TYPE_DATA;
+MACframe::MACframe(uint8_t dst_address, uint8_t src_address, int frame_bit_num) {
+    type = (uint8_t)TYPE_DATA;
     this->dst_address = dst_address;
     this->src_address = src_address;
     for (int i = 0; i < frame_bit_num; i++)
@@ -119,20 +119,20 @@ MACframe::MACframe(int8_t dst_address, int8_t src_address, int frame_bit_num) {
 }
 
 //constructor for icmp frame
-MACframe::MACframe(int8_t type, int8_t icmp_id, int8_t dst_address, int8_t src_address, std::string ip_address)
+MACframe::MACframe(uint8_t type, uint8_t icmp_id, uint8_t dst_address, uint8_t src_address, std::string ip_address)
 {
     this->dst_address = dst_address;
     this->src_address = src_address;
     this->type = type;
     this->ip_address = ip_address;
     this->icmp_id = icmp_id;
-    std::vector<int8_t> address_array;
+    std::vector<uint8_t> address_array;
     split_address(ip_address, address_array);
     for (int i = 3; i >= 0; i--)
         for (int j = 0; j < 8; j++)
-            data.insert(0, (int8_t)((address_array[i] >> j) & 1));
+            data.insert(0, (uint8_t)((address_array[i] >> j) & 1));
     for (int i = 0; i < 8; i++)
-        data.insert(0, (int8_t)((icmp_id >> i) & 1));
+        data.insert(0, (uint8_t)((icmp_id >> i) & 1));
     for (int i = 0; i < 42*8; i++)
         data.add(rand() % 2);
     frame_status = Status_Waiting;
@@ -140,7 +140,7 @@ MACframe::MACframe(int8_t type, int8_t icmp_id, int8_t dst_address, int8_t src_a
 }
 
 //constructor for ftp frame
-MACframe::MACframe(int8_t type, int8_t dst_address, int8_t src_address, int8_t cmd_type, std::vector<int8_t> data)
+MACframe::MACframe(uint8_t type, uint8_t dst_address, uint8_t src_address, uint8_t cmd_type, std::vector<uint8_t> data)
 {
     this->dst_address = dst_address;
     this->src_address = src_address;
@@ -148,20 +148,20 @@ MACframe::MACframe(int8_t type, int8_t dst_address, int8_t src_address, int8_t c
     this->frame_length = data.size() + 2; // cmd(1) + " "(1) + information(size)
 
     for (int k = 7; k >= 0; k--)
-        this->data.add((int8_t)((cmd_type >> k) & 1));
+        this->data.add((uint8_t)((cmd_type >> k) & 1));
     for (int k = 7; k >= 0; k--)
-        this->data.add((int8_t)(((int8_t)0x20 >> k) & 1));
+        this->data.add((uint8_t)(((uint8_t)0x20 >> k) & 1));
     for (int i = 0; i < data.size(); i++)
     {
         for (int k = 7; k >= 0; k--)
-            this->data.add((int8_t)((data[i] >> k) & 1));
+            this->data.add((uint8_t)((data[i] >> k) & 1));
     }
     frame_status = Status_Waiting;
     resend_times = 0;
 }
 
 //constructor for file_end frame
-MACframe::MACframe(int8_t dst_address, int8_t src_address, bool if_show_file)
+MACframe::MACframe(uint8_t dst_address, uint8_t src_address, bool if_show_file)
 {
     this->dst_address = dst_address;
     this->src_address = src_address;
@@ -170,12 +170,12 @@ MACframe::MACframe(int8_t dst_address, int8_t src_address, bool if_show_file)
     if (if_show_file)
     {
         for (int k = 7; k >= 0; k--)
-            this->data.add((int8_t)(((int8_t)0x01 >> k) & 1));
+            this->data.add((uint8_t)(((uint8_t)0x01 >> k) & 1));
     }
     else
     {
         for (int k = 7; k >= 0; k--)
-            this->data.add((int8_t)(((int8_t)0x00 >> k) & 1));
+            this->data.add((uint8_t)(((uint8_t)0x00 >> k) & 1));
     }
     frame_status = Status_Waiting;
     resend_times = 0;
@@ -204,19 +204,19 @@ MACframe::getTimeDuration() {
     return diff.count();
 }
 
-Array<int8_t>
+Array<uint8_t>
 MACframe::toBitStream() {
-    Array<int8_t> ret_array = Array<int8_t>(data);
+    Array<uint8_t> ret_array = Array<uint8_t>(data);
     for (int i = 0; i < 8; i++)
-        ret_array.insert(0, (int8_t)((frame_length >> i) & 1));
+        ret_array.insert(0, (uint8_t)((frame_length >> i) & 1));
     for (int i = 0; i < 8; i++)
-        ret_array.insert(0, (int8_t)((src_address >> i) & 1));
+        ret_array.insert(0, (uint8_t)((src_address >> i) & 1));
     for (int i = 0; i < 8; i++)
-        ret_array.insert(0, (int8_t)((dst_address >> i) & 1));
+        ret_array.insert(0, (uint8_t)((dst_address >> i) & 1));
     for (int i = 0; i < 8; i++)
-        ret_array.insert(0, (int8_t)((frame_id >> i) & 1));
+        ret_array.insert(0, (uint8_t)((frame_id >> i) & 1));
     for (int i = 0; i < 8; i++)
-        ret_array.insert(0, (int8_t)((type >> i) & 1));
+        ret_array.insert(0, (uint8_t)((type >> i) & 1));
     /*byteToBits(ret_array, frame_id);
     byteToBits(ret_array, type);*/
     return ret_array;
@@ -244,12 +244,12 @@ MACframe::translateAddrPort(bool icmp) {
 }
 
 void 
-MACframe::split_address(const std::string& address_string, std::vector<int8_t>& address_array) {
+MACframe::split_address(const std::string& address_string, std::vector<uint8_t>& address_array) {
     const std::string delimters = ".";
     std::string::size_type lastPost = address_string.find_first_not_of(delimters, 0);
     std::string::size_type pos = address_string.find_first_of(delimters, lastPost);
     while (std::string::npos != pos || std::string::npos != lastPost) {
-        address_array.push_back((int8_t)atoi(address_string.substr(lastPost, pos - lastPost).c_str()));
+        address_array.push_back((uint8_t)atoi(address_string.substr(lastPost, pos - lastPost).c_str()));
         lastPost = address_string.find_first_not_of(delimters, pos);
         pos = address_string.find_first_of(delimters, lastPost);
     }

@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
     dev_info = dev_manager.getAudioDeviceSetup();
     dev_info.sampleRate = 48000; // Setup sample rate to 48000 Hz
     dev_manager.setAudioDeviceSetup(dev_info, false);
-    int mode = MODE_FTP_NODE2;
+    int mode = MODE_FTP_NODE1;
     if (mode == MODE_UDP_NODE2_SEND)
     {
         std::cout << "Press any ENTER to start MAClayer.\n";
@@ -290,10 +290,28 @@ int main(int argc, char* argv[])
             std::string cmd;
             getline(cin, cmd);
             if (cmd == "") mac_layer.get()->callStop(1);
-            std::vector<int8_t> cmd_data;
+            std::vector<uint8_t> cmd_data;
             COMMMAND instruct_cmd = ParseCmd(cmd, cmd_data);
             if (instruct_cmd != WRNG) // valid command
             {
+                if (instruct_cmd == RETR)
+                {
+                    istringstream in(cmd);
+                    vector<string> temp;
+                    string t;
+                    while (getline(in, t, ' '))
+                    {
+                        temp.push_back(t);
+                    }
+                    if (temp.size() > 2)
+                    {
+                        mac_layer.get()->setRETRfilename(temp[2]);
+                    }
+                    else
+                    {
+                        mac_layer.get()->setRETRfilename(temp[1]);
+                    }
+                }
                 mac_layer.get()->requestSend(TYPE_FTP_COMMAND, instruct_cmd, cmd_data); // send command to NAT node
             }
 

@@ -11,7 +11,7 @@
 #include "FTP.h"
 
 using namespace std;
-COMMMAND ParseCmd(std::string cmd, std::vector<int8_t>& cmd_data)
+COMMMAND ParseCmd(std::string cmd, std::vector<uint8_t>& cmd_data)
 {
     istringstream in(cmd);
     vector<string> temp;
@@ -108,8 +108,8 @@ COMMMAND ParseCmd(std::string cmd, std::vector<int8_t>& cmd_data)
         if (temp.size() > 2)
         {
             cmd_data = StringtoVector(information_cmd);
-            cmd_data.push_back((int8_t)' ');
-            vector<int8_t> local_path = StringtoVector(temp[2]);
+            cmd_data.push_back((uint8_t)' ');
+            vector<uint8_t> local_path = StringtoVector(temp[2]);
             cmd_data.insert(cmd_data.end(), local_path.begin(), local_path.end());
         }
         else if (information_cmd != "")
@@ -141,9 +141,9 @@ COMMMAND ParseCmd(std::string cmd, std::vector<int8_t>& cmd_data)
     }
 }
 
-std::vector<int8_t> StringtoVector(std::string cmd)
+std::vector<uint8_t> StringtoVector(std::string cmd)
 {
-    vector<int8_t> temp;
+    vector<uint8_t> temp;
     for (auto data : cmd) temp.push_back(data);
     return temp;
 }
