@@ -112,6 +112,7 @@ class Node2:
                 os.remove("NOTIFY_DOWN.txt")
             except:
                 pass
+
     def WritetoFile(self, response):
         with open("response.bin", "wb") as file:
             file.write(response.encode('utf8'))
@@ -119,6 +120,12 @@ class Node2:
 if __name__ == "__main__" :
     input("Print any key to start FTP client.\n")
     node2 = Node2(debug_on=True)
+    #prevent what's left from last process
+    if os.path.exists("filename.txt"):
+        try:
+            os.remove("filename.txt")
+        except:
+            pass
     while True:
         if msvcrt.kbhit(): break
         node2.checkNotify()

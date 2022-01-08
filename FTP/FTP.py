@@ -50,8 +50,10 @@ class FTPClient:
         except all_errors as e:
             return str(e)
     
-    def RETR(self, dirpath, localpath):
+    def RETR(self, dirpath, localpath = ""):
         try:
+            if localpath == "":
+                localpath = dirpath
             f = open(localpath, "wb")
             response = self.ftpclient.retrbinary("RETR " + dirpath, f.write, 1024)
             f.close()
@@ -73,10 +75,10 @@ if __name__ == "__main__":
     print(ftp.USER())
     print(ftp.PASS())
     print(ftp.PWD())
-    print(ftp.CWD("/"))
+    print(ftp.CWD("pub"))
     print(ftp.PWD())
     print(ftp.PASV())
     print(ftp.LIST(""))
-    print(ftp.RETR("robots.txt", "localrobots.txt"))
+    print(ftp.RETR("favicon.ico"))
     print(ftp.QUIT())
 
