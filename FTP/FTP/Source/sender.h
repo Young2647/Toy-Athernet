@@ -23,7 +23,7 @@ public:
 
     void generateHeader();
 
-    void Modulation(Array<int8_t> cur_frame_data, int frame_len);
+    void Modulation(Array<uint8_t> cur_frame_data, int frame_len);
     
     void audioDeviceIOCallback(const float** inputChannelData, int numInputChannels,
         float** outputChannelData, int numOutputChannels, int numSamples);
@@ -38,7 +38,7 @@ public:
 
     void printOutput_buffer();
 
-    void sendOnePacket(int frame_len, Array<int8_t> cur_frame_data);
+    void sendOnePacket(int frame_len, Array<uint8_t> cur_frame_data);
 
     int startSend();
 

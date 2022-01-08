@@ -16,16 +16,16 @@ class CRC8
 {
 public:
 	CRC8();
-	int8_t getCRC() { return crc; }
+	uint8_t getCRC() { return crc; }
 	void resetCRC() { crc = init; }
-	void updateCRC(int8_t data);
+	void updateCRC(uint8_t data);
 	~CRC8() {};
 
 private:
-	int8_t poly = 0x8c; // reverse of 0x07
-	int8_t init = 0x00;
-	Array<int8_t> crcTable;
-	int8_t crc;
+	uint8_t poly = 0x8c; // reverse of 0x07
+	uint8_t init = 0x00;
+	Array<uint8_t> crcTable;
+	uint8_t crc;
 };
 
 

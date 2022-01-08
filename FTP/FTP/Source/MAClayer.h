@@ -12,12 +12,12 @@
 class MAClayer : public AudioIODeviceCallback
 {
 public:
-    MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame, int8_t src_addr, int8_t dst_addr, int window_size = DEAFULT_WINDOW_SIZE);
+    MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame, uint8_t src_addr, uint8_t dst_addr, int window_size = DEAFULT_WINDOW_SIZE);
     
     ~MAClayer();
     
     void Write2File(const string file_name);
-    void Write2File(Array<int8_t> data, const string file_name);
+    void Write2File(Array<uint8_t> data, const string file_name);
     void receive(); //receiving datas
 
     void send(); //sending data
@@ -46,17 +46,17 @@ public:
 
     void audioDeviceStopped() {}
 
-    int requestSend(int8_t ack_id);
-    int requestSend(std::vector<int8_t> frame_data);
-    int requestSend(int8_t request_id, int8_t type);
+    int requestSend(uint8_t ack_id);
+    int requestSend(std::vector<uint8_t> frame_data);
+    int requestSend(uint8_t request_id, uint8_t type);
     int requestSend();
     int requestSend(int i); //send the ith element in data_frame
-    int requestSend(int8_t type, int8_t icmp_id, std::string ip_address);
-    int requestSend(int8_t type, int8_t cmd_type, std::vector<int8_t> data); //request send ftp response
+    int requestSend(uint8_t type, uint8_t icmp_id, std::string ip_address);
+    int requestSend(uint8_t type, uint8_t cmd_type, std::vector<uint8_t> data); //request send ftp response
     int SendFileEnd(bool if_show_file);
 
-    void startTimer(int8_t frame_data_id);
-    void wait(int8_t data_frame_id);
+    void startTimer(uint8_t frame_data_id);
+    void wait(uint8_t data_frame_id);
     bool getIfPerfing() { return macperf_on; }
 
     bool getStop() { return all_stop; }
@@ -71,7 +71,7 @@ public:
     void setDstIP(string dst_addr) { dst_ip = dst_addr; }
     void sendICMPreply();
     void sendFTPresponse();
-    string translateAddrPort(std::vector<int8_t> ip_port);
+    string translateAddrPort(std::vector<uint8_t> ip_port);
 
     bool checkifFiletoSend(const string filename);
     void setRETRfilename(const string filename) { this->retr_file_name = filename; }
@@ -118,11 +118,11 @@ private:
     std::condition_variable cv;
     std::vector<unique_ptr<MACframe>> frame_array;
     std::vector<std::unique_ptr<MACframe>> ack_queue; //queue to send ack
-    std::vector<std::vector<int8_t>> data_frames;
+    std::vector<std::vector<uint8_t>> data_frames;
     int cur_frame = 0;
     
     Array<bool> ack_array;//array that record if ack is received
-    std::vector<Array<int8_t>> file_output;
+    std::vector<Array<uint8_t>> file_output;
     Array<int> send_id_array;
     Array<int> id_controller_array;
     Array<int> mac_ping_array; // array that record the buffer for mac ping
@@ -138,8 +138,8 @@ private:
     int all_byte_num;
     Array<int> temp_ack_array;
 
-    int8_t dst_addr;
-    int8_t src_addr;
+    uint8_t dst_addr;
+    uint8_t src_addr;
 
     bool csma_on = false;//if we have csma
     std::chrono::milliseconds back_off_time = 10ms;
@@ -147,7 +147,7 @@ private:
     bool macperf_on = false;
     bool macping_on = false;
     bool icmp_on = false;
-    bool debug_on = true;
+    bool debug_on = false;
     bool is_receiver = false;
     bool is_sender = false;
     bool is_icmp_sender = false;
@@ -165,8 +165,8 @@ private:
     string dst_ip;
     string ip;
     int port;
-    int8_t node1_addr[4] = { (int8_t)192, (int8_t)168, (int8_t)1, (int8_t)2 };
-    int8_t node1_port[2] = { (int8_t)91, (int8_t)38 };
+    uint8_t node1_addr[4] = { (uint8_t)192, (uint8_t)168, (uint8_t)1, (uint8_t)2 };
+    uint8_t node1_port[2] = { (uint8_t)91, (uint8_t)38 };
 
     std::chrono::system_clock::time_point test_time;
 };

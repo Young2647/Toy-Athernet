@@ -290,7 +290,7 @@ int main(int argc, char* argv[])
             std::string cmd;
             getline(cin, cmd);
             if (cmd == "") mac_layer.get()->callStop(1);
-            std::vector<int8_t> cmd_data;
+            std::vector<uint8_t> cmd_data;
             COMMMAND instruct_cmd = ParseCmd(cmd, cmd_data);
             if (instruct_cmd != WRNG) // valid command
             {

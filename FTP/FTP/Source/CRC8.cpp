@@ -25,7 +25,7 @@ CRC8::CRC8() {
 	}
 }
 
-void CRC8::updateCRC(int8_t data) {
+void CRC8::updateCRC(uint8_t data) {
 	data ^= crc;
-	crc = (int8_t)(crcTable[data & 0xff] ^ (crc << 8));
+	crc = (uint8_t)(crcTable[data & 0xff] ^ (crc << 8));
 }

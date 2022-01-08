@@ -27,7 +27,7 @@ std::string getPath(const std::string& target, int depth = 5) {
     return target;
 }
 
-MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame, int8_t src_addr, int8_t dst_addr, int window_size) : Mac_receiver(num_samples_per_bit), Mac_sender(num_samples_per_bit), crc() {
+MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_frame, uint8_t src_addr, uint8_t dst_addr, int window_size) : Mac_receiver(num_samples_per_bit), Mac_sender(num_samples_per_bit), crc() {
     this->Mac_num_frame = num_frame;
     this->num_bits_per_frame = num_bits_per_frame;
     this->num_samples_per_bit = num_samples_per_bit;
@@ -103,7 +103,7 @@ MAClayer::receive()
             receive_end = true;
             callStop(0);
         }
-        Array<int8_t> data = Mac_receiver.getData();
+        Array<uint8_t> data = Mac_receiver.getData();
         if (data.isEmpty())
         {
             if (debug_on)
@@ -111,7 +111,7 @@ MAClayer::receive()
             continue;
         }
         MACframe receive_frame(data);
-        vector<int8_t> vec;
+        vector<uint8_t> vec;
         for (int i = 0; i < 50; i++) {
             vec.push_back(receive_frame.getData()[i]);
         }
@@ -125,7 +125,7 @@ MAClayer::receive()
         //    cout << Mac_receiver.getMaxPower() << endl;
         if (receive_frame.getType() == TYPE_DATA)
         {
-            int8_t receive_id = receive_frame.getFrame_id();
+            uint8_t receive_id = receive_frame.getFrame_id();
             if (debug_on)
                 cout << "Frame " << (int)receive_id << "received.";
             if (receive_frame.isBadCRC() && !macperf_on) {
@@ -211,9 +211,9 @@ MAClayer::receive()
         else if (receive_frame.getType() == TYPE_ICMP_REQUEST)
         {
             cout << "ICMP request " << (int)receive_frame.getFrame_id() << " received.\n";
-            Array<int8_t> all_data = receive_frame.getData();
+            Array<uint8_t> all_data = receive_frame.getData();
             all_data.insert(0, receive_frame.getFrame_id());
-            std::vector<int8_t> vec;
+            std::vector<uint8_t> vec;
             for (int i = 0; i < all_data.size(); i++) vec.push_back(all_data[i]);
             Write2File(all_data, "request.bin");
             ofstream notify_file = std::ofstream("ICMP_NOTIFY.txt"); //notify python to work
@@ -230,8 +230,8 @@ MAClayer::receive()
         else if (receive_frame.getType() == TYPE_FTP_COMMAND)
         {
             cout << "FTP command " << (int)receive_frame.getFrame_id() << " received.\n";
-            Array<int8_t> all_data = receive_frame.getData();
-            std::vector<int8_t> vec;
+            Array<uint8_t> all_data = receive_frame.getData();
+            std::vector<uint8_t> vec;
             for (int i = 0; i < all_data.size(); i++) vec.push_back(all_data[i]);
             Write2File(all_data, "command.bin");
             ofstream notify_file = std::ofstream("NOTIFY_DONE.txt"); //notify python to work
@@ -402,7 +402,7 @@ void
 MAClayer::macperf_send() {
     const int perf_frame_len = 1024;
     MACframe perf_frame(dst_addr, src_addr, perf_frame_len);
-    int8_t id = 0;
+    uint8_t id = 0;
     while (!Mac_stop) {
         perf_frame.setFrameId(id++);
         Mac_sender.sendOnePacket(perf_frame_len, perf_frame.toBitStream());
@@ -625,7 +625,7 @@ MAClayer::sendAck()
 }
 
 void
-MAClayer::Write2File(Array<int8_t> data, const string file_name)
+MAClayer::Write2File(Array<uint8_t> data, const string file_name)
 {
     ofstream tmp_writer = std::ofstream(file_name, ios::out | ios::binary);
     tmp_writer.write((char*)data.getRawDataPointer(), data.size());
@@ -644,7 +644,7 @@ MAClayer::Write2File(const string file_name)
 
 
 string
-MAClayer::translateAddrPort(std::vector<int8_t> ip_port) {
+MAClayer::translateAddrPort(std::vector<uint8_t> ip_port) {
     string ip_address = "";
     for (int i = 0; i < 4; i++) {
         ip_address += std::to_string((int)(unsigned char)ip_port[i]);
@@ -658,8 +658,8 @@ MAClayer::translateAddrPort(std::vector<int8_t> ip_port) {
 void
 MAClayer::sendICMPreply()
 {
-    int8_t id = data_frames[0][0];
-    std::vector<int8_t> data;
+    uint8_t id = data_frames[0][0];
+    std::vector<uint8_t> data;
     data.assign(data_frames[0].begin() + 1, data_frames[0].end());
     string ip_address = translateAddrPort(data);
     requestSend(TYPE_ICMP_REPLY, id, ip_address);
@@ -765,7 +765,7 @@ MAClayer::readFromFile(const string file_name, bool if_read_all) {
 
 // requestSend for ack packet
 int
-MAClayer::requestSend(int8_t data_frame_id) {
+MAClayer::requestSend(uint8_t data_frame_id) {
     const ScopedLock sl(lock);
     int id = id_controller_array.getFirst();
     id_controller_array.remove(0);
@@ -781,7 +781,7 @@ MAClayer::requestSend(int8_t data_frame_id) {
 
 // requestSend for data packet
 int
-MAClayer::requestSend(std::vector<int8_t> frame_data) {
+MAClayer::requestSend(std::vector<uint8_t> frame_data) {
     const ScopedLock s1(lock);
     int id = id_controller_array.getFirst();
     id_controller_array.remove(0);
@@ -795,7 +795,7 @@ MAClayer::requestSend(std::vector<int8_t> frame_data) {
 
 // requestSend for macping packet
 int
-MAClayer::requestSend(int8_t request_id, int8_t type)
+MAClayer::requestSend(uint8_t request_id, uint8_t type)
 {
     const ScopedLock sl(lock);
     int id = id_controller_array.getFirst();
@@ -827,7 +827,7 @@ MAClayer::requestSend() {
 
 // requestSend for icmp packet
 int
-MAClayer::requestSend(int8_t type, int8_t icmp_id, std::string ip_address)
+MAClayer::requestSend(uint8_t type, uint8_t icmp_id, std::string ip_address)
 {
     const ScopedLock sl(lock);
     int id = id_controller_array.getFirst();
@@ -845,7 +845,7 @@ MAClayer::requestSend(int8_t type, int8_t icmp_id, std::string ip_address)
 
 //requestSend for ftp data
 int
-MAClayer::requestSend(int8_t type, int8_t cmd_type, std::vector<int8_t> data)
+MAClayer::requestSend(uint8_t type, uint8_t cmd_type, std::vector<uint8_t> data)
 {
     const ScopedLock sl(lock);
     int id = id_controller_array.getFirst();
@@ -897,7 +897,7 @@ MAClayer::callStop(bool identifier)
 
 
 //void
-//MAClayer::startTimer(int8_t data_frame_id) {
+//MAClayer::startTimer(uint8_t data_frame_id) {
 //    keep_timer = 1;
 //    if (!timers.empty()) {
 //        timers[0].join();
@@ -908,7 +908,7 @@ MAClayer::callStop(bool identifier)
 //}
 //
 //void 
-//MAClayer::wait(int8_t data_frame_id) {
+//MAClayer::wait(uint8_t data_frame_id) {
 //    unique_lock<mutex> lk(cv_m);
 //    while (keep_timer)
 //    {

@@ -31,11 +31,11 @@ public:
 
     void stopRecording();
 
-    Array<int8_t> Int2Byte(Array<int>& int_data);
+    Array<uint8_t> Int2Byte(Array<int>& int_data);
 
     int Demodulate(float sample);
 
-    Array<int8_t> getData();
+    Array<uint8_t> getData();
 
     void clearFrameData() { frame_data.clear(); }
 
@@ -52,7 +52,7 @@ private:
     Array<float> processingData;
     Array<float> syncHeader;
     Array<float> carrierWave;
-    Array<int8_t> frame_data;
+    Array<uint8_t> frame_data;
     
     Array<float> recordedSound;
     Array<float> demodulate_buffer;
