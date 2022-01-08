@@ -130,21 +130,21 @@ Receiver::stopRecording()
     }
 }
 
-Array<int8_t> 
+Array<uint8_t> 
 Receiver::Int2Byte(Array<int>& int_data)
 {
-    /*std::vector<int8_t> vec;
+    /*std::vector<uint8_t> vec;
     for (auto i : int_data)
         vec.push_back(i);*/
     /*if (int_data.size() / 8 * 8 != int_data.size())
     {
         std::cout << "data length wrong!\n";
     }*/
-    Array<int8_t> byte_data;
+    Array<uint8_t> byte_data;
 
     for (int i = 0; i < int_data.size(); i += 8)
     {
-        int8_t temp = 0;
+        uint8_t temp = 0;
         for (int j = 0; j < 8; j++)
         {
             temp = temp << 1;
@@ -299,7 +299,7 @@ Receiver::hiResTimerCallback()
 
 
 
-Array<int8_t>
+Array<uint8_t>
 Receiver::getData()
 {
     //const ScopedLock sl(lock);
