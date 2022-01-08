@@ -13,16 +13,16 @@
  * since 65536 is the size of uint16_t
  */
 
-template <typename Type>
+    template <typename Type>
 class RingBuffer
 {
     static_assert(std::is_floating_point<Type>::value, "FP type required.");
 
 public:
     RingBuffer() {};
-    ~RingBuffer() {};\
+    ~RingBuffer() {}; \
 
-    void write(const Type* data, std::size_t len)
+        void write(const Type* data, std::size_t len)
     {
         if (fillCount + len > CAPACITY)
             std::cerr << "Ring Buffer Overflow\n";
@@ -57,11 +57,11 @@ public:
     }
 
     template <typename T>
-    T peek(std::function<T(int, const Type *, const Type *)> func, const Type *data, std::size_t len, int offset)
+    T peek(std::function<T(int, const Type*, const Type*)> func, const Type* data, std::size_t len, int offset)
     {
         if (fillCount < len + offset)
             std::cerr << "Peek out of bound\n";
-        
+
         uint16_t newTail = tail + offset;
         T ret = T(0);
 
@@ -97,7 +97,7 @@ public:
     {
         if (fillCount <= 0)
             std::cerr << "Ring Buffer Underflow\n";
-        
+
         T ret = buffer[tail];
         tail += 1;
         fillCount -= 1;
@@ -139,3 +139,4 @@ private:
 };
 
 #endif  
+

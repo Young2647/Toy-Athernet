@@ -7,6 +7,7 @@
 #include <fstream>
 #include <JuceHeader.h>
 #include "defines.h"
+#include "ringbuffer.hpp"
 
 using namespace std;
 using namespace juce;
@@ -61,10 +62,11 @@ private:
     int num_bits_per_frame;
     int num_samples_per_bit;
     CriticalSection lock;
-    Array<float> frame_wave;
-    AudioBuffer<float> output_buffer;
+    RingBuffer<float> output_buffer;
     Array<float> carrier_wave;
-    Array<float> header_wave;
+    float* header_wave;
+    float* frame_wave;
+    float* zeros;
     bool isPlaying;
     ofstream fout;
     std::atomic<int> finish_prev_send{ 0 };
