@@ -203,7 +203,7 @@ int main(int argc, char* argv[])
                 for (int i = 0; i < 4; i++)
                 {
                     mac_layer->sendIcmpReqOnce(dst_addr, cmd_data);
-                    this_thread::sleep_for(100ms);
+                    this_thread::sleep_for(500ms);
                 }
 
             }
