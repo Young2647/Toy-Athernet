@@ -6,6 +6,8 @@ import sys
 import binascii
 import os
 import msvcrt
+from scapy.all import *
+from time import sleep
 
 def calculateChecksum(data) :
         checksum = 0
@@ -66,15 +68,34 @@ def waitNode1apply() :
         with open("output.txt") as f :
             send_ip_packet(f.read())
 
+    
+def pack_callback(pkt):
+    # print(pkt.show())
+    ip_payload = bytes(pkt['IP'].payload)
+    ip_addr = str(pkt['IP'].src)
+    sendIptoNode1(socket.inet_aton(ip_addr))
+    waitNode1apply()
+    send_ip_packet(ip_addr, ip_payload)
+    print('sent')
+
 if __name__ == "__main__":
-    cap = pyshark.LiveCapture('WLAN', bpf_filter='icmp', use_json=True, include_raw=True)
-    while(True):
-        for pkt in cap.sniff_continuously(packet_count=1):
-            ip_payload = pkt.get_raw_packet()[34:]
-            ip_addr = str(pkt.ip.src)
-            sendIptoNode1(ip_addr)
-            waitNode1apply()
-            #send_ip_packet(ip_addr, ip_payload)
-            print('sent')
+    sniff(filter = 'icmp', prn=pack_callback, iface = 'WLAN 2', count=0)
+   
+
+
+
+   
+    # cap = pyshark.LiveCapture('WLAN', bpf_filter='icmp', use_json=True, include_raw=True)
+    # while(True):
+    #     for pkt in cap.sniff_continuously(packet_count=1):
+    #         ip_payload = pkt.get_raw_packet()[34:]
+    #         print(ip_payload[15])
+    #         print(ip_payload[16] == 255)
+    #         print(ip_payload[17] == 255)
+    #         ip_addr = str(pkt.ip.src)
+    #         sendIptoNode1(ip_addr)
+    #         waitNode1apply()
+    #         #send_ip_packet(ip_addr, ip_payload)
+    #         print('sent')
 
 
