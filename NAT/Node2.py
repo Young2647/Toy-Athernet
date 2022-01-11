@@ -8,9 +8,12 @@ import struct
 import random
 import select
 import pyshark
+from threading import Thread
+from scapy.all import *
+
 
 ICMP_ECHO_REQUEST = 8
-DEFALT_TIMEOUT = 10
+DEFALT_TIMEOUT = 5
 class Node2 :
     def __init__(self, debug_on = False, ip = "10.20.225.5", port = 23333, isClient = False):
         if isClient :
@@ -19,6 +22,7 @@ class Node2 :
             self.server = Server(port) # server receiving data from Node 3
         self.node1data = []
         self.debug_on = debug_on
+        self.ip = "10.20.234.231"
 
     def sendToNode3(self, line_data) :
             if self.debug_on :
@@ -86,8 +90,8 @@ class Node2 :
     def waitNode1repply(self, ip_addr, ip_payload) :
         while True :
             if msvcrt.kbhit() : break
-            if os.path.exists("ICMP_NOTIFY.txt") :
-                os.remove("ICMP_NOTIFY.txt")
+            if os.path.exists("ICMP_NOTIFY_rep.txt") :
+                os.remove("ICMP_NOTIFY_rep.txt")
                 break
         if os.path.exists("reply.bin") :
             with open("reply.bin","rb") as f :
@@ -99,8 +103,8 @@ class Node2 :
     def ICMPecho(self) :
         while True :
             if msvcrt.kbhit() : break
-            if os.path.exists("ICMP_NOTIFY.txt") :
-                os.remove("ICMP_NOTIFY.txt")
+            if os.path.exists("ICMP_NOTIFY_req.txt") :
+                os.remove("ICMP_NOTIFY_req.txt")
                 break
         if os.path.exists("request.bin") :
             with open("request.bin","rb") as f :
@@ -127,16 +131,22 @@ class Node2 :
                 self.notifyAther() #notify atherNode to work
             ping_socket.close()
 
-    def ICMPgetPing(self):
-        cap = pyshark.LiveCapture('WLAN', bpf_filter='icmp', use_json=True, include_raw=True) 
-        for pkt in cap.sniff_continuously():
-            ip_payload = pkt.get_raw_packet()[34:]
-            ip_addr = str(pkt.ip.src)
-            print(ip_addr)
+    def pack_callback(self, pkt):
+        # print(pkt.show())
+        if pkt['ICMP'].type == 0:
+            return
+        if pkt['IP'].src == self.ip:
+            return    
+        ip_payload = bytes(pkt['IP'].payload)
+        ip_addr = str(pkt['IP'].src)
+        print(ip_addr)
+        if (ip_payload[16] == 255 and ip_payload[17] == 255):
             self.sendIptoNode1(ip_addr)
-            self.waitNode1apply(ip_addr, ip_payload)
-            #send_ip_packet(ip_addr, ip_payload)
+            self.waitNode1repply(ip_addr, ip_payload)
             print('sent')
+
+    def ICMPgetPing(self):
+        sniff(filter = 'icmp', prn=self.pack_callback, iface = 'WLAN', count=0)
     
     def getReplypacket(self, socket, data) :
         time_remain = DEFALT_TIMEOUT
@@ -194,18 +204,29 @@ class Node2 :
 SEND = 0
 RECEIVE = 1
 ICMP = 2
-ICMP_GET_PING = 3
+
+def ICMPpingfromNode1():
+    node2 = Node2(True, isClient=True)
+    while True :
+        if msvcrt.kbhit() : break
+        node2.checkNotify()
+        node2.ICMPecho()
+
+def ICMPpingfromExternal():
+    node2 = Node2(True, isClient=True)
+    while True :
+        if msvcrt.kbhit(): break
+        node2.checkNotify()
+        node2.ICMPgetPing()    
 
 if __name__ == "__main__" :
-    key = input("If send to node3, press s. If receive from node3, press r. If ICMP, press p. If get ping from outside, press g.\n")
+    key = input("If send to node3, press s. If receive from node3, press r. If ICMP, press p.\n")
     if key == "r" :
         mode = RECEIVE
     elif key == "s":
         mode = SEND
     elif key == "p":
         mode = ICMP
-    elif key == "g":
-        mode = ICMP_GET_PING
 
     if mode == SEND :
         node2 = Node2(True,"10.20.198.211", isClient=True)
@@ -230,14 +251,15 @@ if __name__ == "__main__" :
         print("All data received")
         node2.server.stopServer()
     elif mode == ICMP :
-        node2 = Node2(True, isClient=True)
-        while True :
-            if msvcrt.kbhit() : break
-            node2.checkNotify()
-            node2.ICMPecho()
-    elif mode == ICMP_GET_PING:
-        node2 = Node2(True, isClient=True)
-        while True :
-            if msvcrt.kbhit(): break
-            node2.checkNotify()
-            node2.ICMPgetPing()
+        t1 = Thread(target = ICMPpingfromNode1)
+        t2 = Thread(target = ICMPpingfromExternal)
+
+        t1.start()
+        print("---start to receiving ping from ather node---")
+        t2.start()
+        print("---start to receiving ping from outside--")
+
+        t1.join()
+        print("---stop receiving ping from ather node---")
+        t2.join()
+        print("---stop receiving ping from outside---")
