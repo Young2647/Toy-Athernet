@@ -52,6 +52,7 @@ public:
     int requestSend();
     int requestSend(int i); //send the ith element in data_frame
     int requestSend(int8_t type, int8_t icmp_id, std::string ip_address);
+    int requestSend(int8_t type, int8_t icmp_id, std::string ip_address, vector<int8_t> data);
     void startTimer(int8_t frame_data_id);
     void wait(int8_t data_frame_id);
     bool getIfPerfing() { return macperf_on; }
@@ -69,6 +70,7 @@ public:
 
     void sendICMPreply();
     void sendIcmpReqOnce();
+    void sendIcmpReqOnce(string ip_address, std::vector<int8_t> data);
     string translateAddrPort(std::vector<int8_t> ip_port);
 
 private:

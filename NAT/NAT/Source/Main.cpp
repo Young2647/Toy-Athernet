@@ -15,6 +15,7 @@
 #include "defines.h"
 #include "MACframe.h"
 #include "MAClayer.h"
+#include "ICMP.h"
 using namespace juce;
 using namespace std;
 
@@ -192,6 +193,15 @@ int main(int argc, char* argv[])
         std::cout << "Press any ENTER to stop MAClayer.\n";
         while (!mac_layer.get()->getStop())
         {
+            std::string cmd;
+            getline(cin, cmd);
+            if (cmd == "") mac_layer.get()->callStop(1);
+            std::vector<int8_t> cmd_data;
+            if (ParseCmd(cmd, cmd_data, dst_addr))
+            {
+                mac_layer.get()->setDstIP(dst_addr);
+                mac_layer->sendIcmpReqOnce(dst_addr, cmd_data);
+            }
             if (kbhit()) mac_layer.get()->callStop(1);
         }
         mac_layer.get()->StopMAClayer();

@@ -534,6 +534,13 @@ MAClayer::sendIcmpReqOnce()
     requestSend(TYPE_ICMP_REQUEST, 0, ip_address);
 }
 
+void
+MAClayer::sendIcmpReqOnce(string ip_address, std::vector<int8_t> data)
+{
+    requestSend(TYPE_ICMP_REQUEST, 0, ip_address, data);
+}
+
+
 bool
 MAClayer::readFromFile(int num_frame, const string file_name) {
     data_frames.clear();
@@ -684,6 +691,26 @@ MAClayer::requestSend(int8_t type, int8_t icmp_id, std::string ip_address)
     frame_array[id] = std::move(icmp_frame);
     return id;
 }
+
+// requestSend for icmp packet with specified data 
+int
+MAClayer::requestSend(int8_t type, int8_t icmp_id, std::string ip_address, vector<int8_t> data)
+{
+    const ScopedLock sl(lock);
+    int id = id_controller_array.getFirst();
+    id_controller_array.remove(0);
+    unique_ptr<MACframe> icmp_frame;
+    icmp_frame.reset(new MACframe(type, icmp_id, dst_addr, src_addr, ip_address, data));
+    icmp_frame->setFrameId(id);
+    send_id_array.insert(-1, id);
+    icmp_array.add(id);
+    //temp_ack_array.insert(-1, id);
+    //ack_queue.push_back(std::move(ack_frame));
+    frame_array[id] = std::move(icmp_frame);
+    return id;
+}
+
+
 
 int
 MAClayer::requestSend(int data_id) {

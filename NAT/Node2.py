@@ -10,7 +10,7 @@ import select
 import pyshark
 
 ICMP_ECHO_REQUEST = 8
-DEFALT_TIMEOUT = 1
+DEFALT_TIMEOUT = 10
 class Node2 :
     def __init__(self, debug_on = False, ip = "10.20.225.5", port = 23333, isClient = False):
         if isClient :
@@ -83,28 +83,21 @@ class Node2 :
             f.write(socket.inet_aton(ip_addr))
         self.notifyAther()
 
-    def waitNode1apply(self, ip_addr, ip_payload) :
+    def waitNode1repply(self, ip_addr, ip_payload) :
         while True :
             if msvcrt.kbhit() : break
-            if os.path.exists("NOTIFY_DONE.txt") :
-                os.remove("NOTIFY_DONE.txt")
+            if os.path.exists("ICMP_NOTIFY.txt") :
+                os.remove("ICMP_NOTIFY.txt")
                 break
         if os.path.exists("reply.bin") :
-            with open("reply.bin") as f :
-                print(f.read())
-                self.send_ip_packet(ip_addr, ip_payload)
+            with open("reply.bin","rb") as f :
+                recv_addr = f.read(4)
+                recv_addr = socket.inet_ntoa(recv_addr)
+                print(recv_addr)
+                self.send_ip_packet(recv_addr, ip_payload)
 
     def ICMPecho(self) :
-        cap = pyshark.LiveCapture('WLAN', bpf_filter='icmp', use_json=True, include_raw=True)
         while True :
-            for pkt in cap.sniff_continuously(packet_count=1):
-                ip_payload = pkt.get_raw_packet()[34:]
-                ip_addr = str(pkt.ip.src)
-                print(ip_addr)
-                self.sendIptoNode1(ip_addr)
-                self.waitNode1apply(ip_addr, ip_payload)
-                #send_ip_packet(ip_addr, ip_payload)
-                print('sent')
             if msvcrt.kbhit() : break
             if os.path.exists("ICMP_NOTIFY.txt") :
                 os.remove("ICMP_NOTIFY.txt")
@@ -134,7 +127,16 @@ class Node2 :
                 self.notifyAther() #notify atherNode to work
             ping_socket.close()
 
-
+    def ICMPgetPing(self):
+        cap = pyshark.LiveCapture('WLAN', bpf_filter='icmp', use_json=True, include_raw=True) 
+        for pkt in cap.sniff_continuously():
+            ip_payload = pkt.get_raw_packet()[34:]
+            ip_addr = str(pkt.ip.src)
+            print(ip_addr)
+            self.sendIptoNode1(ip_addr)
+            self.waitNode1apply(ip_addr, ip_payload)
+            #send_ip_packet(ip_addr, ip_payload)
+            print('sent')
     
     def getReplypacket(self, socket, data) :
         time_remain = DEFALT_TIMEOUT
@@ -183,7 +185,7 @@ class Node2 :
 
 
     def generateICMPpacket(self, data) :
-        self.ping_id = os.getpid() & 0xFFFF
+        self.ping_id = os.getpid() & 0xF
         header = struct.pack('bbHHH', ICMP_ECHO_REQUEST, 0, 0, self.ping_id, 1) #dummy header without checksum
         check_sum = self.calculateChecksum(header + data)
         header = struct.pack('bbHHH', ICMP_ECHO_REQUEST, 0, socket.htons(check_sum), self.ping_id, 1) # real header
@@ -192,15 +194,19 @@ class Node2 :
 SEND = 0
 RECEIVE = 1
 ICMP = 2
+ICMP_GET_PING = 3
 
 if __name__ == "__main__" :
-    key = input("If send to node3, press s. If receive from node3, press r. If ICMP, press p\n")
+    key = input("If send to node3, press s. If receive from node3, press r. If ICMP, press p. If get ping from outside, press g.\n")
     if key == "r" :
         mode = RECEIVE
     elif key == "s":
         mode = SEND
     elif key == "p":
         mode = ICMP
+    elif key == "g":
+        mode = ICMP_GET_PING
+
     if mode == SEND :
         node2 = Node2(True,"10.20.198.211", isClient=True)
         data_sent = 0
@@ -229,3 +235,9 @@ if __name__ == "__main__" :
             if msvcrt.kbhit() : break
             node2.checkNotify()
             node2.ICMPecho()
+    elif mode == ICMP_GET_PING:
+        node2 = Node2(True, isClient=True)
+        while True :
+            if msvcrt.kbhit(): break
+            node2.checkNotify()
+            node2.ICMPgetPing()
