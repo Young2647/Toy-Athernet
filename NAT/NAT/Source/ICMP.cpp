@@ -11,7 +11,7 @@
 #include "ICMP.h"
 
 using namespace std;
-bool ParseCmd(std::string cmd, std::vector<uint8_t>& cmd_data, std::string & dst_addr)
+bool ParseCmd(std::string cmd, std::vector<int8_t>& cmd_data, std::string & dst_addr)
 {
     istringstream in(cmd);
     vector<string> temp;

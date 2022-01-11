@@ -136,11 +136,13 @@ MACframe::MACframe(int8_t type, int8_t icmp_id, int8_t dst_address, int8_t src_a
             data.insert(0, (int8_t)((address_array[i] >> j) & 1));
     for (int i = 0; i < 8; i++)
         data.insert(0, (int8_t)((icmp_id >> i) & 1));
-    for (int i = 0; i < payload.size(); i++)
+    /*for (int i = 0; i < payload.size(); i++)
         for (int k = 7; k >= 0; k--)
             data.add((int8_t)((payload[i] >> k) & 1));
     for (int i = 0; i < (42 - payload.size()) * 8; i++)
-        data.add(rand() % 2);
+        data.add(rand() % 2);*/
+    for (int i = 0; i < 42 * 8; i++)
+        data.add(1);
     frame_status = Status_Waiting;
     resend_times = 0;
 }

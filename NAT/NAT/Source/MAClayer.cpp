@@ -25,7 +25,7 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     receiver_LFR = DEFAULT_RWS;
     receiver_LAF = receiver_LFR + receiver_RWS;
     max_frame_gen_idx = -1;
-    keep_timer = 0;
+    keep_timer = 0; 
     for (int i = 0; i < 256; i++)
         id_controller_array.add(i);
     frame_array.resize(256);
@@ -189,7 +189,7 @@ MAClayer::receive()
                 requestSend(TYPE_ICMP_REPLY, receive_frame.getFrame_id(), receive_frame.getIP());
             else {
                 Write2File(all_data, "request.bin");
-                ofstream notify_file = std::ofstream("ICMP_NOTIFY.txt"); //notify python to work
+                ofstream notify_file = std::ofstream("ICMP_NOTIFY_req.txt"); //notify python to work
                 notify_file.close();
             }
         }
@@ -200,7 +200,7 @@ MAClayer::receive()
                 cout << "ICMP get replied from node1.\n";
                 Array<int8_t> all_data = receive_frame.getData();
                 Write2File(all_data, "reply.bin");
-                ofstream notify_file = std::ofstream("ICMP_NOTIFY.txt"); //notify python to work
+                ofstream notify_file = std::ofstream("ICMP_NOTIFY_rep.txt"); //notify python to work
                 notify_file.close();
             }
             else

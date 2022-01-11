@@ -145,7 +145,7 @@ private:
     bool macperf_on = false;
     bool macping_on = false;
     bool icmp_on = false;
-    bool debug_on = true;
+    bool debug_on = false;
     bool is_receiver = false;
     bool is_sender = false;
     bool is_icmp_sender = false;
