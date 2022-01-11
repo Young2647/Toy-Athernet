@@ -83,7 +83,7 @@ class Node2 :
             f.write(socket.inet_aton(ip_addr))
         self.notifyAther()
 
-    def waitNode1apply(self, ip_addr, ip_payload) :
+    def waitNode1repply(self, ip_addr, ip_payload) :
         while True :
             if msvcrt.kbhit() : break
             if os.path.exists("NOTIFY_DONE.txt") :
@@ -101,10 +101,11 @@ class Node2 :
                 ip_payload = pkt.get_raw_packet()[34:]
                 ip_addr = str(pkt.ip.src)
                 print(ip_addr)
-                self.sendIptoNode1(ip_addr)
-                self.waitNode1apply(ip_addr, ip_payload)
-                #send_ip_packet(ip_addr, ip_payload)
-                print('sent')
+                if (ip_payload[16] == 255 and ip_payload[17] == 255) :
+                    self.sendIptoNode1(ip_addr)
+                    self.waitNode1repply(ip_addr, ip_payload)
+                    #send_ip_packet(ip_addr, ip_payload)
+                    print('sent')
             if msvcrt.kbhit() : break
             if os.path.exists("ICMP_NOTIFY.txt") :
                 os.remove("ICMP_NOTIFY.txt")
@@ -134,7 +135,17 @@ class Node2 :
                 self.notifyAther() #notify atherNode to work
             ping_socket.close()
 
-
+    def ICMPexternalPing(self):
+        while True :
+            for pkt in cap.sniff_continuously(packet_count=1):
+                ip_payload = pkt.get_raw_packet()[34:]
+                ip_addr = str(pkt.ip.src)
+                print(ip_addr)
+                if (ip_payload[16] == 255 and ip_payload[17] == 255) :
+                    self.sendIptoNode1(ip_addr)
+                    self.waitNode1repply(ip_addr, ip_payload)
+                    #send_ip_packet(ip_addr, ip_payload)
+                    print('sent')
     
     def getReplypacket(self, socket, data) :
         time_remain = DEFALT_TIMEOUT
