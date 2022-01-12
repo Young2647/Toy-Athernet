@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
     dev_info = dev_manager.getAudioDeviceSetup();
     dev_info.sampleRate = 48000; // Setup sample rate to 48000 Hz
     dev_manager.setAudioDeviceSetup(dev_info, false);
-    int mode = MODE_ICMP_NODE2;
+    int mode = MODE_ICMP_NODE1;
     if (mode == MODE_UDP_NODE2_SEND)
     {
         std::cout << "Press any ENTER to start MAClayer.\n";
@@ -184,7 +184,7 @@ int main(int argc, char* argv[])
         }
         //mac_layer.get()->setSendIP();
         //mac_layer.get()->setSender();
-        mac_layer.get()->setICMPsender();
+        //mac_layer.get()->setICMPsender();
         string dst_addr = "10.20.198.211";
         mac_layer.get()->setDstIP(dst_addr);
         dev_manager.addAudioCallback(mac_layer.get());
@@ -200,7 +200,16 @@ int main(int argc, char* argv[])
             if (ParseCmd(cmd, cmd_data, dst_addr))
             {
                 mac_layer.get()->setDstIP(dst_addr);
-                mac_layer->sendIcmpReqOnce(dst_addr, cmd_data);
+                for (int i = 0; i < 4; i++)
+                {
+                    mac_layer->sendIcmpReqOnce(dst_addr, cmd_data);
+                    this_thread::sleep_for(500ms);
+                }
+
+            }
+            else
+            {
+                cout << "Wrong Command!\n";
             }
             if (kbhit()) mac_layer.get()->callStop(1);
         }

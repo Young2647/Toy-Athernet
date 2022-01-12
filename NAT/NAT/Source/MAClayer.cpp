@@ -25,7 +25,7 @@ MAClayer::MAClayer(int num_samples_per_bit, int num_bits_per_frame, int num_fram
     receiver_LFR = DEFAULT_RWS;
     receiver_LAF = receiver_LFR + receiver_RWS;
     max_frame_gen_idx = -1;
-    keep_timer = 0;
+    keep_timer = 0; 
     for (int i = 0; i < 256; i++)
         id_controller_array.add(i);
     frame_array.resize(256);
@@ -189,7 +189,7 @@ MAClayer::receive()
                 requestSend(TYPE_ICMP_REPLY, receive_frame.getFrame_id(), receive_frame.getIP());
             else {
                 Write2File(all_data, "request.bin");
-                ofstream notify_file = std::ofstream("ICMP_NOTIFY.txt"); //notify python to work
+                ofstream notify_file = std::ofstream("ICMP_NOTIFY_req.txt"); //notify python to work
                 notify_file.close();
             }
         }
@@ -200,13 +200,15 @@ MAClayer::receive()
                 cout << "ICMP get replied from node1.\n";
                 Array<int8_t> all_data = receive_frame.getData();
                 Write2File(all_data, "reply.bin");
-                ofstream notify_file = std::ofstream("ICMP_NOTIFY.txt"); //notify python to work
+                ofstream notify_file = std::ofstream("ICMP_NOTIFY_rep.txt"); //notify python to work
                 notify_file.close();
             }
             else
             {
                 int reply_id = (int)receive_frame.getICMPID();
-                cout << "ICMP " << reply_id << "get replied from " << receive_frame.getIPAddr();
+                cout << "ICMP " << reply_id << " get replied from " << receive_frame.getIPAddr();
+                if (frame_array[reply_id].get())
+                    frame_array[reply_id].get()->setStatus(Status_Acked);// let the frame in frame array to be marked as acked.
                 std::chrono::duration<double, std::milli> diff = receive_frame.getReceiveTime() - frame_array[reply_id].get()->getSendTime();
                 cout << "RTT is " << diff.count() << "ms.\n";
                 icmp_array.removeFirstMatchingValue(reply_id);
@@ -265,6 +267,11 @@ MAClayer::send() {
                     //if (!keep_timer)
                     //    startTimer(id);
                 }
+                else if(frame_array[id].get()->getType() == TYPE_ICMP_REQUEST)
+                {
+                    cout << "ICMP request " << id << " sent.\n";
+                    frame_array[id].get()->setStatus(Status_Sent);
+                }
                 else // ACK is defualt set as acked
                 {
                     frame_array[id].get()->setStatus(Status_Acked);
@@ -299,17 +306,25 @@ MAClayer::send() {
             }
             else if (frame_array[id].get()->getStatus() == Status_Sent && frame_array[id].get()->getTimeDuration() >= MAX_WAITING_TIME)
             {
-                if (debug_on)
-                    cout << "frame " << id << " ack not received. Try to resend package.\n";
-                frame_array[id].get()->setStatus(Status_Waiting);
-                if (frame_array[id].get()->ResendToomuch())
+                if (frame_array[id]->getType() == TYPE_ICMP_REQUEST)
                 {
-                    cerr << "Resend too many times. Link error.\n";
-                    callStop(1);//link error, mac layer stops
+                    cout << "ICMP request " << id << " failed. Out of time.\n";
+                    frame_array[id]->setStatus(Status_Acked); // forget about it.
                 }
                 else
                 {
-                    frame_array[id].get()->addResendtimes();
+                    if (debug_on)
+                        cout << "frame " << id << " ack not received. Try to resend package.\n";
+                    frame_array[id].get()->setStatus(Status_Waiting);
+                    if (frame_array[id].get()->ResendToomuch())
+                    {
+                        cerr << "Resend too many times. Link error.\n";
+                        callStop(1);//link error, mac layer stops
+                    }
+                    else
+                    {
+                        frame_array[id].get()->addResendtimes();
+                    }
                 }
             }
         }
