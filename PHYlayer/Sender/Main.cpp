@@ -10,6 +10,8 @@
 #include <vector>
 #include <fstream>
 #include <JuceHeader.h>
+#include <rs>
+
 #define PI acos(-1)
 using namespace std;
 using namespace juce;
@@ -18,7 +20,6 @@ class Sender : public AudioIODeviceCallback, private HighResolutionTimer {
 public:
     Sender();
     void setHeaderLen(int len);
-    void setCarrierFreq(int freq);
     int** getBitStream();
     float* generateHeader();
     void Modulation(int* frame_bit);
@@ -85,15 +86,11 @@ void Sender::setHeaderLen(int len) {
     header_len = len;
 }
 
-void Sender::setCarrierFreq(int freq) {
-    carrier_freq = freq;
-}
-
 int** Sender::getBitStream() {
     int** frame_bit = new int* [num_frame];
     ifstream f;
     char tmp;
-    f.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021-main\\input.in");
+    f.open("C:\\CS120\\CS120-Shanghaitech-Fall2021\\input.in");
     for (int i = 0; i < num_frame; i++) {
         frame_bit[i] = new int[num_bits_per_frame];
         for (int j = 0; j < num_bits_per_frame; j++) {

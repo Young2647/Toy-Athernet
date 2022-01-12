@@ -8,6 +8,7 @@
 
 #include <JuceHeader.h>
 #include<fstream>
+#include<rs>
 
 #define PI acos(-1)
 using namespace juce;
@@ -20,6 +21,7 @@ public :
     {
         syncPower_localMax = 0;
         isRecording = false;
+        
     }
 
     void GenerateCarrierWave()
@@ -138,13 +140,13 @@ public :
         Array<float> tempBuffer;
         float power = 0;
         //std::ofstream debugf("synpower.txt");
-        //std::ofstream recordeddebug("record.txt");
+        std::ofstream recordeddebug("record.txt");
         //std::ofstream datadebug("data.txt");
         std::ofstream fout("record.out");
         for (int i = 0; i < recordedSampleNum; i++)
         //for (int i = 0; i < buffer.getNumSamples(); i++)
         {
-            //recordeddebug << s[i] << "\n";
+            recordeddebug << s[i] << "\n";
             power = power * (1 - 1 / 64) + s[i] * s[i] / 64;
             if (processingHeader.size() < headerLength)
             {
@@ -189,9 +191,9 @@ public :
                 else if (state == 1) //data process
                 {
                     processingData.add(s[i]);
-                    if (processingData.size() == bitLen * packLen/2)
+                    if (processingData.size() == bitLen * packLen)
                     {
-                        for (int j = 0; j < packLen/2; j++)
+                        for (int j = 0; j < packLen; j++)
                         {
                             float sum[4] = { 0, 0, 0, 0 };
                             for (int k = 0; k < bitLen; k++)
@@ -226,7 +228,7 @@ public :
                                 fout << 1;
                                 fout << 1;
                             }
-                            if ((j + 1) % 8 == 0)
+                            if ((j+1)%8 == 0)
                                 fout << std::endl;
                         }
                         /*
@@ -286,8 +288,8 @@ private :
     CriticalSection lock;
 
     int recordedSampleNum = -1;
-    int bitLen = 48; //the length of one bit
-    int packLen = 200; // how many bits per frame
+    int bitLen = 12; //the length of one bit
+    int packLen = 416; // how many bits per frame
     int headerLength = 480;
     int sampleRate;
     float syncPower_localMax;
