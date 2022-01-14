@@ -47,7 +47,7 @@ with acuuracy of 100 percent. However, the transmission is fragile and susceptib
 \subsection{Modulation}
 
 We choose PSK to modulate bitstream. In original design (without OFDM), we use the wave $1 \times cos(2\pi \times 5000 x)$ to represent 1, and
-$  1 \times cos(2\pi \times 5000 x + \pi) = -cos(2\pi \times 5000 x)$ to represent 0. We choose the sample rate of 48000Hz, and by fully test the harwares, 
+$  1 \times cos(2\pi \times 5000 x + \pi) = -cos(2\pi \times 5000 x)$ to represent 0. We choose the sample rate of 48000Hz, and by fully test the hardwares, 
 we find that 400 bits per frame and 48 samples per bit best fit our devices, giving consideration of both accuracy and bandwidth.
 
 As for header wave, it is also a sin wave that start with frequency 200Hz, and continuously increases its frequency until 10000Hz, and after that, its
@@ -109,15 +109,15 @@ bits as the corresponding digits of the waves.
 
 In project two, our hardware devices change from commercial speakers and microphones to sound cards and calbles, which allows us to transmit in baseband and use a few samples to 
 encode a bit (we choose 3 samples per bit), and we mainly work on MAC layer of Athernet. We redesign the frame header, adding src\_addr, dst\_addr, sequence number, type, length fields,
-as well as a CRC checksum. For Athernet nodes, we establish a state-machine for each node, using multithreding to archive transmitting and receiving at same time, and also ACK and retrasmission
-mechanism. We also design amd support MacPing and MacPerf command to test the latency and bandwith of Athernet. Finally, to avoid conflict, we implement CSMA to detect the channel and backoff when transmission detected.
+as well as a CRC checksum. For Athernet nodes, we establish a state-machine for each node, using multithreding to achieve transmitting and receiving at same time, and also ACK and retransmission
+mechanism. We also support MacPing and MacPerf command to test the latency and bandwith of Athernet. Finally, to avoid conflict, we implement CSMA to detect the channel and backoff when transmission or noise detected.
 
 \subsection{The Packet Structure}
 
 In the packet, we reserve some bits to store necessary fields.
 \begin{itemize}
-\item The first 8 bits are type filed, i.e. they type of this packet, such as data frame, MacPing(request, reply), MacPerf, ACK...
-\item The second 8 bits are sequence number field, which is essential for ACK and retrasmission.
+\item The first 8 bits are type filed, i.e. the type of this packet, such as data frame, MacPing(request, reply), MacPerf, ACK...
+\item The second 8 bits are sequence number field, which is essential for ACK and retransmission.
 \item The thrid 8 bits are dst\_addr field. 
 \item The fourth 8 bits are src\_addr field.
 \item The fifth 8 bits are length filed, which tells the length of the frame's data.
@@ -125,10 +125,10 @@ In the packet, we reserve some bits to store necessary fields.
 
 \subsection{ACK and retrasmission}
 
-ACK and retransmission are fundamental to archive a reliable transmission. Due to the fragileness of hardware trasmission, packets in 
+ACK and retransmission are fundamental to achieve a reliable transmission. Due to the fragileness of hardware transmission, packets in 
 Athernet suffer from a series of failure, like lost in cable and reversal for bits. Take data packets for example, when Athernet nodes receive
 a data packet with sequence number $K$ and its CRC checkusm is 'good', the receiver node will reply an ACK packet with sequence number $K$, and when the
-trasmitting node receive the ACK of this packet, the transmission of packet $K$ is treated as successfully, else retransmission is needed. Trasmission occurs
+trasmitting node receive the ACK of this packet, the transmission of packet $K$ is treated as successfully, else retransmission is needed. Retransmission occurs
 in four situations,
 \begin {itemize}
 \item The data packet is lost, i.e. the receiver does not receive packet $K$.
@@ -137,20 +137,20 @@ in four situations,
 \item Both data packet and ACK packet are transmitted correctly, but timeout occurs.
 \end {itemize}
 In transmitting node, we either maintain a thread pool that keeps the duration of all current transmitting packets using std::condition\_variable.wait\_until method
-in C++, or just iteratively check the duration in sending thread. When timeout occurs, the transmitting thread abort the previous transmission and retransmit the abrted packet.
+in C++, or just iteratively check the duration in sending thread. When timeout occurs, the transmitting thread abort the previous transmission and retransmit the aborted packet.
 
 For data transmission in project 2, we found that stop-and-wait strategy does not meet the requirement in performance, so for the relatively small data file, we just transmit all
-packets at beginnning, and after receiving ACK packets, it continuouly transmit the rest packets without ACK replies, until all packets are successfully transmitted.
+packets at beginnning, and after receiving ACK packets, it continuously transmit the rest packets without ACK replies, until all packets are successfully transmitted.
 
 \subsection{CRC}
 To ensure the correctness of transmission, we introduce CRC check. We choose CRC8 with CRC polynomials
 \[
     x^8 + x^2 + x + 1 \dots 0\text{x}07
 \]
-We compute the CRC checksum when constructing data packets, appending the result in the end of packets, and in receiver node, we recompute the CRC checksum with same algorithm and compare with the appended one to do the corectness check.
+We compute the CRC checksum when constructing data packets, appending the result in the end of packets, and in receiver node, we recompute the CRC checksum with same algorithm and compare with the appended one to do the correctness check.
 \subsection{The \textsf{macperf} Utility}
-We implementation perf packet in MAC layer, which is a utility to measure the throughput of Athernet. We design the MACperf packet with almost same header as data packet(no length field), and tramit 1000 random bits as 
-payload for each MACperf packet. The MACperf controller sends packets with best effort, while counting the ACK received for each second, and print the measured throughput on the screen.
+We implementation perf packet in MAC layer, which is a utility to measure the throughput of Athernet. We design the MACperf packet with almost same header as data packet(no length field), and transmit 1000 random bits as 
+payload for each MACperf packet. The MACperf controller sends packets with best effort, while counting the ACK received each second, and print the measured throughput on the screen.
 
 \subsection{The \textsf{macping} Utility}
 
@@ -162,8 +162,8 @@ as soon as possible with a MacPing reply packet, and when node1 receive the MacP
 Note that in both MacPerf and MacPing packets, adrress is taken into consideration and need to be handled carefully.
 
 \subsection{{CSMA}}
-When the jamming source is added, the ather node can only transmit packets when the channel is free (i.e the jamming source is not playing noise)
-To achieve this, we need to do CSMA, i.e listening if the channel is blocked when the ather node wants to transmit a packet. We use the following procedure.
+As the jamming source is added, the ather node can only transmit packets when the channel is free (i.e the jamming source is not playing noise and other nodes are not sending packets)
+To achieve this, we need to do CSMA, i.e listening if the channel is blocked before the ather node wants to transmit a packet. We use the following procedure.
 \begin{itemize}
     \item[1.] Detect the current channel power.
     \item[2.] If the channel power < $threshold$, channel is free, send the packet. If the channel power > $threshold$, channel is blocked, go to step 3. 
