@@ -9,8 +9,8 @@
 \BOOKMARK [2][]{subsection.3.1}{III-A\040The\040Packet\040Structure}{section.3}% 9
 \BOOKMARK [2][]{subsection.3.2}{III-B\040ACK\040and\040retrasmission}{section.3}% 10
 \BOOKMARK [2][]{subsection.3.3}{III-C\040CRC}{section.3}% 11
-\BOOKMARK [2][]{subsection.3.4}{III-D\040The\040macperf\040Utility}{section.3}% 12
-\BOOKMARK [2][]{subsection.3.5}{III-E\040The\040macping\040Utility}{section.3}% 13
+\BOOKMARK [2][]{subsection.3.4}{III-D\040MacPerf}{section.3}% 12
+\BOOKMARK [2][]{subsection.3.5}{III-E\040MacPing}{section.3}% 13
 \BOOKMARK [2][]{subsection.3.6}{III-F\040CSMA}{section.3}% 14
 \BOOKMARK [1][]{section.4}{IV\040Project\0403:\040NAT}{}% 15
 \BOOKMARK [2][]{subsection.4.1}{IV-A\040Connecting\040to\040Internet\040through\040NAT}{section.4}% 16
