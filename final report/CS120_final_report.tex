@@ -38,20 +38,20 @@ implement part of NAT for Internet transmission.
 
 \section{Project 1: Acoustic Connection}
 
-In this project, we work on physical layer of Athernet. we choose ASIO, a computer sound card driver protocol for digital audio that provides a low-latency and high fidelity
+In this project, we work on physical layer of Athernet. We choose ASIO, a computer sound card driver protocol for digital audio that provides a low-latency and high fidelity
 interface between a software application and a computer's sound card to generate and receive sound wave, and develop our project based 
-on JUCE, a C++ application framework which provides powerful support for audio transmission. We encode the transfering bitstream as samples 
+on JUCE, a C++ application framework which provides powerful support for audio transmission. We encode the transferring bitstream as samples 
 of sound wave by PSK method, packed with header wave as a physical layer frame. As a result, we successfully transmit 10000 bits by our own microphone and speaker in 15 seconds
-with acuuracy of 100 percent. However, the transmission is fragile and susceptible to noise from surrouding.
+with accuracy of 100 percent. However, the transmission is fragile and susceptible to noise from surrounding.
 
 \subsection{Modulation}
 
 We choose PSK to modulate bitstream. In original design (without OFDM), we use the wave $1 \times cos(2\pi \times 5000 x)$ to represent 1, and
-$  1 \times cos(2\pi \times 5000 x + \pi) = -cos(2\pi \times 5000 x)$ to represent 0. We choose the sample rate of 48000Hz, and by fully test the hardwares, 
+$  1 \times cos(2\pi \times 5000 x + \pi) = -cos(2\pi \times 5000 x)$ to represent 0. We choose the sample rate of 48000Hz, and by fully test the hardware, 
 we find that 400 bits per frame and 48 samples per bit best fit our devices, giving consideration of both accuracy and bandwidth.
 
 As for header wave, it is also a sin wave that start with frequency 200Hz, and continuously increases its frequency until 10000Hz, and after that, its
-frequency decreses at the same speed to 2000Hz, which is shown in Fig.1
+frequency decreases at the same speed to 2000Hz, which is shown in Fig.1
 
 \begin{figure}[!h]
 	\centering
@@ -60,9 +60,9 @@ frequency decreses at the same speed to 2000Hz, which is shown in Fig.1
 	\end{figure}
 
 \subsection{{Demodulation}}
-    For demodulation, we have two state for processing the audio samples: the header synchronization stae and the data processing state.
+    For demodulation, we have two states for processing the audio samples: the header synchronization state and the data processing state.
 \subsubsection{Header Synchronization State}
-    In header synchronization state, we first wait unitil enough samples arrive(i.e the length of the pre-defined header). Once we get enough samples, we use the \textbf{SyncPower}
+    In header synchronization state, we first wait until enough samples arrive(i.e. the length of the pre-defined header). Once we get enough samples, we use the \textbf{SyncPower}
     to detect the header. We define $$SyncPower = \sum_{i}^{Headerlength} Header[i] \cdot Samples[i]$$
     so that the SyncPower will be the largest when the header is detected(as for every $i$, $Header[i] = Samples[i]$).
 
@@ -85,14 +85,14 @@ frequency decreses at the same speed to 2000Hz, which is shown in Fig.1
 \subsection{Higher bandwidth: OFDM}
 
 OFDM is a method to encode bits on multiple carrier frequencies. 'O' is orthogonal, and if we use two or more sin waves to transmit simultaneously,
-the superimposed wave is able to carry information from all channels, as long as they are orthogonal. A simplest orthogonal case is $cos(x)$ and $cos(2x)$,
+the superimposed wave is able to carry information from all channels, as long as they are orthogonal. A simple orthogonal case is $cos(x)$ and $cos(2x)$,
 which can modulate two channels information in the form of 
 \[
     A(\text{bit}_1 \times 2 - 1)cos(fx) + B(\text{bit}_2 \times 2 - 1)cos(2fx)\\
 \]
-and in this case we can trnasmit 2 bits at once. In other words, the bandwidth doubles. 
+and in this case we can transmit 2 bits at once. In other words, the bandwidth doubles. 
 
-In demodulate stage, we multiply the received waves with two carrier waves, and therefore decode two coreespoding bits.
+In demodulate stage, we multiply the received waves with two carrier waves, and therefore decode two corresponding bits.
 In practice, we adopt a more reliable approach for the case of two frequencies. Firstly, 4 carrier waves are generated at the
 very beginning, they are:
 \[
@@ -107,10 +107,10 @@ and each of them is corresponding to a digit of 0,1,2,3. Then, we multiply each 
 bits as the corresponding digits of the waves.
 \section{Project 2: Multiple Access}
 
-In project two, our hardware devices change from commercial speakers and microphones to sound cards and calbles, which allows us to transmit in baseband and use a few samples to 
+In project two, our hardware devices change from commercial speakers and microphones to sound cards and cables, which allows us to transmit in baseband and use a few samples to 
 encode a bit (we choose 3 samples per bit), and we mainly work on MAC layer of Athernet. We redesign the frame header, adding src\_addr, dst\_addr, sequence number, type, length fields,
-as well as a CRC checksum. For Athernet nodes, we establish a state-machine for each node, using multithreding to achieve transmitting and receiving at same time, and also ACK and retransmission
-mechanism. We also support MacPing and MacPerf command to test the latency and bandwith of Athernet. Finally, to avoid conflict, we implement CSMA to detect the channel and backoff when transmission or noise detected.
+as well as a CRC checksum. For Athernet nodes, we establish a state-machine for each node, using multithreading to achieve transmitting and receiving at same time, and also ACK and retransmission
+mechanism. We also support MacPing and MacPerf command to test the latency and bandwidth of Athernet. Finally, to avoid conflict, we implement CSMA to detect the channel and back off when transmission or noise detected.
 
 \subsection{The Packet Structure}
 
@@ -118,21 +118,21 @@ In the packet, we reserve some bits to store necessary fields.
 \begin{itemize}
 \item The first 8 bits are type filed, i.e. the type of this packet, such as data frame, MacPing(request, reply), MacPerf, ACK...
 \item The second 8 bits are sequence number field, which is essential for ACK and retransmission.
-\item The thrid 8 bits are dst\_addr field. 
+\item The third 8 bits are dst\_addr field. 
 \item The fourth 8 bits are src\_addr field.
 \item The fifth 8 bits are length filed, which tells the length of the frame's data.
 \end{itemize}
 
-\subsection{ACK and retrasmission}
+\subsection{ACK and retransmission}
 
 ACK and retransmission are fundamental to achieve a reliable transmission. Due to the fragileness of hardware transmission, packets in 
 Athernet suffer from a series of failure, like lost in cable and reversal for bits. Take data packets for example, when Athernet nodes receive
-a data packet with sequence number $K$ and its CRC checkusm is 'good', the receiver node will reply an ACK packet with sequence number $K$, and when the
-trasmitting node receive the ACK of this packet, the transmission of packet $K$ is treated as successfully, else retransmission is needed. Retransmission occurs
+a data packet with sequence number $K$ and its CRC checksum is 'good', the receiver node will reply an ACK packet with sequence number $K$, and when the
+transmitting node receive the ACK of this packet, the transmission of packet $K$ is treated as successfully, else retransmission is needed. Retransmission occurs
 in four situations,
 \begin {itemize}
 \item The data packet is lost, i.e. the receiver does not receive packet $K$.
-\item some bits are changed during the transmission, i.e. the CRC check does not pass.
+\item Some bits are changed during the transmission, i.e. the CRC check does not pass.
 \item The ACK packet is lost.
 \item Both data packet and ACK packet are transmitted correctly, but timeout occurs.
 \end {itemize}
@@ -140,7 +140,7 @@ In transmitting node, we either maintain a thread pool that keeps the duration o
 in C++, or just iteratively check the duration in sending thread. When timeout occurs, the transmitting thread abort the previous transmission and retransmit the aborted packet.
 
 For data transmission in project 2, we found that stop-and-wait strategy does not meet the requirement in performance, so for the relatively small data file, we just transmit all
-packets at beginnning, and after receiving ACK packets, it continuously transmit the rest packets without ACK replies, until all packets are successfully transmitted.
+packets at beginning, and after receiving ACK packets, it continuously transmits the rest packets without ACK replies, until all packets are successfully transmitted.
 
 \subsection{CRC}
 To ensure the correctness of transmission, we introduce CRC check. We choose CRC8 with CRC polynomials
@@ -149,17 +149,17 @@ To ensure the correctness of transmission, we introduce CRC check. We choose CRC
 \]
 We compute the CRC checksum when constructing data packets, appending the result in the end of packets, and in receiver node, we recompute the CRC checksum with same algorithm and compare with the appended one to do the correctness check.
 \subsection{The \textsf{macperf} Utility}
-We implementation perf packet in MAC layer, which is a utility to measure the throughput of Athernet. We design the MACperf packet with almost same header as data packet(no length field), and transmit 1000 random bits as 
+We implement perf packet in MAC layer, which is a utility to measure the throughput of Athernet. We design the MACperf packet with almost same header as data packet(no length field), and transmit 1000 random bits as 
 payload for each MACperf packet. The MACperf controller sends packets with best effort, while counting the ACK received each second, and print the measured throughput on the screen.
 
 \subsection{MacPing}
 
 We also implement ping packet in MAC layer to measure the latency. The MacPing packets' header is same as MacPerf packets, but the random payload is only a byte long.
 
-When node1 tries to do the MacPing meausrement to node2, it sends one MacPing request packet per second, and begin a timer when the request packet is delivered to physical layer. For node2, the MacPing request packet is replied
+When node1 tries to do the MacPing measurement to node2, it sends one MacPing request packet per second, and begin a timer when the request packet is delivered to physical layer. For node2, the MacPing request packet is replied
 as soon as possible with a MacPing reply packet, and when node1 receive the MacPing reply packet, it stops the corresponding timer, printing the duration which is just the RTT of the packet.
 
-Note that in both MacPerf and MacPing packets, adrress is taken into consideration and need to be handled carefully.
+Note that in both MacPerf and MacPing packets, address is taken into consideration and need to be handled carefully.
 
 \subsection{{CSMA}}
 As the jamming source is added, the ather node can only transmit packets when the channel is free (i.e the jamming source is not playing noise and other nodes are not sending packets)
@@ -183,8 +183,8 @@ $node2$ denotes the NAT node, $node3$ denotes the Internet node.
 \begin{enumerate}
     \item [1.] $node1$ reads the file that needs to be transmitted and also get the destination ip address. Then $node1$ packs the data and ip address to frames and send it to $node2$ through Athernet.
     \item [2.] Once $node2$ receives a frame, it creates a notify file named $NOTIFY\_DONE.txt$, and write the frame to a file $output.txt$. When python program checks that $NOTIFY\_DONE.txt$ exists,
-                it immedately reads the ip address and data contained in the frame. Then $node2$ packs data in a UDP packet and send it to the destination ip address (i.e $node3$ address) through Internet.
-    \item [3.] Once $node3$ receives the UDP packet, it reads the source address and the data in it, and write the data to the outputfile.            
+                it immediately reads the ip address and data contained in the frame. Then $node2$ packs data in a UDP packet and send it to the destination ip address (i.e $node3$ address) through Internet.
+    \item [3.] Once $node3$ receives the UDP packet, it reads the source address and the data in it, and write the data to the output file.            
 \end{enumerate}
 To transmit data from Internet node to another node, the procedure is as below.
 \begin{enumerate}
@@ -192,17 +192,17 @@ To transmit data from Internet node to another node, the procedure is as below.
                through Internet.
     \item [2.] Once $node2$ receives the UDP packet, it reads the source address and data in the packet. Then $node2$ write the source address and data in a frame and write it to a file $input.bin$. Then python creates a temporary
     file named $WRITE\_DOWN.txt$. When C++ checks that $WRITE\_DOWN.txt$ exists, it reads $input.bin$ and send the ip address and data to $node1$ through Athernet.
-    \item [3.] Once $node1$ receives the frame, it reads the source ip address and the data in it, and write the data to the outputfile.
+    \item [3.] Once $node1$ receives the frame, it reads the source ip address and the data in it, and write the data to the output file.
 \end{enumerate}
 \subsection{ICMP ping}
 An important feature of Athernet is it supports ICMP ping between Athernet and Internet. We implement both ping from Athernet devices to Internet devices and vice versa (ping from external devices). The working flow of
 ping from Athernet devices is ($node1$, $node2$ and $node3$ are specified in last section):
 \begin{itemize}
     \item $node1$ translates $node3$'s IP address into bits, creates ICMP request packet, and starts a timer.
-    \item $node1$ delivere the packet to physical layer and transmit it to $node2$.
+    \item $node1$ deliver the packet to physical layer and transmit it to $node2$.
     \item $node1$ check the packet's TYPE field, and if it is a ICMP ping request, $node2$ translate the IP address and write it to a notifying file.
-    \item $node2$'s python process detects the file, reads the IP address and sends a Internet ICMP ping request packet to $node3$.
-    \item $node3$ automaticly reply with ICMP ping reply packet.
+    \item $node2$'s python process detects the file, reads the IP address and sends an Internet ICMP ping request packet to $node3$.
+    \item $node3$ automatically reply with ICMP ping reply packet.
     \item $node2$'s python process receive the reply, and notify C++ process to continue.
     \item $node2$ creates and sends an ICMP ping reply packet to node1.
     \item $node1$ receives the packet and counts the duration.
@@ -220,7 +220,7 @@ The working flow of ping from external is basically similar, but we need more op
     In project 4, we implement an FTP client on Athernet.
     Our client is able to support commands including USER, PASS,
     PWD, CWD, PASV, LIST and RETR. However, due to time limitation and having
-    problem understanding FTP RFC file, we did not manage to finish the part2 of this project, i.e
+    problem understanding FTP RFC file, we did not manage to finish the part2 of this project, i.e.
     our FTP client send commands locally on NAT node instead of directly from ather node.
 
     The working flow of processing FTP commands is as below, where $node1$ denotes the ather node,
@@ -229,7 +229,7 @@ The working flow of ping from external is basically similar, but we need more op
     \begin{enumerate}
         \item [1.] $node1$ reads the FTP command from terminal and pack the command into a frame, then send it
         to $node2$ through Athernet.
-        \item [2.] $node2$ receives the data frame from node1, then decode the command type and read the extra information (username, password, file path,etc)
+        \item [2.] $node2$ receives the data frame from node1, then decode the command type and read the extra information (username, password, file path, etc)
         Then it will process the command locally and send request to the FTP server.
         \item [3.] Once $node2$ receives the reply from FTP server, it packs the response information into data frames and send it to $node1$ through Athernet.
         And if the command is RETR, $node2$ will first download the file on disk, then pack the file into frames and send it to $node1$ through Athernet.  
