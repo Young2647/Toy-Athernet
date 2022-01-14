@@ -20,11 +20,11 @@
 
 \begin{document}
 
-\title{Athernet: A Toy Network}
+\title{CS120 Project : Athernet}
 \author{%
-\IEEEauthorblockN{Yifan Cao \qquad Weitian Wang}
+\IEEEauthorblockN{Hongdi Yang \qquad Yibo Zhao}
 \IEEEauthorblockA{ShanghaiTech University \\
-\texttt{\char`\{\Email{caoyf}, \Email{wangwt}\char`\}@shanghaitech.edu.cn}}
+\texttt{\char`\{\Email{yanghd}, \Email{zhaoyb1}\char`\}@shanghaitech.edu.cn}}
 }
 \maketitle
 
@@ -32,7 +32,7 @@
 
 As the project for CS120, We implement Athernet, a toy net that uses acoustic signal or sound to transmit information through the 
 audio connection. We implemented the physical layer and MAC layer of the network. We also implemented a NAT for
-Athernet to make it communicate with internet and an FTP client for Athernet nodes on UDP protocol so we can download files 
+Athernet to make it communicate with internet. Last, we implemented an FTP client for Athernet nodes on UDP protocol so we can download files 
 for the off-net Athernet node via the audio connection. In this project, we use C++ for Athernet implementation and use python to
 implement part of NAT for Internet transmission.
 
@@ -46,8 +46,8 @@ with acuuracy of 100 percent. However, the transmission is fragile and susceptib
 
 \subsection{Modulation}
 
-We choose PSK to modulate bitstream. In original design (without OFDM), we use the wave $1 \times cos(2\pi \times 5000 x + \pi)$ to represent 1, and
-$  1 \times cos(2\pi \times 5000 x) = -cos(2\pi \times 5000 x)$ to represent 0. We choose the sample rate of 48000Hz, and by fully test the harwares, 
+We choose PSK to modulate bitstream. In original design (without OFDM), we use the wave $1 \times cos(2\pi \times 5000 x)$ to represent 1, and
+$  1 \times cos(2\pi \times 5000 x + \pi) = -cos(2\pi \times 5000 x)$ to represent 0. We choose the sample rate of 48000Hz, and by fully test the harwares, 
 we find that 400 bits per frame and 48 samples per bit best fit our devices, giving consideration of both accuracy and bandwidth.
 
 As for header wave, it is also a sin wave that start with frequency 200Hz, and continuously increases its frequency until 10000Hz, and after that, its
@@ -59,46 +59,29 @@ frequency decreses at the same speed to 2000Hz, which is shown in Fig.1
 	\caption{header wave}\label{}
 	\end{figure}
 
-\subsection{\tcr{Demodulation}}
+\subsection{{Demodulation}}
+    For demodulation, we have two state for processing the audio samples: the header synchronization stae and the data processing state.
+\subsubsection{Header Synchronization State}
+    In header synchronization state, we first wait unitil enough samples arrive(i.e the length of the pre-defined header). Once we get enough samples, we use the \textbf{SyncPower}
+    to detect the header. We define $$SyncPower = \sum_{i}^{Headerlength} Header[i] \cdot Samples[i]$$
+    so that the SyncPower will be the largest when the header is detected(as for every $i$, $Header[i] = Samples[i]$).
 
-We use an algorithm to demodulate the audio samples to bits. There are two states: synchronizing and decoding.
+    Considering possible noises, we also use \textbf{ChannelPower} to detect the local power in channels. We define
+    $$ChannelPower = ChannelPower\cdot (1 - \frac{1}{64}) + sample^2 \cdot \frac{1}{64}$$
+    which gives an approximate current power in channels. And we will only accept the header if the \textbf{SyncPower} > \textbf{ChannelPower}.
 
-\subsubsection{Synchronization}
+    Once we detect the header, we will also wait for another 500 samples to make sure the \textbf{SyncPower} we find is the largest, indicating the header found is correct.
+\subsubsection{Data Processing State}
+    In data processing state, we first decode the length field to know how many samples we need to process the data.
+    Then we wait until enough samples arrive.
 
-In the synchronizing state, the program is reading the samples and finds if a header arrives. If it ensures that it hears a header, it switches to the decoding state with the accurate start of this frame recorded.
+    Once we get enough samples, we start to decode every bit. As in Modulation, we use the wave $1 \times cos(2\pi \times 5000 x)$ to represent 1, and
+    $  1 \times cos(2\pi \times 5000 x + \pi) = -cos(2\pi \times 5000 x)$ to represent 0. Then we calculate 
+    $$bitsum = \sum_{i}^{N}cos(\frac{2\pi \times 5000 i}{sampleRate}) \cdot bitsamples[i] $$
+    where $N$ is the number of samples per bit. And if the bit we receive is 1, $bitsum$ should be positive. If the bit we receive is 0, then the $bitsum$
+    should be negative.
 
-When synchronizing, we are looking at a number of samples, which is as many as that of a header. We expect to decide how much could these samples fit the header. A variable \textsf{syncPower} is used to estimate the goodness of fit. Given header $H$ and samples $S$ with length $N$, this value is defined as
-\[
-\textsf{syncPower} = \sum_{i=1}^N H_i \cdot S_i.
-\]
-The larger \textsf{syncPower} is, the better the samples fit the header. We set a threshold value that \textsf{syncPower} must exceed if the samples are considered as a header. We use a variable called \textsf{maxSyncPower} which records the maximum \textsf{syncPower} value that exceeds the threshold in the near past. If \textsf{maxSyncPower} has not been changed for a period of time, and the current value of it does exceed the threshold, we conclude that the time \textsf{maxSyncPower} appears is exactly the accurate start of the packet. Here we need to wait for a period of time, in case the best fit is used.
-
-To be stricter, we apply an additional strategy to the synchronization algorithm. When we arrive at the header at some time, the \textsf{syncPower} should be obviously large than that of even 1 sample deviation. Taking advantage of this feature, we allow the update of \textsf{maxSyncPower} only if the \textsf{syncPower} exceeds a fixed multiple of \textsf{power}, which roughly estimates the power of the recent samples. Initially it is $0$, and it is updated according to the equation
-\[
-\textsf{power}_i = \frac{63}{64} \cdot \textsf{power}_{i-1} + \frac{S_i^2}{64},
-\]
-where $i$ is the sample number and $S_i$ is the sample value. In this equation, the most recent sample $S_i$ is merged into \textsf{power} with ratio $1/64$, while the previous \textsf{power} is reduced to $63/64$ of the original, since it represents some older values.
-
-\subsubsection{Decoding}
-
-In the decoding state, the program has already found the start of this frame. If a bit is represented by $s$ samples, and this frame includes $n$ bits, the number of samples we should receive after the header is $n \cdot s$. We split the samples into groups of length $s$, where each group contains samples that represent a common bit. These samples should roughly have the form
-\[
-s(t) =
-\begin{cases}
-A\sin(2\pi f_ct), & \text{binary 1}, \\
-A\sin(2\pi f_ct + \pi), & \text{binary 0},
-\end{cases}
-\]
-which is similar to those the sender generates. To decode the samples, multiply their values with $A\sin(2\pi f_ct)$. The form then becomes
-\[
-s(t) =
-\begin{cases}
-A\sin^2(2\pi f_ct), & \text{binary 1}, \\
--A\sin^2(2\pi f_ct), & \text{binary 0}.
-\end{cases}
-\]
-In other words, if the bit is $1$, the values should chiefly be positive, otherwise negative. We sum these values up, and conclude the bit is $1$ if the sum is positive, and $0$ otherwise.
-
+    After processing all bits we receive, we get the data from the sender now.
 \subsection{Higher bandwidth: OFDM}
 
 OFDM is a method to encode bits on multiple carrier frequencies. 'O' is orthogonal, and if we use two or more sin waves to transmit simultaneously,
@@ -107,7 +90,7 @@ and we can modulate two channels information in the form of
 \[
     A(\text{bit}_1 \times 2 - 1)cos(fx) + B(\text{bit}_2 \times 2 - 1)cos(2fx)\\
 \]
-and in this case we can trnasmit 2 bits at once. In other words, the bandwidth doubles.
+and in this case we can trnasmit 2 bits at once. In other words, the bandwidth doubles. 
 
 In demodulate stage, we multiply the received waves with two carrier waves, and therefore decode two coreespoding bits.
 In practice, we adopt a more reliable approach for the case of two frequencies. Firstly, 4 carrier waves are generated at the
@@ -178,13 +161,13 @@ as soon as possible with a MacPing reply packet, and when node1 receive the MacP
 
 Note that in both MacPerf and MacPing packets, adrress is taken into consideration and need to be handled carefully.
 
-\subsection{\tcr{CSMA}}
-
-Since it is possible that the channel (i.e. audio cable) is used by someone else, sending a packet may fail. To avoid this, we listen to the channel before we send a packet. The protocol is as follows.
+\subsection{{CSMA}}
+When the jamming source is added, the ather node can only transmit packets when the channel is free (i.e the jamming source is not playing noise)
+To achieve this, we need to do CSMA, i.e listening if the channel is blocked when the ather node wants to transmit a packet. We use the following procedure.
 \begin{itemize}
-\item Initialize the safe bit to false.
-\item At a given time, the packet detection thread reads the \textsf{power} value. If it exceeds a threshold value, someone else is using this channel, and set the safe bit to false. Otherwise, set it to true.
-\item When a thread wants to send a packet (a normal one or an ACK), it checks the safe bit. If it is false, wait (\emph{back off}) for a few milliseconds and check the safe bit again, until this bit is true and then it may send a packet since the channel is considered free.
+    \item[1.] Detect the current channel power.
+    \item[2.] If the channel power < $threshold$, channel is free, send the packet. If the channel power > $threshold$, channel is blocked, go to step 3. 
+    \item[3.] back off for some time, then go back to step 1.
 \end{itemize}
 
 \section{Project 3: NAT}
@@ -192,22 +175,25 @@ Since it is possible that the channel (i.e. audio cable) is used by someone else
 In project three, we build a gateway for the Athernet and in this way, Athernet devices is able to communicate with Internet. With NAT, we successfully transmit data by UDP packet between Athernet nodes and Internet. 
 We further support ICMP protocol packets so that Athernet devices can ping Internet devices, and vice versa. In our project, the ping latency is about 140ms.
 
-\subsection{\tcr{Forwarding packets between Athernet and Internet}}
+\subsection{Connecting to Internet through NAT}
 
-We use different languages to establish connections in the Athernet and Internet. For the gateway, we need to share data between the two connections, so we use temporary files on the disk. To send a packet from Athernet to Internet, the working flow is as follows.
-\begin{itemize}
-\item $A$ sends a packet to $B$ via the Athernet.
-\item The Athernet connection of $B$ stores the packet to a file $F$, and creates a notification file \textsf{ATH\_NOTIFY} in the current directory.
-\item The Internet connection of $B$ has a thread waiting for the notification file from the Athernet, \textsf{ATH\_NOTIFY}. As soon as it finds this file in the current directory, it deletes it, changes the source of this packet to $B$, and sends the packet in $F$ to the destination (i.e. $C$), which is also specified in the packet.
-\end{itemize}
-
-To send a packet from Internet to Athernet, the working flow is as follows.
-\begin{itemize}
-\item $C$ sends a packet to $B$ via the Internet.
-\item The Athernet connection of $B$ stores the packet to a file $F'$, and creates a notification file \textsf{INT\_NOTIFY} in the current directory.
-\item The Athernet connection of $B$ has a thread waiting for the notification file from the Internet, \textsf{INT\_NOTIFY}. As soon as it finds this file in the current directory, it deletes it and sends the packet in $F'$ to the destination (i.e. $A$), which is also specified in the packet.
-\end{itemize}
-
+As we implement Ather Node with C++, and NAT protocol with python, we create temporary files to share the network packets
+between the two languages. We transmit packets from ather node to Internet node with following procedure, where $node1$ denotes the ather node,
+$node2$ denotes the NAT node, $node3$ denotes the Internet node.
+\begin{enumerate}
+    \item [1.] $node1$ reads the file that needs to be transmitted and also get the destination ip address. Then $node1$ packs the data and ip address to frames and send it to $node2$ through Athernet.
+    \item [2.] Once $node2$ receives a frame, it creates a notify file named $NOTIFY\_DONE.txt$, and write the frame to a file $output.txt$. When python program checks that $NOTIFY\_DONE.txt$ exists,
+                it immedately reads the ip address and data contained in the frame. Then $node2$ packs data in a UDP packet and send it to the destination ip address (i.e $node3$ address) through Internet.
+    \item [3.] Once $node3$ receives the UDP packet, it reads the source address and the data in it, and write the data to the outputfile.            
+\end{enumerate}
+To transmit data from Internet node to ather node, the procedure is as below.
+\begin{enumerate}
+    \item [1.] $node3$ reads the file that needs to be transmitted and also get the destination ip address. Then node3 packs the data in a UDP packet and send the packet to $node2$
+               through Internet.
+    \item [2.] Once $node2$ receives the UDP packet, it reads the source address and data in the packet. Then $node2$ write the source address and data in a frame and write it to a file $input.bin$. Then python creates a temporary
+    file named $WRITE\_DOWN.txt$. When C++ checks that $WRITE\_DOWN.txt$ exists, it reads $input.bin$ and send the ip address and data to $node1$ through Athernet.
+    \item [3.] Once $node1$ receives the frame, it reads the source ip address and the data in it, and write the data to the outputfile.
+\end{enumerate}
 \subsection{ICMP ping}
 An important feature of Athernet is it support ICMP ping between Athernet and Internet. We implement both ping from Athernet devices to Internet devices and vice versa (ping from external devices). The working flow of
 ping from Athernet devices is (here we specify node1 is the Athernet node, node2 is the NAT node, and node3 is an internet device):
@@ -230,33 +216,27 @@ The working flow of ping from external is basically similar, but we need more op
 \end{itemize}
 
 
-\section{\tcr{Project 4: FTP}}
+\section{{Project 4: FTP}}
+    In project 4, we implement an FTP client on Athernet.
+    Our client is able to support commands including USER, PASS,
+    PWD, CWD, PASV, LIST and RETR. However, due to time limitation and having
+    problem understanding FTP RFC file, we did not manage to finish the part2 of this project, i.e
+    our FTP client send commands locally on NAT node instead of directly from ather node.
 
-In this project, we implement an Athernet client of the \emph{file transfer protocol} (FTP), so that the user may retrieve files from the Internet. This depends on the gateway implemented in the last project.
-
-The Athernet client node may specify the address of the FTP server, and is able to use FTP control commands. Among these commands, some simply sends short messages and receives short responses, such as \textsf{USER}, \textsf{PASS}, \textsf{PWD}, \textsf{CWD}, \textsf{PASV}. Some can initiate data transmission, such as \textsf{LIST}, \textsf{RETR}. In order to simplify the behavior, at the client side, \textsf{LIST} prints the data to \textsf{stdout}, and \textsf{RETR} saves the data as a file in the current directory.
-
-Assume that there are three nodes: $A$ (Athernet), $B$ (gateway), and $C$ (Internet). The working flow is as follows.
-\begin{itemize}
-\item $A$ specifies the address of the FTP server and tells $B$.
-\item $B$ establishes an Internet connection with $C$. If success, there may be a response from $C$.
-\item $B$ tells $A$ the connection result and optionally with the responses from $C$.
-\item $A$ prints a message saying if the connection is established or not, optionally with the response.
-\item $A$ sends the FTP control command to $B$.
-\item $B$ forwards the command to $C$.
-\item $C$ sends the response to $B$, optionally with data if the command is \textsf{LIST} or \textsf{RETR}.
-\item $B$ forwards the response to $A$, optionally with data.
-\item $A$ receives the response, optionally with data. If the command sent is \textsf{LIST}, print it out; if it is \textsf{RETR}, save to a file. Then it prints the response.
-\end{itemize}
-Note: All the packets in Athernet are sent under a stop-and-wait protocol. The next packet may be sent only if the ACK of the current packet is received.
-
+    The working flow of processing FTP commands is as below, where $node1$ denotes the ather node,
+    $node2$ denotes the NAT node (FTP client). And the communication between C++ and python is the same as that
+    in project3: NAT.
+    \begin{enumerate}
+        \item [1.] $node1$ reads the FTP command from terminal and pack the command into a frame, then send it
+        to $node2$ through Athernet.
+        \item [2.] $node2$ receives the data frame from node1, then decode the command type and read the extra information (username, password, file path,etc)
+        Then it will process the command locally and send request to the FTP server.
+        \item [3.] Once $node2$ receives the reply from FTP server, it packs the response information into data frames and send it to $node1$ through Athernet.
+        And if the command is RETR, $node2$ will first download the file on disk, then pack the file into frames and send it to $node1$ through Athernet.  
+    \end{enumerate}
 \clearpage
 
-\begin{thebibliography}{1}
-\bibitem{stan} Stanford University EE102B. \emph{Analog Transmission of Digital Data: ASK, FSK, PSK, QAM}. \url{https://web.stanford.edu/class/ee102b/contents/DigitalModulation.pdf}.
-\bibitem{stack} Stack Overflow. \emph{Translate CRC8 from C to Java}. \url{https://stackoverflow.com/questions/25284556/translate-crc8-from-c-to-java}.
-\bibitem{pysoc} Python 3.7.2 Documentation. \emph{\textsf{socket} --- Low-level networking interface}. \url{https://docs.python.org/3/library/socket.html}.
-\bibitem{ping} GitHub Gist. \emph{A pure python ping implementation using raw socket}. \url{https://gist.github.com/pklaus/856268}.
-\end{thebibliography}
+%\begin{thebibliography}{1}
+%\end{thebibliography}
 
 \end{document}
