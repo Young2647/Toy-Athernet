@@ -86,7 +86,7 @@ frequency decreses at the same speed to 2000Hz, which is shown in Fig.1
 
 OFDM is a method to encode bits on multiple carrier frequencies. 'O' is orthogonal, and if we use two or more sin waves to transmit simultaneously,
 the superimposed wave is able to carry information from all channels, as long as they are orthogonal. A simplest orthogonal case is $cos(x)$ and $cos(2x)$,
-and we can modulate two channels information in the form of 
+which can modulate two channels information in the form of 
 \[
     A(\text{bit}_1 \times 2 - 1)cos(fx) + B(\text{bit}_2 \times 2 - 1)cos(2fx)\\
 \]
@@ -152,7 +152,7 @@ We compute the CRC checksum when constructing data packets, appending the result
 We implementation perf packet in MAC layer, which is a utility to measure the throughput of Athernet. We design the MACperf packet with almost same header as data packet(no length field), and transmit 1000 random bits as 
 payload for each MACperf packet. The MACperf controller sends packets with best effort, while counting the ACK received each second, and print the measured throughput on the screen.
 
-\subsection{The \textsf{macping} Utility}
+\subsection{MacPing}
 
 We also implement ping packet in MAC layer to measure the latency. The MacPing packets' header is same as MacPerf packets, but the random payload is only a byte long.
 
@@ -172,7 +172,7 @@ To achieve this, we need to do CSMA, i.e listening if the channel is blocked bef
 
 \section{Project 3: NAT}
 
-In project three, we build a gateway for the Athernet and in this way, Athernet devices is able to communicate with Internet. With NAT, we successfully transmit data by UDP packet between Athernet nodes and Internet. 
+In project three, we build a gateway for the Athernet and in this way, Athernet devices are able to communicate with Internet. With NAT, we successfully transmit data by UDP packet between Athernet nodes and Internet. 
 We further support ICMP protocol packets so that Athernet devices can ping Internet devices, and vice versa. In our project, the ping latency is about 140ms.
 
 \subsection{Connecting to Internet through NAT}
@@ -186,7 +186,7 @@ $node2$ denotes the NAT node, $node3$ denotes the Internet node.
                 it immedately reads the ip address and data contained in the frame. Then $node2$ packs data in a UDP packet and send it to the destination ip address (i.e $node3$ address) through Internet.
     \item [3.] Once $node3$ receives the UDP packet, it reads the source address and the data in it, and write the data to the outputfile.            
 \end{enumerate}
-To transmit data from Internet node to ather node, the procedure is as below.
+To transmit data from Internet node to another node, the procedure is as below.
 \begin{enumerate}
     \item [1.] $node3$ reads the file that needs to be transmitted and also get the destination ip address. Then node3 packs the data in a UDP packet and send the packet to $node2$
                through Internet.
@@ -195,17 +195,17 @@ To transmit data from Internet node to ather node, the procedure is as below.
     \item [3.] Once $node1$ receives the frame, it reads the source ip address and the data in it, and write the data to the outputfile.
 \end{enumerate}
 \subsection{ICMP ping}
-An important feature of Athernet is it support ICMP ping between Athernet and Internet. We implement both ping from Athernet devices to Internet devices and vice versa (ping from external devices). The working flow of
-ping from Athernet devices is (here we specify node1 is the Athernet node, node2 is the NAT node, and node3 is an internet device):
+An important feature of Athernet is it supports ICMP ping between Athernet and Internet. We implement both ping from Athernet devices to Internet devices and vice versa (ping from external devices). The working flow of
+ping from Athernet devices is ($node1$, $node2$ and $node3$ are specified in last section):
 \begin{itemize}
-    \item node1 translates node3's IP address into bits, creates ICMP request packet, and starts a timer.
-    \item node1 delivere the packet to physical layer and transmit it to node2.
-    \item node2 check the packet's TYPE field, and if it is a ICMP ping request, node2 translate the IP address and write it to a notifying file.
-    \item node2's python process detects the file, reads the IP address and sends a Internet ICMP ping request packet to node3.
-    \item node3 automaticly reply with ICMP ping reply packet.
-    \item node2's python process receive the reply, and notify C++ process to continue.
-    \item node2 creates and sends an ICMP ping reply packet to node1.
-    \item node1 receives the packet and counts the duration.
+    \item $node1$ translates $node3$'s IP address into bits, creates ICMP request packet, and starts a timer.
+    \item $node1$ delivere the packet to physical layer and transmit it to $node2$.
+    \item $node1$ check the packet's TYPE field, and if it is a ICMP ping request, $node2$ translate the IP address and write it to a notifying file.
+    \item $node2$'s python process detects the file, reads the IP address and sends a Internet ICMP ping request packet to $node3$.
+    \item $node3$ automaticly reply with ICMP ping reply packet.
+    \item $node2$'s python process receive the reply, and notify C++ process to continue.
+    \item $node2$ creates and sends an ICMP ping reply packet to node1.
+    \item $node1$ receives the packet and counts the duration.
 \end{itemize}
 The working flow of ping from external is basically similar, but we need more operations like:
 \begin{itemize}
