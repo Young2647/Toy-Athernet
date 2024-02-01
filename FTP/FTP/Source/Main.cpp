@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
     dev_info = dev_manager.getAudioDeviceSetup();
     dev_info.sampleRate = 48000; // Setup sample rate to 48000 Hz
     dev_manager.setAudioDeviceSetup(dev_info, false);
-    int mode = MODE_FTP_NODE1;
+    int mode = MODE_FTP_NODE2;
     if (mode == MODE_UDP_NODE2_SEND)
     {
         std::cout << "Press any ENTER to start MAClayer.\n";
@@ -333,7 +333,7 @@ int main(int argc, char* argv[])
         std::cout << "Press any ENTER to start MAClayer.\n";
         getchar();
         std::unique_ptr<MAClayer> mac_layer;
-        int num_bits_per_frame = 688; // 86 bytes
+        int num_bits_per_frame = 448; // 56 bytes
         int num_frame = 30; //30 frames
         if (mac_layer.get() == nullptr)
         {

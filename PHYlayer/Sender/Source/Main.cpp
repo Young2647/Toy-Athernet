@@ -18,7 +18,6 @@ class Sender : public AudioIODeviceCallback, private HighResolutionTimer {
 public:
     Sender();
     void setHeaderLen(int len);
-    void setCarrierFreq(int freq);
     int** getBitStream();
     float* generateHeader();
     void Modulation(int* frame_bit);
@@ -71,10 +70,10 @@ Sender::Sender() {
     carrier_freq_B = 10000;
     carrier_phase = 0;
     carrier_amp = 1;
-    num_bits_per_frame = 200;
-    num_samples_per_bit = 48;
+    num_bits_per_frame = 100;
+    num_samples_per_bit = 96;
     len_zeros = 20;
-    num_frame = 50;
+    num_frame = 100;
     for (size_t i = 0; i < num_bits_per_frame/2 * num_samples_per_bit; i++)
         frame_wave.push_back(0);
     GenerateCarrierWave();
@@ -85,15 +84,12 @@ void Sender::setHeaderLen(int len) {
     header_len = len;
 }
 
-void Sender::setCarrierFreq(int freq) {
-    carrier_freq = freq;
-}
 
 int** Sender::getBitStream() {
     int** frame_bit = new int* [num_frame];
     ifstream f;
     char tmp;
-    f.open("C:\\Users\\zhaoyb\\Desktop\\CS120-Shanghaitech-Fall2021-main\\input.in");
+    f.open("C:\\CS120\\CS120-Shanghaitech-Fall2021\\input.in");
     for (int i = 0; i < num_frame; i++) {
         frame_bit[i] = new int[num_bits_per_frame];
         for (int j = 0; j < num_bits_per_frame; j++) {

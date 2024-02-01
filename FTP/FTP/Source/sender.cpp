@@ -116,7 +116,7 @@ int Sender::startSend()
     playingSampleNum = 0;
     isPlaying = true;
     int len_buffer = num_frame * len_frame;
-    output_buffer.setSize(1, 10 * (len_buffer + 480 + len_warm_up));
+    output_buffer.setSize(1, 500 * (len_buffer + 480 + len_warm_up));
     output_buffer.clear();
     for (int j = 0; j < 480; j++, output_buffer_idx++)
         output_buffer.setSample(0, j, carrier_wave[j % num_samples_per_bit]);

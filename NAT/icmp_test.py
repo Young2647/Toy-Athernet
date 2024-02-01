@@ -70,16 +70,18 @@ def waitNode1apply() :
 
     
 def pack_callback(pkt):
-    # print(pkt.show())
+    print(pkt.show())
     ip_payload = bytes(pkt['IP'].payload)
     ip_addr = str(pkt['IP'].src)
+    if pkt['ICMP'].type == 0:
+        return
     sendIptoNode1(socket.inet_aton(ip_addr))
-    waitNode1apply()
+    # waitNode1apply()
     send_ip_packet(ip_addr, ip_payload)
     print('sent')
 
 if __name__ == "__main__":
-    sniff(filter = 'icmp', prn=pack_callback, iface = 'WLAN 2', count=0)
+    sniff(filter = 'icmp', prn=pack_callback, iface = 'WLAN', count=0)
    
 
 
